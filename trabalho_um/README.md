@@ -6,7 +6,7 @@
 # Tema
 - Sistema de apoio à decisão para aprovação de crédito.
 
-# Descrição  
+# Descrição  do Projeto
 - Este é o Trabalho 1 de avaliação da disciplina EEL891 
 (Introdução ao Aprendizado de Máquina) para a turma do período 2024-2.
 
