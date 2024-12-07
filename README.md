@@ -1,2 +1,2 @@
 # machine_learning_projects
-Repositório para armazenar projetos de machine learning.
+- Repositório para armazenar meu projetos pessoais de machine learning.
