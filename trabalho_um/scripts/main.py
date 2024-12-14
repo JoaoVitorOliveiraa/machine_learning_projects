@@ -94,7 +94,7 @@ def porcentagem_de_inadimplencia_classe(data, feature, target='inadimplente'):
         data[feature] = data[feature].str.strip().replace('', 'N')
 
     # Exibindo a quantidade de cada categoria na coluna.
-    print(f"\n\n\t-----Categorias do atributo '{feature}'-----\n")
+    print(f"\n\n\t-----Categorias do feature '{feature}'-----\n")
     dicionario_feature = dict(data[feature].value_counts())
     print(data[feature].value_counts())
 
