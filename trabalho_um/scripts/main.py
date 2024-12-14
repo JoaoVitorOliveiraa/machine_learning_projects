@@ -10,6 +10,7 @@ import numpy as np
 import pandas as pd
 from pathlib import Path
 import matplotlib.pyplot as plt
+from pyexpat import features
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import confusion_matrix, precision_score, recall_score, accuracy_score, f1_score
@@ -17,7 +18,7 @@ from scipy.stats import pearsonr
 from sklearn.preprocessing import OneHotEncoder, OrdinalEncoder
 
 #------------------------------------------------------------------------------
-# Importar os conjuntos de dados de teste e treinamento (retirando as colunas dos id's)
+# Importar os conjuntos de teste e treinamento (retirando as colunas dos id's)
 #------------------------------------------------------------------------------
 
 caminho_conjunto_de_teste = Path('../data') / 'conjunto_de_teste.csv'
@@ -58,6 +59,58 @@ print(dados_treinamento["inadimplente"].value_counts())
 print("\n\n\t-----Resumo dos atributos numéricos-----\n")
 print(dados_treinamento.describe())
 
+# ------------------------------------------------------------------------------
+#  Substituindo espaços vazios do atributo 'sexo' por 'N'(não informado)
+# ------------------------------------------------------------------------------
+
+dados_treinamento['sexo'] = dados_treinamento['sexo'].str.strip().replace('', 'N')
+
+# ------------------------------------------------------------------------------
+#  Exibindo a quantidade de cada categoria do atributo "sexo"
+# ------------------------------------------------------------------------------
+
+print("\n\n\t-----Categorias do atributo 'sexo'-----\n")
+feature_sexo = dados_treinamento["sexo"]
+dicionario_sexo = dict(feature_sexo.value_counts())
+print(feature_sexo.value_counts())
+
+# ------------------------------------------------------------------------------
+#  Calculando a porcentagem de inadimplência do sexo feminino
+# ------------------------------------------------------------------------------
+
+print("\n\n\t-----Porcentagem de inadimplência do sexo 'feminino'-----\n")
+quantidade_f = dicionario_sexo["F"]
+quantidade_f_inadimplentes = dados_treinamento[feature_sexo=='F']['inadimplente'].sum()
+porcentagem_f_inadimplentes = (quantidade_f_inadimplentes/quantidade_f) * 100
+print(f"Quantidade Sexo Feminino: {(quantidade_f)}\n")
+print(f"Quantidade Sexo Feminino Inadimplente: {(quantidade_f_inadimplentes)}\n")
+print(f"Porcentagem Inadimplência: {(porcentagem_f_inadimplentes):.3f}%\n")
+
+# ------------------------------------------------------------------------------
+#  Calculando a porcentagem de inadimplência do sexo masculino
+# ------------------------------------------------------------------------------
+
+print("\n\n\t-----Porcentagem de inadimplência do sexo 'masculino'-----\n")
+quantidade_m = dicionario_sexo["M"]
+quantidade_m_inadimplentes = dados_treinamento[feature_sexo=='M']['inadimplente'].sum()
+porcentagem_m_inadimplentes = (quantidade_m_inadimplentes/quantidade_m) * 100
+print(f"Quantidade Sexo Masculino: {(quantidade_m)}\n")
+print(f"Quantidade Sexo Masculino Inadimplente: {(quantidade_m_inadimplentes)}\n")
+print(f"Porcentagem Inadimplência: {(porcentagem_m_inadimplentes):.3f}%\n")
+
+# ------------------------------------------------------------------------------
+#  Calculando a porcentagem de inadimplência do sexo não informado
+# ------------------------------------------------------------------------------
+
+print("\n\n\t-----Porcentagem de inadimplência do sexo 'não informado'-----\n")
+quantidade_n = dicionario_sexo["N"]
+quantidade_n_inadimplentes = dados_treinamento[feature_sexo=='N']['inadimplente'].sum()
+porcentagem_n_inadimplentes = (quantidade_n_inadimplentes/quantidade_n) * 100
+print(f"Quantidade Sexo Não Informado: {(quantidade_n)}\n")
+print(f"Quantidade Sexo Não Informado Inadimplente: {(quantidade_n_inadimplentes)}\n")
+print(f"Porcentagem Inadimplência: {(porcentagem_n_inadimplentes):.3f}%\n")
+
+
 #------------------------------------------------------------------------------
 # Separar o conjunto de treinamento em atributos e alvo, exibindo suas dimensões
 #------------------------------------------------------------------------------
@@ -67,14 +120,6 @@ print(dados_treinamento.describe())
 # print("\n\n\t-----Dimensões-----")
 # print(f"\nDimensão das features: {atributos.shape}")
 # print(f"Dimensão dos rótulos: {rotulos.shape}\n")
-
-#------------------------------------------------------------------------------
-# Exibir as colunas do dataset de treinamento
-#------------------------------------------------------------------------------
-
-colunas = dados_treinamento.columns
-print("\n\n\t-----Colunas disponíveis-----\n")
-print(colunas)
 
 #------------------------------------------------------------------------------
 # Exibir o coeficiente de Pearson de cada atributo (entre o mesmo e o alvo)
