@@ -44,12 +44,13 @@ print("\n\n\t-----Descrição dos dados do conjunto de treinamento-----\n")
 dados_treinamento.info()
 
 # ------------------------------------------------------------------------------
-#  Descobrindo quais categorias existem e quantos dígitos pertencem a cada
-#  categoria usando a função value_counts()
+#  Descobrindo quais categorias existem nas features e no alvo, além de quantos
+#  dígitos pertencem a cada categoria, usando a função value_counts()
 # ------------------------------------------------------------------------------
 
-print("\n\n\t-----Categorias do alvo, com suas respectivas quantidades-----\n")
-print(dados_treinamento["inadimplente"].value_counts())
+print("\n\n\t-----Categorias das features e do alvo, com suas respectivas quantidades-----\n")
+for feature in list(dados_treinamento.columns):
+    print("\n", dados_treinamento[feature].value_counts())
 
 # ------------------------------------------------------------------------------
 #  Resumo dos atributos numéricos do conjunto de treinamento através da
@@ -60,7 +61,17 @@ print("\n\n\t-----Resumo dos atributos numéricos-----\n")
 print(dados_treinamento.describe())
 
 # ------------------------------------------------------------------------------
-#  Substituindo espaços vazios do atributo 'sexo' por 'N'(não informado)
+#  Remoção de features inúteis
+#  grau_instrucao: Totalmente preenchida com zeros
+#  possui_telefone_celular: Totalmente preenchida com "N"
+#  qtde_contas_bancarias_especiais: Conteúdo idêntico à "qtde_contas_bancarias"
+# ------------------------------------------------------------------------------
+
+features_inuteis = ["grau_instrucao", "possui_telefone_celular", "qtde_contas_bancarias_especiais"]
+dados_treinamento.drop(features_inuteis, axis=1, inplace=True)
+
+# ------------------------------------------------------------------------------
+#  Substituindo espaços vazios do atributo 'sexo' por 'N' (não informado)
 # ------------------------------------------------------------------------------
 
 dados_treinamento['sexo'] = dados_treinamento['sexo'].str.strip().replace('', 'N')
