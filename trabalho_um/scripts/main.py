@@ -80,10 +80,46 @@ dados_treinamento['sexo'] = dados_treinamento['sexo'].str.strip().replace('', 'N
 #  Exibindo a quantidade de cada categoria do atributo "sexo"
 # ------------------------------------------------------------------------------
 
+
+# ------------------------------------------------------------------------------
+#  Criação de uma função para calcular a taxa de inadimplência de cada classe
+#  das features categóricas.
+# ------------------------------------------------------------------------------
+
+def porcentagem_de_inadimplencia_classe(data, feature, target='inadimplente'):
+    "Função que calcula a taxa de inadimplência de cada classe das features categóricas."
+
+    # Substituindo espaços vazios por 'N' (não informado), caso seja a feature "sexo".
+    if feature == "sexo":
+        data[feature] = data[feature].str.strip().replace('', 'N')
+
+    # Exibindo a quantidade de cada categoria na coluna.
+    print(f"\n\n\t-----Categorias do atributo '{feature}'-----\n")
+    dicionario_feature = dict(data[feature].value_counts())
+    print(data[feature].value_counts())
+
+    # Calculando e exibindo a porcentagem de inadimplência para cada categoria.
+    print(f"\n\n\t-----Porcentagem de inadimplência para as categorias da feature '{feature}'-----\n")
+    for categoria, quantidade in dicionario_feature.items():
+        quantidade_inadimplentes = data[data[feature] == categoria][target].sum()
+        porcentagem_inadimplentes = (quantidade_inadimplentes / quantidade) * 100
+        print(f"Categoria: {categoria}")
+        print(f"Quantidade Total: {quantidade}")
+        print(f"Quantidade Inadimplentes: {quantidade_inadimplentes}")
+        print(f"Porcentagem de Inadimplência: {porcentagem_inadimplentes:.3f}%\n")
+
+# # Lista de features categóricas para processar
+# features_categoricas = ['sexo', 'outra_feature', 'mais_uma_feature']
+#
+# # Processar cada feature categórica
+# for feature in features_categoricas:
+#     processar_feature_categorica(dados_treinamento, feature)
+
 print("\n\n\t-----Categorias do atributo 'sexo'-----\n")
 feature_sexo = dados_treinamento["sexo"]
 dicionario_sexo = dict(feature_sexo.value_counts())
 print(feature_sexo.value_counts())
+
 
 # ------------------------------------------------------------------------------
 #  Calculando a porcentagem de inadimplência do sexo feminino
