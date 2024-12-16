@@ -71,30 +71,39 @@ features_inuteis = ["grau_instrucao", "possui_telefone_celular", "qtde_contas_ba
 dados_treinamento.drop(features_inuteis, axis=1, inplace=True)
 
 # ------------------------------------------------------------------------------
-#  Substituindo espaços vazios do atributo 'sexo' por 'N' (não informado)
+#  Criação de uma função para calcular a tranformar as classes binárias 'N' e 'Y'
+#  em 0 e 1, respectivamente."
 # ------------------------------------------------------------------------------
 
-dados_treinamento['sexo'] = dados_treinamento['sexo'].str.strip().replace('', 'N')
+def transformar_yes_no_em_1_0 (data, feature):
+    "Função que tranforma as classes binárias 'N' e 'Y' em 0 e 1, respectivamente."
+
+    data[feature] = data[feature].str.strip().str.upper()
+    data[feature] = data[feature].map({'Y': 1, 'N': 0}).astype(int)
 
 # ------------------------------------------------------------------------------
-#  Exibindo a quantidade de cada categoria do atributo "sexo"
+#  Tranformando as classes binárias 'N' e 'Y' em 0 e 1 de cada feature categórica
+#  que apresenta essas classes
 # ------------------------------------------------------------------------------
 
+features_com_classes_y_n = ['possui_telefone_residencial', 'vinculo_formal_com_empresa', 'possui_telefone_trabalho']
+for feature in features_com_classes_y_n:
+    transformar_yes_no_em_1_0(dados_treinamento, feature)
 
 # ------------------------------------------------------------------------------
 #  Criação de uma função para calcular a taxa de inadimplência de cada classe
 #  das features categóricas.
 # ------------------------------------------------------------------------------
 
-def porcentagem_de_inadimplencia_classe(data, feature, target='inadimplente'):
+def porcentagem_de_inadimplencia_das_classes(data, feature, target='inadimplente'):
     "Função que calcula a taxa de inadimplência de cada classe das features categóricas."
 
-    # Substituindo espaços vazios por 'N' (não informado), caso seja a feature "sexo".
+    # Substituindo espaços vazios por 'N' (não informado), caso a feature seja "sexo".
     if feature == "sexo":
         data[feature] = data[feature].str.strip().replace('', 'N')
 
     # Exibindo a quantidade de cada categoria na coluna.
-    print(f"\n\n\t-----Categorias do feature '{feature}'-----\n")
+    print(f"\n\n\t-----Categorias da feature '{feature}'-----\n")
     dicionario_feature = dict(data[feature].value_counts())
     print(data[feature].value_counts())
 
@@ -108,55 +117,19 @@ def porcentagem_de_inadimplencia_classe(data, feature, target='inadimplente'):
         print(f"Quantidade Inadimplentes: {quantidade_inadimplentes}")
         print(f"Porcentagem de Inadimplência: {porcentagem_inadimplentes:.3f}%\n")
 
-# # Lista de features categóricas para processar
-# features_categoricas = ['sexo', 'outra_feature', 'mais_uma_feature']
-#
-# # Processar cada feature categórica
-# for feature in features_categoricas:
-#     processar_feature_categorica(dados_treinamento, feature)
-
-print("\n\n\t-----Categorias do atributo 'sexo'-----\n")
-feature_sexo = dados_treinamento["sexo"]
-dicionario_sexo = dict(feature_sexo.value_counts())
-print(feature_sexo.value_counts())
-
-
 # ------------------------------------------------------------------------------
-#  Calculando a porcentagem de inadimplência do sexo feminino
+#  Calculando a taxa de inadimplência das classes de cada feature categórica
 # ------------------------------------------------------------------------------
 
-print("\n\n\t-----Porcentagem de inadimplência do sexo 'feminino'-----\n")
-quantidade_f = dicionario_sexo["F"]
-quantidade_f_inadimplentes = dados_treinamento[feature_sexo=='F']['inadimplente'].sum()
-porcentagem_f_inadimplentes = (quantidade_f_inadimplentes/quantidade_f) * 100
-print(f"Quantidade Sexo Feminino: {(quantidade_f)}\n")
-print(f"Quantidade Sexo Feminino Inadimplente: {(quantidade_f_inadimplentes)}\n")
-print(f"Porcentagem Inadimplência: {(porcentagem_f_inadimplentes):.3f}%\n")
-
-# ------------------------------------------------------------------------------
-#  Calculando a porcentagem de inadimplência do sexo masculino
-# ------------------------------------------------------------------------------
-
-print("\n\n\t-----Porcentagem de inadimplência do sexo 'masculino'-----\n")
-quantidade_m = dicionario_sexo["M"]
-quantidade_m_inadimplentes = dados_treinamento[feature_sexo=='M']['inadimplente'].sum()
-porcentagem_m_inadimplentes = (quantidade_m_inadimplentes/quantidade_m) * 100
-print(f"Quantidade Sexo Masculino: {(quantidade_m)}\n")
-print(f"Quantidade Sexo Masculino Inadimplente: {(quantidade_m_inadimplentes)}\n")
-print(f"Porcentagem Inadimplência: {(porcentagem_m_inadimplentes):.3f}%\n")
-
-# ------------------------------------------------------------------------------
-#  Calculando a porcentagem de inadimplência do sexo não informado
-# ------------------------------------------------------------------------------
-
-print("\n\n\t-----Porcentagem de inadimplência do sexo 'não informado'-----\n")
-quantidade_n = dicionario_sexo["N"]
-quantidade_n_inadimplentes = dados_treinamento[feature_sexo=='N']['inadimplente'].sum()
-porcentagem_n_inadimplentes = (quantidade_n_inadimplentes/quantidade_n) * 100
-print(f"Quantidade Sexo Não Informado: {(quantidade_n)}\n")
-print(f"Quantidade Sexo Não Informado Inadimplente: {(quantidade_n_inadimplentes)}\n")
-print(f"Porcentagem Inadimplência: {(porcentagem_n_inadimplentes):.3f}%\n")
-
+features_categoricas = ['produto_solicitado', 'forma_envio_solicitacao', 'tipo_endereco', 'sexo', 'estado_civil',
+                        'nacionalidade', 'estado_onde_nasceu', 'estado_onde_reside', 'possui_telefone_residencial',
+                        'tipo_residencia', 'possui_email', 'possui_cartao_visa', 'possui_cartao_mastercard',
+                        'possui_cartao_diners', 'possui_cartao_amex', 'possui_outros_cartoes', 'possui_carro',
+                        'vinculo_formal_com_empresa', 'estado_onde_trabalha', 'possui_telefone_trabalho', 'profissao',
+                        'ocupacao', 'profissao_companheiro', 'grau_instrucao_companheiro', 'local_onde_reside',
+                        'local_onde_trabalha']
+for feature in features_categoricas:
+    porcentagem_de_inadimplencia_das_classes(dados_treinamento, feature)
 
 #------------------------------------------------------------------------------
 # Separar o conjunto de treinamento em atributos e alvo, exibindo suas dimensões
