@@ -91,43 +91,60 @@ for feature in features_com_classes_y_n:
     transformar_yes_no_em_1_0(dados_treinamento, feature)
 
 # ------------------------------------------------------------------------------
-#  Criação de uma função para substituir o valor da string espaço ' ' em uma
-#  feature, e aplicação da mesma na feature "sexo'
+#  Criação de uma função para substituir o valor de uma classe em uma feature, e
+#  sua aplicação nas features 'sexo',
 # ------------------------------------------------------------------------------
 
-def substituir_espacos(data, feature, substituir):
-    "Função que substitui o valor da string espaço em uma feature."
+def substituir_valores_da_classe(data, features_list, old_value, new_value):
+    "Função que substitui o valor de uma classe em uma feature."
 
-    data[feature] = data[feature].str.strip().replace('', substituir)
+    for feature in features_list:
+        data[feature] = data[feature].str.strip().replace(old_value, new_value)
 
-substituir_espacos(dados_treinamento, "sexo", 'N')
+# Substituindo espaços vazios por 'N' (não informado), na feature 'sexo'.
+substituir_valores_da_classe(dados_treinamento, ["sexo"], '', 'N')
+
+# Dicionário onde as chaves e valores são as regiões do Brasil e listas com siglas de estados.
+dict_regioes_do_brasil = {'regiao_norte': ['AC', 'AP', 'AM', 'PA', 'RO', 'RR', 'TO'],
+                          'regiao_nordeste': ['AL', 'BA', 'CE', 'MA', 'PB', 'PE', 'PI', 'RN', 'SE'],
+                          'regiao_centro_oeste': ['DF', 'GO', 'MT', 'MS'],
+                          'regiao_sudeste': ['ES', 'MG', 'RJ', 'SP'],
+                          'regiao_sul': ['PR', 'RS', 'SC']}
+
+# Lista com todas as features que possuem siglas de estados brasileiros como classes.
+features_siglas_estados_brasileiros = ['estado_onde_trabalha', 'estado_onde_nasceu', 'estado_onde_reside']
+
+# Substituindo cada estado por sua respectiva região, em cada feature listada.
+for regiao, classes in dict_regioes_do_brasil.items():
+    for classe in classes:
+        substituir_valores_da_classe(dados_treinamento, features_siglas_estados_brasileiros, classe, regiao)
+
+# Substituindo os espaços em branco por "classe_invalida".
+substituir_valores_da_classe(dados_treinamento, features_siglas_estados_brasileiros, '', 'classe_invalida')
 
 # ------------------------------------------------------------------------------
 #  Criação de uma função para calcular a taxa de inadimplência de cada classe
 #  das features categóricas.
 # ------------------------------------------------------------------------------
 
-def calcular_taxa_de_inadimplencia_das_classes(data, feature, target='inadimplente'):
+def calcular_taxa_de_inadimplencia_das_classes(data, features_list, target='inadimplente'):
     "Função que calcula a taxa de inadimplência de cada classe das features categóricas."
 
-    # Substituindo espaços vazios por 'N' (não informado), caso a feature seja "sexo".
-    if feature == "sexo":
-        data[feature] = data[feature].str.strip().replace('', 'N')
+    for feature in features_list:
+        # Exibindo a quantidade de cada categoria na coluna.
+        print(f"\n\n\t-----Categorias da feature '{feature}'-----\n")
+        dicionario_feature = dict(data[feature].value_counts())
+        print(data[feature].value_counts())
 
-    # Exibindo a quantidade de cada categoria na coluna.
-    print(f"\n\n\t-----Categorias da feature '{feature}'-----\n")
-    dicionario_feature = dict(data[feature].value_counts())
-    print(data[feature].value_counts())
-
-    # Calculando e exibindo a taxa de inadimplência para cada categoria.
-    print(f"\n\n\t-----Taxa de inadimplência para as categorias da feature '{feature}'-----\n")
-    for categoria, quantidade in dicionario_feature.items():
-        quantidade_inadimplentes = data[data[feature] == categoria][target].sum()
-        taxa_inadimplencia = (quantidade_inadimplentes / quantidade) * 100
-        print(f"Categoria: {categoria}")
-        print(f"Quantidade Total: {quantidade}")
-        print(f"Quantidade Inadimplentes: {quantidade_inadimplentes}")
-        print(f"Taxa de Inadimplência: {taxa_inadimplencia:.3f}%\n")
+        # Calculando e exibindo a taxa de inadimplência para cada categoria.
+        print(f"\n\n\t-----Taxa de inadimplência para as categorias da feature '{feature}'-----\n")
+        for categoria, quantidade in dicionario_feature.items():
+            quantidade_inadimplentes = data[data[feature] == categoria][target].sum()
+            taxa_inadimplencia = (quantidade_inadimplentes / quantidade) * 100
+            print(f"Categoria: {categoria}")
+            print(f"Quantidade Total: {quantidade}")
+            print(f"Quantidade Inadimplentes: {quantidade_inadimplentes}")
+            print(f"Taxa de Inadimplência: {taxa_inadimplencia:.3f}%\n")
 
 # ------------------------------------------------------------------------------
 #  Calculando a taxa de inadimplência das classes de cada feature categórica
@@ -141,8 +158,7 @@ features_categoricas = ['produto_solicitado', 'forma_envio_solicitacao', 'tipo_e
                         'estado_onde_trabalha', 'profissao', 'ocupacao', 'profissao_companheiro',
                         'grau_instrucao_companheiro', 'local_onde_reside', 'local_onde_trabalha']
 
-for feature in features_categoricas:
-    calcular_taxa_de_inadimplencia_das_classes(dados_treinamento, feature)
+calcular_taxa_de_inadimplencia_das_classes(dados_treinamento, features_categoricas)
 
 #------------------------------------------------------------------------------
 # Separar o conjunto de treinamento em atributos e alvo, exibindo suas dimensões
