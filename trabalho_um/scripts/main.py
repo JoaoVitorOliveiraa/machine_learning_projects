@@ -95,7 +95,7 @@ for feature in features_com_classes_y_n:
 #  das features categóricas.
 # ------------------------------------------------------------------------------
 
-def porcentagem_de_inadimplencia_das_classes(data, feature, target='inadimplente'):
+def taxa_de_inadimplencia_das_classes(data, feature, target='inadimplente'):
     "Função que calcula a taxa de inadimplência de cada classe das features categóricas."
 
     # Substituindo espaços vazios por 'N' (não informado), caso a feature seja "sexo".
@@ -107,29 +107,30 @@ def porcentagem_de_inadimplencia_das_classes(data, feature, target='inadimplente
     dicionario_feature = dict(data[feature].value_counts())
     print(data[feature].value_counts())
 
-    # Calculando e exibindo a porcentagem de inadimplência para cada categoria.
-    print(f"\n\n\t-----Porcentagem de inadimplência para as categorias da feature '{feature}'-----\n")
+    # Calculando e exibindo a taxa de inadimplência para cada categoria.
+    print(f"\n\n\t-----Taxa de inadimplência para as categorias da feature '{feature}'-----\n")
     for categoria, quantidade in dicionario_feature.items():
         quantidade_inadimplentes = data[data[feature] == categoria][target].sum()
-        porcentagem_inadimplentes = (quantidade_inadimplentes / quantidade) * 100
+        taxa_inadimplencia = (quantidade_inadimplentes / quantidade) * 100
         print(f"Categoria: {categoria}")
         print(f"Quantidade Total: {quantidade}")
         print(f"Quantidade Inadimplentes: {quantidade_inadimplentes}")
-        print(f"Porcentagem de Inadimplência: {porcentagem_inadimplentes:.3f}%\n")
+        print(f"Taxa de Inadimplência: {taxa_inadimplencia:.3f}%\n")
 
 # ------------------------------------------------------------------------------
 #  Calculando a taxa de inadimplência das classes de cada feature categórica
+#  Obs: Como foi observado que nas features que apresentavam apenas duas classes,
+#  a taxa de inadimplência era de 49%-51% para cada, só foram adicionadas à lista
+#  abaixo as features que possuíam mais de duas classes
 # ------------------------------------------------------------------------------
 
 features_categoricas = ['produto_solicitado', 'forma_envio_solicitacao', 'tipo_endereco', 'sexo', 'estado_civil',
-                        'nacionalidade', 'estado_onde_nasceu', 'estado_onde_reside', 'possui_telefone_residencial',
-                        'tipo_residencia', 'possui_email', 'possui_cartao_visa', 'possui_cartao_mastercard',
-                        'possui_cartao_diners', 'possui_cartao_amex', 'possui_outros_cartoes', 'possui_carro',
-                        'vinculo_formal_com_empresa', 'estado_onde_trabalha', 'possui_telefone_trabalho', 'profissao',
-                        'ocupacao', 'profissao_companheiro', 'grau_instrucao_companheiro', 'local_onde_reside',
-                        'local_onde_trabalha']
+                        'nacionalidade', 'estado_onde_nasceu', 'estado_onde_reside', 'tipo_residencia',
+                        'estado_onde_trabalha', 'profissao', 'ocupacao', 'profissao_companheiro',
+                        'grau_instrucao_companheiro', 'local_onde_reside', 'local_onde_trabalha']
+
 for feature in features_categoricas:
-    porcentagem_de_inadimplencia_das_classes(dados_treinamento, feature)
+    taxa_de_inadimplencia_das_classes(dados_treinamento, feature)
 
 #------------------------------------------------------------------------------
 # Separar o conjunto de treinamento em atributos e alvo, exibindo suas dimensões
