@@ -91,6 +91,18 @@ for feature in features_com_classes_y_n:
     transformar_yes_no_em_1_0(dados_treinamento, feature)
 
 # ------------------------------------------------------------------------------
+#  Criação de uma função para substituir o valor da string espaço ' ' em uma
+#  feature, e aplicação da mesma na feature "sexo'
+# ------------------------------------------------------------------------------
+
+def substituir_espacos(data, feature, substituir):
+    "Função que substitui o valor da string espaço em uma feature."
+
+    data[feature] = data[feature].str.strip().replace('', substituir)
+
+substituir_espacos(dados_treinamento, "sexo", 'N')
+
+# ------------------------------------------------------------------------------
 #  Criação de uma função para calcular a taxa de inadimplência de cada classe
 #  das features categóricas.
 # ------------------------------------------------------------------------------
