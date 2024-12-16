@@ -95,7 +95,7 @@ for feature in features_com_classes_y_n:
 #  das features categóricas.
 # ------------------------------------------------------------------------------
 
-def taxa_de_inadimplencia_das_classes(data, feature, target='inadimplente'):
+def calcular_taxa_de_inadimplencia_das_classes(data, feature, target='inadimplente'):
     "Função que calcula a taxa de inadimplência de cada classe das features categóricas."
 
     # Substituindo espaços vazios por 'N' (não informado), caso a feature seja "sexo".
@@ -130,7 +130,7 @@ features_categoricas = ['produto_solicitado', 'forma_envio_solicitacao', 'tipo_e
                         'grau_instrucao_companheiro', 'local_onde_reside', 'local_onde_trabalha']
 
 for feature in features_categoricas:
-    taxa_de_inadimplencia_das_classes(dados_treinamento, feature)
+    calcular_taxa_de_inadimplencia_das_classes(dados_treinamento, feature)
 
 #------------------------------------------------------------------------------
 # Separar o conjunto de treinamento em atributos e alvo, exibindo suas dimensões
