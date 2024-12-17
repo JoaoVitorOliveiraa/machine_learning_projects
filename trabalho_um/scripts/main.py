@@ -72,26 +72,6 @@ features_inuteis = ["grau_instrucao", "possui_telefone_celular", "qtde_contas_ba
 dados_treinamento.drop(features_inuteis, axis=1, inplace=True)
 
 # ------------------------------------------------------------------------------
-#  Criação de uma função para calcular a tranformar as classes binárias 'N' e 'Y'
-#  em 0 e 1, respectivamente."
-# ------------------------------------------------------------------------------
-
-def transformar_yes_no_em_1_0 (data, feature):
-    "Função que tranforma as classes binárias 'N' e 'Y' em 0 e 1, respectivamente."
-
-    data[feature] = data[feature].str.strip().str.upper()
-    data[feature] = data[feature].map({'Y': 1, 'N': 0}).astype(int)
-
-# ------------------------------------------------------------------------------
-#  Tranformando as classes binárias 'N' e 'Y' em 0 e 1 de cada feature categórica
-#  que apresenta essas classes
-# ------------------------------------------------------------------------------
-
-features_com_classes_y_n = ['possui_telefone_residencial', 'vinculo_formal_com_empresa', 'possui_telefone_trabalho']
-for feature in features_com_classes_y_n:
-    transformar_yes_no_em_1_0(dados_treinamento, feature)
-
-# ------------------------------------------------------------------------------
 #  Criação de uma função para substituir o valor de uma classe em uma feature, e
 #  sua aplicação nas features
 # ------------------------------------------------------------------------------
@@ -102,21 +82,10 @@ def substituir_valores_da_classe(data, features_list, old_value, new_value):
     for feature in features_list:
         data[feature] = data[feature].replace({old_value: new_value})
 
-
 # Substituindo as classes binárias 'N' e 'Y' em 0 e 1 de cada feature categórica que apresenta essas classes.
 features_com_classes_y_n = ['possui_telefone_residencial', 'vinculo_formal_com_empresa', 'possui_telefone_trabalho']
 substituir_valores_da_classe(dados_treinamento, features_com_classes_y_n, 'Y', 1)
 substituir_valores_da_classe(dados_treinamento, features_com_classes_y_n, 'N', 0)
-
-# Substituindo espaços vazios por 'N' (não informado), na feature 'sexo'.
-# substituir_valores_da_classe(dados_treinamento, ["sexo"], ' ', 'N')
-
-# Substituindo espaços vazios por pela mediana dos valores das classes, nas
-# features 'codigo_area_telefone_residencial' e 'codigo_area_telefone_trabalho'.
-# mediana_codigo_area_telefone_residencial = dados_treinamento['codigo_area_telefone_residencial'].median()
-# mediana_codigo_area_telefone_trabalho = dados_treinamento['codigo_area_telefone_trabalho'].median()
-# substituir_valores_da_classe(dados_treinamento,['codigo_area_telefone_residencial'], '', mediana_codigo_area_telefone_residencial)
-# substituir_valores_da_classe(dados_treinamento,['codigo_area_telefone_trabalho'], '', mediana_codigo_area_telefone_trabalho)
 
 # Dicionário onde as chaves e valores são as regiões do Brasil e listas com siglas de estados.
 dict_regioes_do_brasil = {'regiao_norte': ['AC', 'AP', 'AM', 'PA', 'RO', 'RR', 'TO'],
@@ -132,9 +101,6 @@ features_siglas_estados_brasileiros = ['estado_onde_trabalha', 'estado_onde_nasc
 for regiao, classes in dict_regioes_do_brasil.items():
     for classe in classes:
         substituir_valores_da_classe(dados_treinamento, features_siglas_estados_brasileiros, classe, regiao)
-
-# Substituindo os espaços em branco por "classe_invalida".
-# substituir_valores_da_classe(dados_treinamento, features_siglas_estados_brasileiros, ' ', 'classe_invalida')
 
 # ------------------------------------------------------------------------------
 #  Substituindo os espaços ausentes das features, que estavam incompletas e que o
