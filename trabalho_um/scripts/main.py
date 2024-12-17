@@ -60,11 +60,50 @@ print("\n\n\t-----Resumo dos atributos numéricos-----\n")
 print(dados_treinamento.describe())
 
 # ------------------------------------------------------------------------------
+# Exibindo as features do dataset e seus tipos uas comparações gráficas com o alvo
+# ------------------------------------------------------------------------------
+
+features = list(dados_treinamento.columns)
+print("\n\n\t-----Features disponíveis-----\n")
+print(features)
+
+print("\n\n-----Tipos das features-----\n")
+print(dados_treinamento.dtypes)
+
+# ------------------------------------------------------------------------------
+# Exibindo gráfico de dispersão entre as features e o alvo
+# ------------------------------------------------------------------------------
+
+print("\n\n-----Gráfico de dispersão entre as features e o alvo-----\n")
+for feature in features:
+    grafico = dados_treinamento.plot.scatter(x=feature, y='inadimplente')
+    grafico.set(title=f'{feature} vs inadimplente', xlabel=feature, ylabel='inadimplente')
+    plt.show()
+
+# ------------------------------------------------------------------------------
+# Exibindo os histogramas entre as quantidades e os valores de cada feature
+# ------------------------------------------------------------------------------
+
+for feature in features:
+    print(f"\n\n-----Histograma da feature {feature}-----\n")
+    grafico = dados_treinamento[feature].plot.hist(bins=30)
+    grafico.set(title=feature, xlabel='Quantidades', ylabel='Valores')
+    plt.show()
+
+# ------------------------------------------------------------------------------
+# Exibindo o histograma entre as quantidades e os valores do alvo
+# ------------------------------------------------------------------------------
+
+grafico = dados_treinamento['inadimplente'].plot.hist(bins=30)
+grafico.set(title='inadimplente', xlabel='Quantidades', ylabel='Valores')
+plt.show()
+
+# ------------------------------------------------------------------------------
 #  Melhor exibição das classes das features, pois os describe() não exibiu todas
 # ------------------------------------------------------------------------------
 
 print("\n\n\t-----Melhor exibição das classes das features-----\n")
-for feature in list(dados_treinamento.columns):
+for feature in features:
     print(f"\nClasses {feature}: ", list(dados_treinamento[feature].unique()))
 
 # ------------------------------------------------------------------------------
