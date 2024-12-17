@@ -84,9 +84,14 @@ dados_treinamento.drop(features_inuteis, axis=1, inplace=True)
 #  valor_patrimonio_pessoal: Vasta maioria com valor zero (0: 19072)
 #  grau_instrucao_companheiro: Vasta maioria com valor zero (0: 19345)
 #  tipo_endereco: Vasta maioria com valor um (1: 19873)
+#  possui_cartao_diners: Vasta maioria com valor zero (0: 19968)
+#  possui_cartao_amex: Vasta maioria com valor zero (0: 19959)
+#  possui_outros_cartoes: Vasta maioria com valor zero (0: 19955)
 # ------------------------------------------------------------------------------
 
-features_classes_dominantes = ["nacionalidade", "valor_patrimonio_pessoal", "grau_instrucao_companheiro", "tipo_endereco"]
+features_classes_dominantes = ["nacionalidade", "valor_patrimonio_pessoal", "grau_instrucao_companheiro", "tipo_endereco",
+                               'possui_cartao_diners', 'possui_cartao_amex', 'possui_outros_cartoes']
+
 dados_treinamento.drop(features_classes_dominantes, axis=1, inplace=True)
 
 # ------------------------------------------------------------------------------
@@ -276,6 +281,13 @@ def aplicar_one_hot_encoder(data, features_categoricas):
 
 # Implementação da função.
 dados_treinamento = aplicar_one_hot_encoder(dados_treinamento, features_categoricas)
+
+#------------------------------------------------------------------------------
+# Removendo as features dos estados inválidos.
+#------------------------------------------------------------------------------
+
+dados_treinamento.drop('estado_onde_nasceu_classe_invalida', axis=1, inplace=True)
+dados_treinamento.drop('estado_onde_trabalha_classe_invalida', axis=1, inplace=True)
 
 #------------------------------------------------------------------------------
 # Separar o conjunto de treinamento em atributos e alvo, exibindo suas dimensões
