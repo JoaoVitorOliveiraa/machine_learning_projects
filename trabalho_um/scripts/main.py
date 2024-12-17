@@ -185,6 +185,58 @@ features_categoricas = ['produto_solicitado', 'forma_envio_solicitacao', 'tipo_e
 
 calcular_taxa_de_inadimplencia_das_classes(dados_treinamento, features_categoricas)
 
+# ------------------------------------------------------------------------------
+# Criação de uma função para dividir as classes numéricas de uma ou mais features
+# em 4 partes, através dos quartis.
+# ------------------------------------------------------------------------------
+
+def dividir_classes_por_quartis(data, features_list):
+    "Função que divide as classes numéricas de uma ou mais features em 4 partes, através dos quartis."
+
+    for feature in features_list:
+        # Garantir que a coluna seja numérica
+        data[feature] = pd.to_numeric(data[feature], errors='coerce')
+
+        # Obter os quartis e estatísticas descritivas
+        descricao_estatistica_feature = dict(data[feature].describe())
+        minimo = descricao_estatistica_feature['min']
+        primeiro_quartil = descricao_estatistica_feature['25%']
+        mediana = descricao_estatistica_feature['50%']
+        terceiro_quartil = descricao_estatistica_feature['75%']
+        maximo = descricao_estatistica_feature['max']
+
+        # Função interna para classificar os valores.
+        def classificar_por_quartil(classe):
+
+            # Ignorar valores NaN e ' '.
+            if pd.isna(classe) or (classe == ' '):
+                return classe
+
+            elif minimo <= classe <= primeiro_quartil:
+                return 'primeira_particao'
+
+            elif primeiro_quartil < classe <= mediana:
+                return 'segunda_particao'
+
+            elif mediana < classe <= terceiro_quartil:
+                return 'terceira_particao'
+
+            elif terceiro_quartil < classe <= maximo:
+                return 'quarta_particao'
+
+        # Aplicar a classificação à coluna.
+        data[feature] = data[feature].apply(classificar_por_quartil)
+
+# ------------------------------------------------------------------------------
+# Aplicação da função 'dividir_classes_por_quartis' em features que possuem
+# números como classe, onde o significado desses números não foi informado
+# ------------------------------------------------------------------------------
+
+features_significado_nao_informado = ['codigo_area_telefone_residencial', 'codigo_area_telefone_trabalho', 'estado_civil',
+                                      'tipo_residencia', 'profissao', 'ocupacao', 'profissao_companheiro']
+
+dividir_classes_por_quartis(dados_treinamento, features_significado_nao_informado)
+
 #------------------------------------------------------------------------------
 # Separar o conjunto de treinamento em atributos e alvo, exibindo suas dimensões
 #------------------------------------------------------------------------------
