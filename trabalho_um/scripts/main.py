@@ -128,7 +128,7 @@ for regiao, classes in dict_regioes_do_brasil.items():
 # ------------------------------------------------------------------------------
 
 features_incompletas = ['tipo_residencia', 'meses_na_residencia', 'profissao', 'ocupacao', 'profissao_companheiro', 'sexo',
-                        'grau_instrucao_companheiro', 'codigo_area_telefone_residencial', 'codigo_area_telefone_trabalho',
+                        'codigo_area_telefone_residencial', 'codigo_area_telefone_trabalho',
                         'estado_onde_trabalha', 'estado_onde_nasceu', 'estado_onde_reside']
 
 for feature in features_incompletas:
@@ -190,9 +190,9 @@ def calcular_taxa_de_inadimplencia_das_classes(data, features_list, target='inad
 # ------------------------------------------------------------------------------
 
 features_categoricas = ['produto_solicitado', 'forma_envio_solicitacao', 'sexo', 'estado_civil',
-                        'nacionalidade', 'estado_onde_nasceu', 'estado_onde_reside', 'tipo_residencia',
+                        'estado_onde_nasceu', 'estado_onde_reside', 'tipo_residencia',
                         'estado_onde_trabalha', 'profissao', 'ocupacao', 'profissao_companheiro',
-                        'grau_instrucao_companheiro', 'local_onde_reside', 'local_onde_trabalha']
+                        'local_onde_reside', 'local_onde_trabalha']
 
 calcular_taxa_de_inadimplencia_das_classes(dados_treinamento, features_categoricas)
 
