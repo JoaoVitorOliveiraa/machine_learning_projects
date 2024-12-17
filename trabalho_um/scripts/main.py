@@ -10,12 +10,11 @@ import numpy as np
 import pandas as pd
 from pathlib import Path
 import matplotlib.pyplot as plt
-from pyexpat import features
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import confusion_matrix, precision_score, recall_score, accuracy_score, f1_score
 from scipy.stats import pearsonr
-from sklearn.preprocessing import OneHotEncoder, OrdinalEncoder
+from sklearn.preprocessing import OneHotEncoder
 
 #------------------------------------------------------------------------------
 # Importar os conjuntos de teste e treinamento (retirando as colunas dos id's)
@@ -189,10 +188,9 @@ def calcular_taxa_de_inadimplencia_das_classes(data, features_list, target='inad
 #  abaixo as features que possuíam mais de duas classes
 # ------------------------------------------------------------------------------
 
-features_categoricas = ['produto_solicitado', 'forma_envio_solicitacao', 'sexo', 'estado_civil',
-                        'estado_onde_nasceu', 'estado_onde_reside', 'tipo_residencia',
-                        'estado_onde_trabalha', 'profissao', 'ocupacao', 'profissao_companheiro',
-                        'local_onde_reside', 'local_onde_trabalha']
+features_categoricas = ['produto_solicitado', 'forma_envio_solicitacao', 'estado_civil', 'estado_onde_nasceu',
+                        'estado_onde_reside', 'tipo_residencia', 'estado_onde_trabalha', 'profissao', 'ocupacao',
+                        'profissao_companheiro', 'sexo', 'codigo_area_telefone_residencial', 'codigo_area_telefone_trabalho']
 
 calcular_taxa_de_inadimplencia_das_classes(dados_treinamento, features_categoricas)
 
@@ -235,7 +233,7 @@ def dividir_classes_por_quartis(data, features_list):
             elif terceiro_quartil < classe <= maximo:
                 return 'quarta_particao'
 
-        # Aplicar a classificação à coluna.
+        # Aplicar a classificação à cada classe da coluna.
         data[feature] = data[feature].apply(classificar_por_quartil)
 
 # ------------------------------------------------------------------------------
@@ -247,6 +245,37 @@ features_significado_nao_informado = ['codigo_area_telefone_residencial', 'codig
                                       'tipo_residencia', 'profissao', 'ocupacao', 'profissao_companheiro']
 
 dividir_classes_por_quartis(dados_treinamento, features_significado_nao_informado)
+
+# ------------------------------------------------------------------------------
+# Criação e implementação de uma função para aplicar a classe OneHotEncoder em
+# colunas categóricas, mantendo as demais inalteradas.
+# ------------------------------------------------------------------------------
+
+def aplicar_one_hot_encoder(data, features_categoricas):
+    "Função que aplica a classe OneHotEncoder em features categóricas, mantendo as demais inalteradas."
+
+    # Instanciar o OneHotEncoder.
+    one_hot_encoder = OneHotEncoder(sparse_output=False)
+
+    # Aplicar o OneHotEncoder às colunas categóricas.
+    data_codificado = one_hot_encoder.fit_transform(data[features_categoricas])
+
+    # Colhetando os nomes das features codificadas.
+    features_codificadas = one_hot_encoder.get_feature_names_out(features_categoricas)
+
+    # Converter o resultado para DataFrame.
+    data_frame_codificado = pd.DataFrame(data_codificado, columns=features_codificadas, index=data.index)
+
+    # Remover as features categóricas originais.
+    data = data.drop(columns=features_categoricas)
+
+    # Concatenar o DataFrame codificado com as demais features.
+    data_final = pd.concat([data, data_frame_codificado], axis=1)
+
+    return data_final
+
+# Implementação da função.
+dados_treinamento = aplicar_one_hot_encoder(dados_treinamento, features_categoricas)
 
 #------------------------------------------------------------------------------
 # Separar o conjunto de treinamento em atributos e alvo, exibindo suas dimensões
