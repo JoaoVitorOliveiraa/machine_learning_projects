@@ -63,37 +63,17 @@ print(dados_treinamento.describe())
 # Exibindo as features do dataset e seus tipos uas comparações gráficas com o alvo
 # ------------------------------------------------------------------------------
 
-features = list(dados_treinamento.columns)
 print("\n\n\t-----Features disponíveis-----\n")
-print(features)
+print(list(dados_treinamento.columns))
 
 print("\n\n-----Tipos das features-----\n")
 print(dados_treinamento.dtypes)
 
 # ------------------------------------------------------------------------------
-# Exibindo gráfico de dispersão entre as features e o alvo
-# ------------------------------------------------------------------------------
-
-print("\n\n-----Gráfico de dispersão entre as features e o alvo-----\n")
-for feature in features:
-    grafico = dados_treinamento.plot.scatter(x=feature, y='inadimplente')
-    grafico.set(title=f'{feature} vs inadimplente', xlabel=feature, ylabel='inadimplente')
-    plt.show()
-
-# ------------------------------------------------------------------------------
-# Exibindo os histogramas entre as quantidades e os valores de cada feature
-# ------------------------------------------------------------------------------
-
-for feature in features:
-    print(f"\n\n-----Histograma da feature {feature}-----\n")
-    grafico = dados_treinamento[feature].plot.hist(bins=30)
-    grafico.set(title=feature, xlabel='Quantidades', ylabel='Valores')
-    plt.show()
-
-# ------------------------------------------------------------------------------
 # Exibindo o histograma entre as quantidades e os valores do alvo
 # ------------------------------------------------------------------------------
 
+print(f"\n\n\t-----Histograma do alvo-----\n")
 grafico = dados_treinamento['inadimplente'].plot.hist(bins=30)
 grafico.set(title='inadimplente', xlabel='Quantidades', ylabel='Valores')
 plt.show()
@@ -103,7 +83,7 @@ plt.show()
 # ------------------------------------------------------------------------------
 
 print("\n\n\t-----Melhor exibição das classes das features-----\n")
-for feature in features:
+for feature in list(dados_treinamento.columns):
     print(f"\nClasses {feature}: ", list(dados_treinamento[feature].unique()))
 
 # ------------------------------------------------------------------------------
@@ -327,6 +307,16 @@ dados_treinamento = aplicar_one_hot_encoder(dados_treinamento, features_categori
 
 dados_treinamento.drop('estado_onde_nasceu_classe_invalida', axis=1, inplace=True)
 dados_treinamento.drop('estado_onde_trabalha_classe_invalida', axis=1, inplace=True)
+
+# ------------------------------------------------------------------------------
+# Exibindo os histogramas entre as quantidades e os valores de cada feature
+# ------------------------------------------------------------------------------
+
+for feature in list(dados_treinamento.columns):
+    print(f"\n\n\t-----Histograma da feature {feature}-----\n")
+    grafico = dados_treinamento[feature].plot.hist(bins=100)
+    grafico.set(title=feature, xlabel='Valores', ylabel='Quantidades')
+    plt.show()
 
 #------------------------------------------------------------------------------
 # Separar o conjunto de treinamento em atributos e alvo, exibindo suas dimensões
