@@ -65,9 +65,10 @@ print(dados_treinamento.describe())
 #  grau_instrucao: Totalmente preenchida com zeros
 #  possui_telefone_celular: Totalmente preenchida com "N"
 #  qtde_contas_bancarias_especiais: Conteúdo idêntico à "qtde_contas_bancarias"
+#  meses_no_trabalho: Vasta maioria com valor zero.
 # ------------------------------------------------------------------------------
 
-features_inuteis = ["grau_instrucao", "possui_telefone_celular", "qtde_contas_bancarias_especiais"]
+features_inuteis = ["grau_instrucao", "possui_telefone_celular", "qtde_contas_bancarias_especiais", "meses_no_trabalho"]
 dados_treinamento.drop(features_inuteis, axis=1, inplace=True)
 
 # ------------------------------------------------------------------------------
@@ -92,7 +93,7 @@ for feature in features_com_classes_y_n:
 
 # ------------------------------------------------------------------------------
 #  Criação de uma função para substituir o valor de uma classe em uma feature, e
-#  sua aplicação nas features 'sexo',
+#  sua aplicação nas features
 # ------------------------------------------------------------------------------
 
 def substituir_valores_da_classe(data, features_list, old_value, new_value):
@@ -121,6 +122,19 @@ for regiao, classes in dict_regioes_do_brasil.items():
 
 # Substituindo os espaços em branco por "classe_invalida".
 substituir_valores_da_classe(dados_treinamento, features_siglas_estados_brasileiros, '', 'classe_invalida')
+
+# ------------------------------------------------------------------------------
+#  Substituindo os espaços ausentes das features, que estavam incompletas e que o
+#  significado de suas classes não foi especificado, pela mediana dos valores de
+#  suas classes, pois os valores não estão uniformemente distribuídos.
+# ------------------------------------------------------------------------------
+
+features_incompletas = ['tipo_residencia', 'meses_na_residencia', 'profissao', 'ocupacao',
+                        'profissao_companheiro', 'grau_instrucao_companheiro']
+
+for feature in features_incompletas:
+    mediana_feature = dados_treinamento[feature].median()
+    dados_treinamento[feature] = dados_treinamento[feature].fillna(mediana_feature)
 
 # ------------------------------------------------------------------------------
 #  Criação de uma função para calcular a taxa de inadimplência de cada classe
