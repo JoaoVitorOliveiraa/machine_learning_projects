@@ -61,6 +61,14 @@ print("\n\n\t-----Resumo dos atributos numéricos-----\n")
 print(dados_treinamento.describe())
 
 # ------------------------------------------------------------------------------
+#  Melhor exibição das classes das features, pois os describe() não exibiu todas
+# ------------------------------------------------------------------------------
+
+print("\n\n\t-----Melhor exibição das classes das features-----\n")
+for feature in list(dados_treinamento.columns):
+    print(f"\nClasses {feature}: ", list(dados_treinamento[feature].unique()))
+
+# ------------------------------------------------------------------------------
 #  Remoção de features inúteis
 #  grau_instrucao: Totalmente preenchida com zeros
 #  possui_telefone_celular: Totalmente preenchida com "N"
