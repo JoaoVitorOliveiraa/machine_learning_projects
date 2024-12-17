@@ -100,10 +100,23 @@ def substituir_valores_da_classe(data, features_list, old_value, new_value):
     "Função que substitui o valor de uma classe em uma feature."
 
     for feature in features_list:
-        data[feature] = data[feature].str.strip().replace(old_value, new_value)
+        data[feature] = data[feature].replace({old_value: new_value})
+
+
+# Substituindo as classes binárias 'N' e 'Y' em 0 e 1 de cada feature categórica que apresenta essas classes.
+features_com_classes_y_n = ['possui_telefone_residencial', 'vinculo_formal_com_empresa', 'possui_telefone_trabalho']
+substituir_valores_da_classe(dados_treinamento, features_com_classes_y_n, 'Y', 1)
+substituir_valores_da_classe(dados_treinamento, features_com_classes_y_n, 'N', 0)
 
 # Substituindo espaços vazios por 'N' (não informado), na feature 'sexo'.
-substituir_valores_da_classe(dados_treinamento, ["sexo"], '', 'N')
+# substituir_valores_da_classe(dados_treinamento, ["sexo"], ' ', 'N')
+
+# Substituindo espaços vazios por pela mediana dos valores das classes, nas
+# features 'codigo_area_telefone_residencial' e 'codigo_area_telefone_trabalho'.
+# mediana_codigo_area_telefone_residencial = dados_treinamento['codigo_area_telefone_residencial'].median()
+# mediana_codigo_area_telefone_trabalho = dados_treinamento['codigo_area_telefone_trabalho'].median()
+# substituir_valores_da_classe(dados_treinamento,['codigo_area_telefone_residencial'], '', mediana_codigo_area_telefone_residencial)
+# substituir_valores_da_classe(dados_treinamento,['codigo_area_telefone_trabalho'], '', mediana_codigo_area_telefone_trabalho)
 
 # Dicionário onde as chaves e valores são as regiões do Brasil e listas com siglas de estados.
 dict_regioes_do_brasil = {'regiao_norte': ['AC', 'AP', 'AM', 'PA', 'RO', 'RR', 'TO'],
@@ -121,7 +134,7 @@ for regiao, classes in dict_regioes_do_brasil.items():
         substituir_valores_da_classe(dados_treinamento, features_siglas_estados_brasileiros, classe, regiao)
 
 # Substituindo os espaços em branco por "classe_invalida".
-substituir_valores_da_classe(dados_treinamento, features_siglas_estados_brasileiros, '', 'classe_invalida')
+# substituir_valores_da_classe(dados_treinamento, features_siglas_estados_brasileiros, ' ', 'classe_invalida')
 
 # ------------------------------------------------------------------------------
 #  Substituindo os espaços ausentes das features, que estavam incompletas e que o
@@ -129,12 +142,36 @@ substituir_valores_da_classe(dados_treinamento, features_siglas_estados_brasilei
 #  suas classes, pois os valores não estão uniformemente distribuídos.
 # ------------------------------------------------------------------------------
 
-features_incompletas = ['tipo_residencia', 'meses_na_residencia', 'profissao', 'ocupacao',
-                        'profissao_companheiro', 'grau_instrucao_companheiro']
+features_incompletas = ['tipo_residencia', 'meses_na_residencia', 'profissao', 'ocupacao', 'profissao_companheiro', 'sexo',
+                        'grau_instrucao_companheiro', 'codigo_area_telefone_residencial', 'codigo_area_telefone_trabalho',
+                        'estado_onde_trabalha', 'estado_onde_nasceu', 'estado_onde_reside']
 
 for feature in features_incompletas:
-    mediana_feature = dados_treinamento[feature].median()
-    dados_treinamento[feature] = dados_treinamento[feature].fillna(mediana_feature)
+
+    # Substituindo espaços ' ' por 'N' (não informado).
+    if feature == 'sexo':
+        substituir_valores_da_classe(dados_treinamento, [feature], ' ', 'N')
+
+    # Substituindo os espaços ' ' por "classe_invalida".
+    elif feature in features_siglas_estados_brasileiros:
+        substituir_valores_da_classe(dados_treinamento, features_siglas_estados_brasileiros, ' ', 'classe_invalida')
+
+    # Substituindo os espaços ' ' pela média dos valores (após transformá-los em números).
+    elif feature in ['codigo_area_telefone_residencial', 'codigo_area_telefone_trabalho']:
+
+        # Primeiramente, substituímos os espaços vazios por None, a fim de realizar a conversão da coluna.
+        substituir_valores_da_classe(dados_treinamento, [feature], ' ', None)
+
+        # Converte os valores str da coluna em numéricos. Coerce substitui strings inválidas por NaN.
+        dados_treinamento[feature] = pd.to_numeric(dados_treinamento[feature], errors='coerce')
+
+        # Substituindo os valores NaN pela mediana.
+        mediana_feature = dados_treinamento[feature].median()
+        dados_treinamento[feature] = dados_treinamento[feature].fillna(mediana_feature)
+
+    else:
+        mediana_feature = dados_treinamento[feature].median()
+        dados_treinamento[feature] = dados_treinamento[feature].fillna(mediana_feature)
 
 # ------------------------------------------------------------------------------
 #  Criação de uma função para calcular a taxa de inadimplência de cada classe
