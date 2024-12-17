@@ -69,7 +69,7 @@ for feature in list(dados_treinamento.columns):
     print(f"\nClasses {feature}: ", list(dados_treinamento[feature].unique()))
 
 # ------------------------------------------------------------------------------
-#  Remoção de features inúteis
+#  Remoção das features inúteis, notificadas no arquivo 'dicionario_de_dados'
 #  grau_instrucao: Totalmente preenchida com zeros
 #  possui_telefone_celular: Totalmente preenchida com "N"
 #  qtde_contas_bancarias_especiais: Conteúdo idêntico à "qtde_contas_bancarias"
@@ -78,6 +78,17 @@ for feature in list(dados_treinamento.columns):
 
 features_inuteis = ["grau_instrucao", "possui_telefone_celular", "qtde_contas_bancarias_especiais", "meses_no_trabalho"]
 dados_treinamento.drop(features_inuteis, axis=1, inplace=True)
+
+# ------------------------------------------------------------------------------
+#  Remoção de features que possuíam uma classe extremamente dominante
+#  nacionalidade: Vasta maioria com valor um (1: 19152)
+#  valor_patrimonio_pessoal: Vasta maioria com valor zero (0: 19072)
+#  grau_instrucao_companheiro: Vasta maioria com valor zero (0: 19345)
+#  tipo_endereco: Vasta maioria com valor um (1: 19873)
+# ------------------------------------------------------------------------------
+
+features_classes_dominantes = ["nacionalidade", "valor_patrimonio_pessoal", "grau_instrucao_companheiro", "tipo_endereco"]
+dados_treinamento.drop(features_classes_dominantes, axis=1, inplace=True)
 
 # ------------------------------------------------------------------------------
 #  Criação de uma função para substituir o valor de uma classe em uma feature, e
@@ -178,7 +189,7 @@ def calcular_taxa_de_inadimplencia_das_classes(data, features_list, target='inad
 #  abaixo as features que possuíam mais de duas classes
 # ------------------------------------------------------------------------------
 
-features_categoricas = ['produto_solicitado', 'forma_envio_solicitacao', 'tipo_endereco', 'sexo', 'estado_civil',
+features_categoricas = ['produto_solicitado', 'forma_envio_solicitacao', 'sexo', 'estado_civil',
                         'nacionalidade', 'estado_onde_nasceu', 'estado_onde_reside', 'tipo_residencia',
                         'estado_onde_trabalha', 'profissao', 'ocupacao', 'profissao_companheiro',
                         'grau_instrucao_companheiro', 'local_onde_reside', 'local_onde_trabalha']
