@@ -10,11 +10,11 @@ import numpy as np
 import pandas as pd
 from pathlib import Path
 import matplotlib.pyplot as plt
+from scipy.stats import pearsonr
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import confusion_matrix, precision_score, recall_score, accuracy_score, f1_score
-from scipy.stats import pearsonr
-from sklearn.preprocessing import OneHotEncoder
+from sklearn.metrics import confusion_matrix, accuracy_score
+from sklearn.preprocessing import OneHotEncoder, StandardScaler, MinMaxScaler
 
 #------------------------------------------------------------------------------
 # Importar os conjuntos de teste e treinamento (retirando as colunas dos id's)
@@ -409,6 +409,16 @@ for coluna in dados_treinamento.columns:
     p_value = pearsonr(dados_treinamento[coluna], dados_treinamento['inadimplente'])[1]
     print(f'{coluna}: {coef_pearsonr:.3f}, p-value: {p_value:.3f}\n')
 
+# ------------------------------------------------------------------------------
+# Aplicação da escala no X de treino e de teste
+# ------------------------------------------------------------------------------
+
+# escala = MinMaxScaler()
+escala = StandardScaler()
+
+escala.fit(X_treino)
+X_treino_com_escala = escala.transform(X_treino)
+X_teste_com_escala = escala.transform(X_teste)
 
 
 
