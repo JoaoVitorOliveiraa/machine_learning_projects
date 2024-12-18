@@ -12,7 +12,7 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 from scipy.stats import pearsonr
 from sklearn.neighbors import KNeighborsClassifier
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, cross_val_predict, cross_val_score
 from sklearn.metrics import confusion_matrix, accuracy_score
 from sklearn.preprocessing import OneHotEncoder, StandardScaler, MinMaxScaler
 
@@ -393,11 +393,18 @@ X_treino, X_teste, y_treino, y_teste = train_test_split(X, y, test_size=0.25, ra
 # Conjunto de teste final
 X_teste_final = dados_teste_embaralhados.iloc[:, :].values
 
-print("\n\n\t-----Dimensões-----")
-print(f"\nDimensão X treino: {X_treino.shape}")
-print(f"Dimensão y treino: {y_treino.shape}")
-print(f"Dimensão X teste: {X_teste.shape}")
-print(f"Dimensão y teste: {y_teste.shape}\n")
+# # Separando as features do alvo.
+# X_treino = dados_treinamento_embaralhados.iloc[:, :-1].values
+# y_treino = dados_treinamento_embaralhados.iloc[:, -1].values
+#
+# # Conjunto de teste
+# X_teste = dados_teste_embaralhados.iloc[:, :].values
+
+# print("\n\n\t-----Dimensões-----")
+# print(f"\nDimensão X treino: {X_treino.shape}")
+# print(f"Dimensão y treino: {y_treino.shape}")
+# print(f"Dimensão X teste: {X_teste.shape}")
+# print(f"Dimensão y teste: {y_teste.shape}\n")
 
 #------------------------------------------------------------------------------
 # Exibindo os coeficientes de Pearson de cada atributo (entre o mesmo e o alvo)
@@ -417,9 +424,51 @@ for coluna in dados_treinamento.columns:
 escala = StandardScaler()
 
 escala.fit(X_treino)
-X_treino_com_escala = escala.transform(X_treino)
+X_treino_com_escala = escala.fit_transform(X_treino)
 X_teste_com_escala = escala.transform(X_teste)
 
+# X_treino_com_escala = escala.fit_transform(X_treino.astype(np.float64))
+
+# ------------------------------------------------------------------------------
+# Treinando o modelo KNeighborsClassifier, com k variando entre 1 e 30
+# ------------------------------------------------------------------------------
+
+print("\n\n\t-----Modelo KNeighborsClassifier-----\n")
+for k in range(1, 31):
+
+    # Instanciando o classificador KNN.
+    classificador_knn = KNeighborsClassifier(n_neighbors=k, weights="uniform")
+    classificador_knn = classificador_knn.fit(X_treino, y_treino)
+
+    y_resposta_treino = classificador_knn.predict(X_treino)
+    y_resposta_teste = classificador_knn.predict(X_teste)
+
+    acuracia_treino = accuracy_score(y_treino, y_resposta_treino)
+    acuracia_teste  = accuracy_score(y_teste, y_resposta_teste)
+
+    print(f'\nK = {k}')
+    print(f'Acurácia Treino: {(acuracia_treino*100):.4f}%')
+    print(f'Taxa de Erro Treino: {((1-acuracia_treino)*100):.4f}%')
+    print(f'Acurácia Teste: {(acuracia_teste*100):.4f}%')
+    print(f'Taxa de Erro Teste: {((1-acuracia_teste)*100):.4f}%')
+
+    # # Realizando predições a partir da validação cruzada (4 folds).
+    # y_resposta = cross_val_predict(classificador_knn, X_treino_com_escala, y_treino, cv=4)
+    #
+    # # Obtendo a acurácia de cada um dos 4 folds da validação cruzada.
+    # acuracia_4_folds = cross_val_score(classificador_knn, X_treino_com_escala, y_treino, cv=4, scoring='accuracy')
+    #
+    # # Obtendo a média das acurácias.
+    # media_acuracias = acuracia_4_folds.mean()
+    #
+    # # Obtendo a matriz de confusão.
+    # matriz_confusao = confusion_matrix(y_treino, y_resposta)
+
+    # #print(f'Predições: {y_resposta}')
+    # #print(f'Acurácias: {acuracia_4_folds}')
+    # print(f'Média das Acurácias: {(media_acuracias*100):.4f}%')
+    # print(f'Taxa de Erro Médio: {((1-media_acuracias)*100):.4f}%')
+    # #print(f'Matriz de Confusão: {matriz_confusao}')
 
 
 
