@@ -275,31 +275,35 @@ dividir_classes_por_quartis(dados_treinamento, features_significado_nao_informad
 # colunas categóricas, mantendo as demais inalteradas.
 # ------------------------------------------------------------------------------
 
-def aplicar_one_hot_encoder(data, features_categoricas):
+def aplicar_one_hot_encoder(data, features, target):
     "Função que aplica a classe OneHotEncoder em features categóricas, mantendo as demais inalteradas."
+
+    # Separar a coluna do alvo das demais features.
+    data_target = data[target]
+    data_features = data.drop(target, axis=1)
 
     # Instanciar o OneHotEncoder.
     one_hot_encoder = OneHotEncoder(sparse_output=False)
 
     # Aplicar o OneHotEncoder às colunas categóricas.
-    data_codificado = one_hot_encoder.fit_transform(data[features_categoricas])
+    data_codificado = one_hot_encoder.fit_transform(data_features[features])
 
     # Colhetando os nomes das features codificadas.
-    features_codificadas = one_hot_encoder.get_feature_names_out(features_categoricas)
+    features_codificadas = one_hot_encoder.get_feature_names_out(features)
 
     # Converter o resultado para DataFrame.
     data_frame_codificado = pd.DataFrame(data_codificado, columns=features_codificadas, index=data.index)
 
     # Remover as features categóricas originais.
-    data = data.drop(columns=features_categoricas)
+    data_features = data_features.drop(columns=features)
 
-    # Concatenar o DataFrame codificado com as demais features.
-    data_final = pd.concat([data, data_frame_codificado], axis=1)
+    # Concatenar o DataFrame codificado com as demais features e o alvo.
+    data_final = pd.concat([data_features, data_frame_codificado, data_target], axis=1)
 
     return data_final
 
 # Implementação da função.
-dados_treinamento = aplicar_one_hot_encoder(dados_treinamento, features_categoricas)
+dados_treinamento = aplicar_one_hot_encoder(dados_treinamento, features_categoricas, 'inadimplente')
 
 #------------------------------------------------------------------------------
 # Removendo as features dos estados inválidos.
