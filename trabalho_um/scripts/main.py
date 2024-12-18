@@ -508,3 +508,28 @@ print(
     "%6.1f" % (100 * acuracia_teste)
 )
 
+# -------------------------------------------------------------------------------
+# Treinando o modelo LogisticRegressionCV, com penalidade L2 e validação cruzada
+# -------------------------------------------------------------------------------
+
+print("\n\n\t-----Classificador com Regressão Logística (Regularização L2 e Validação Cruzada)-----\n")
+print("\n             C TREINO  TESTE")
+print(" ------------- ------  -----")
+
+classificador = LogisticRegressionCV(cv=4, max_iter=100000, penalty='l2',
+                                     # Último laço da Regressão Logística sem validação cruzada.
+                                     Cs=[0.0015, 0.0016, 0.0017, 0.0018, 0.0019, 0.002, 0.00205, 0.0021, 0.00215, 0.0022])
+
+classificador = classificador.fit(X_treino_com_escala, y_treino)
+
+y_resposta_treino = classificador.predict(X_treino_com_escala)
+y_resposta_teste = classificador.predict(X_teste_com_escala)
+
+acuracia_treino = accuracy_score(y_treino, y_resposta_treino)
+acuracia_teste = accuracy_score(y_teste, y_resposta_teste)
+
+print(
+    "%14.6f" % c,
+    "%6.1f" % (100 * acuracia_treino),
+    "%6.1f" % (100 * acuracia_teste)
+)
