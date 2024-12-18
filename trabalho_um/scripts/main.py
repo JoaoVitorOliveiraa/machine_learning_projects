@@ -96,6 +96,7 @@ for feature in list(dados_treinamento.columns):
 
 features_inuteis = ["grau_instrucao", "possui_telefone_celular", "qtde_contas_bancarias_especiais", "meses_no_trabalho"]
 dados_treinamento.drop(features_inuteis, axis=1, inplace=True)
+dados_teste.drop(features_inuteis, axis=1, inplace=True)
 
 # ------------------------------------------------------------------------------
 #  Remoção de features que possuíam uma classe extremamente dominante
@@ -112,6 +113,7 @@ features_classes_dominantes = ["nacionalidade", "valor_patrimonio_pessoal", "gra
                                'possui_cartao_diners', 'possui_cartao_amex', 'possui_outros_cartoes']
 
 dados_treinamento.drop(features_classes_dominantes, axis=1, inplace=True)
+dados_teste.drop(features_classes_dominantes, axis=1, inplace=True)
 
 # ------------------------------------------------------------------------------
 #  Criação de uma função para substituir o valor de uma classe em uma feature, e
@@ -128,6 +130,8 @@ def substituir_valores_da_classe(data, features_list, old_value, new_value):
 features_com_classes_y_n = ['possui_telefone_residencial', 'vinculo_formal_com_empresa', 'possui_telefone_trabalho']
 substituir_valores_da_classe(dados_treinamento, features_com_classes_y_n, 'Y', 1)
 substituir_valores_da_classe(dados_treinamento, features_com_classes_y_n, 'N', 0)
+substituir_valores_da_classe(dados_teste, features_com_classes_y_n, 'Y', 1)
+substituir_valores_da_classe(dados_teste, features_com_classes_y_n, 'N', 0)
 
 # Dicionário onde as chaves e valores são as regiões do Brasil e listas com siglas de estados.
 dict_regioes_do_brasil = {'regiao_norte': ['AC', 'AP', 'AM', 'PA', 'RO', 'RR', 'TO'],
@@ -143,6 +147,7 @@ features_siglas_estados_brasileiros = ['estado_onde_trabalha', 'estado_onde_nasc
 for regiao, classes in dict_regioes_do_brasil.items():
     for classe in classes:
         substituir_valores_da_classe(dados_treinamento, features_siglas_estados_brasileiros, classe, regiao)
+        substituir_valores_da_classe(dados_teste, features_siglas_estados_brasileiros, classe, regiao)
 
 # ------------------------------------------------------------------------------
 #  Substituindo os espaços ausentes das features, que estavam incompletas e que o
@@ -159,27 +164,35 @@ for feature in features_incompletas:
     # Substituindo espaços ' ' por 'N' (não informado).
     if feature == 'sexo':
         substituir_valores_da_classe(dados_treinamento, [feature], ' ', 'N')
+        substituir_valores_da_classe(dados_teste, [feature], ' ', 'N')
 
     # Substituindo os espaços ' ' por "classe_invalida".
     elif feature in features_siglas_estados_brasileiros:
         substituir_valores_da_classe(dados_treinamento, features_siglas_estados_brasileiros, ' ', 'classe_invalida')
+        substituir_valores_da_classe(dados_teste, features_siglas_estados_brasileiros, ' ', 'classe_invalida')
 
     # Substituindo os espaços ' ' pela média dos valores (após transformá-los em números).
     elif feature in ['codigo_area_telefone_residencial', 'codigo_area_telefone_trabalho']:
 
         # Primeiramente, substituímos os espaços vazios por None, a fim de realizar a conversão da coluna.
         substituir_valores_da_classe(dados_treinamento, [feature], ' ', None)
+        substituir_valores_da_classe(dados_teste, [feature], ' ', None)
 
         # Converte os valores str da coluna em numéricos. Coerce substitui strings inválidas por NaN.
         dados_treinamento[feature] = pd.to_numeric(dados_treinamento[feature], errors='coerce')
+        dados_teste[feature] = pd.to_numeric(dados_teste[feature], errors='coerce')
 
         # Substituindo os valores NaN pela mediana.
-        mediana_feature = dados_treinamento[feature].median()
-        dados_treinamento[feature] = dados_treinamento[feature].fillna(mediana_feature)
+        mediana_feature_treinamento = dados_treinamento[feature].median()
+        mediana_feature_teste = dados_teste[feature].median()
+        dados_treinamento[feature] = dados_treinamento[feature].fillna(mediana_feature_treinamento)
+        dados_teste[feature] = dados_teste[feature].fillna(mediana_feature_teste)
 
     else:
-        mediana_feature = dados_treinamento[feature].median()
-        dados_treinamento[feature] = dados_treinamento[feature].fillna(mediana_feature)
+        mediana_feature_treinamento = dados_treinamento[feature].median()
+        mediana_feature_teste = dados_teste[feature].median()
+        dados_treinamento[feature] = dados_treinamento[feature].fillna(mediana_feature_treinamento)
+        dados_teste[feature] = dados_teste[feature].fillna(mediana_feature_teste)
 
 # ------------------------------------------------------------------------------
 #  Criação de uma função para calcular a taxa de inadimplência de cada classe
@@ -269,58 +282,96 @@ features_significado_nao_informado = ['codigo_area_telefone_residencial', 'codig
                                       'tipo_residencia', 'profissao', 'ocupacao', 'profissao_companheiro']
 
 dividir_classes_por_quartis(dados_treinamento, features_significado_nao_informado)
+dividir_classes_por_quartis(dados_teste, features_significado_nao_informado)
 
 # ------------------------------------------------------------------------------
 # Criação e implementação de uma função para aplicar a classe OneHotEncoder em
 # colunas categóricas, mantendo as demais inalteradas.
 # ------------------------------------------------------------------------------
 
-def aplicar_one_hot_encoder(data, features, target):
+def aplicar_one_hot_encoder(data, features, data_type='training', target='target'):
     "Função que aplica a classe OneHotEncoder em features categóricas, mantendo as demais inalteradas."
 
-    # Separar a coluna do alvo das demais features.
-    data_target = data[target]
-    data_features = data.drop(target, axis=1)
-
-    # Instanciar o OneHotEncoder.
-    one_hot_encoder = OneHotEncoder(sparse_output=False)
-
-    # Aplicar o OneHotEncoder às colunas categóricas.
-    data_codificado = one_hot_encoder.fit_transform(data_features[features])
-
-    # Colhetando os nomes das features codificadas.
-    features_codificadas = one_hot_encoder.get_feature_names_out(features)
-
-    # Converter o resultado para DataFrame.
-    data_frame_codificado = pd.DataFrame(data_codificado, columns=features_codificadas, index=data.index)
-
-    # Remover as features categóricas originais.
-    data_features = data_features.drop(columns=features)
-
     # Concatenar o DataFrame codificado com as demais features e o alvo.
-    data_final = pd.concat([data_features, data_frame_codificado, data_target], axis=1)
+    if data_type == 'training':
 
-    return data_final
+        # Separar a coluna do alvo das demais features.
+        data_target = data[target]
+        data_features = data.drop(target, axis=1)
+
+        # Instanciar o OneHotEncoder.
+        one_hot_encoder = OneHotEncoder(sparse_output=False)
+
+        # Aplicar o OneHotEncoder às colunas categóricas.
+        data_codificado = one_hot_encoder.fit_transform(data_features[features])
+
+        # Colhetando os nomes das features codificadas.
+        features_codificadas = one_hot_encoder.get_feature_names_out(features)
+
+        # Converter o resultado para DataFrame.
+        data_frame_codificado = pd.DataFrame(data_codificado, columns=features_codificadas, index=data.index)
+
+        # Remover as features categóricas originais.
+        data_features = data_features.drop(columns=features)
+
+        data_final = pd.concat([data_features, data_frame_codificado, data_target], axis=1)
+        return data_final
+
+    elif data_type == 'test':
+
+        # Instanciar o OneHotEncoder.
+        one_hot_encoder = OneHotEncoder(sparse_output=False)
+
+        # Aplicar o OneHotEncoder às colunas categóricas.
+        data_codificado = one_hot_encoder.fit_transform(data[features])
+
+        # Colhetando os nomes das features codificadas.
+        features_codificadas = one_hot_encoder.get_feature_names_out(features)
+
+        # Converter o resultado para DataFrame.
+        data_frame_codificado = pd.DataFrame(data_codificado, columns=features_codificadas, index=data.index)
+
+        # Remover as features categóricas originais.
+        data = data.drop(columns=features)
+
+        data_final = pd.concat([data, data_frame_codificado], axis=1)
+        return data_final
+
+    else:
+        raise ValueError(f'Data type "{data_type}" is not supported')
 
 # Implementação da função.
-dados_treinamento = aplicar_one_hot_encoder(dados_treinamento, features_categoricas, 'inadimplente')
+dados_treinamento = aplicar_one_hot_encoder(dados_treinamento, features_categoricas, 'training', 'inadimplente')
+dados_teste = aplicar_one_hot_encoder(dados_teste, features_categoricas, 'test')
 
 #------------------------------------------------------------------------------
 # Removendo as features dos estados inválidos.
 #------------------------------------------------------------------------------
 
-dados_treinamento.drop('estado_onde_nasceu_classe_invalida', axis=1, inplace=True)
-dados_treinamento.drop('estado_onde_trabalha_classe_invalida', axis=1, inplace=True)
+estados_invalidos = ['estado_onde_nasceu_classe_invalida', 'estado_onde_trabalha_classe_invalida']
+dados_treinamento.drop(estados_invalidos, axis=1, inplace=True)
+dados_teste.drop(estados_invalidos, axis=1, inplace=True)
+
+#------------------------------------------------------------------------------
+# Remoção de features que possuíam uma classe extremamente dominante, após a
+# implementação da função 'aplicar_one_hot_encoder'.
+# sexo_N: Vasta maioria com valor zero (0: 19968)
+#------------------------------------------------------------------------------
+
+dados_treinamento.drop('sexo_N', axis=1, inplace=True)
+dados_teste.drop('sexo_N', axis=1, inplace=True)
 
 # ------------------------------------------------------------------------------
 # Exibindo os histogramas entre as quantidades e os valores de cada feature
 # ------------------------------------------------------------------------------
 
-for feature in list(dados_treinamento.columns):
-    print(f"\n\n\t-----Histograma da feature {feature}-----\n")
-    grafico = dados_treinamento[feature].plot.hist(bins=100)
-    grafico.set(title=feature, xlabel='Valores', ylabel='Quantidades')
-    plt.show()
+# for feature in list(dados_treinamento.columns):
+#     print(f"\n\n\t-----Histograma da feature {feature}-----\n")
+#     grafico = dados_treinamento[feature].plot.hist(bins=100)
+#     grafico.set(title=feature, xlabel='Valores', ylabel='Quantidades')
+#     plt.show()
+
+
 
 #------------------------------------------------------------------------------
 # Separar o conjunto de treinamento em atributos e alvo, exibindo suas dimensões
