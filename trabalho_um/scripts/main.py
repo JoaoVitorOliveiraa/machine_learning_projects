@@ -15,6 +15,7 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.model_selection import train_test_split, cross_val_predict, cross_val_score
 from sklearn.metrics import confusion_matrix, accuracy_score
 from sklearn.preprocessing import OneHotEncoder, StandardScaler, MinMaxScaler
+from sklearn.linear_model import LogisticRegression, LogisticRegressionCV
 
 #------------------------------------------------------------------------------
 # Importar os conjuntos de teste e treinamento (retirando as colunas dos id's)
@@ -433,15 +434,15 @@ X_teste_com_escala = escala.transform(X_teste)
 # Treinando o modelo KNeighborsClassifier, com k variando entre 1 e 30
 # ------------------------------------------------------------------------------
 
-print("\n\n\t-----Modelo KNeighborsClassifier-----\n")
+print("\n\n\t-----Classificador com KNN-----\n")
 for k in range(1, 31):
 
     # Instanciando o classificador KNN.
     classificador_knn = KNeighborsClassifier(n_neighbors=k, weights="uniform")
-    classificador_knn = classificador_knn.fit(X_treino, y_treino)
+    classificador_knn = classificador_knn.fit(X_treino_com_escala, y_treino)
 
-    y_resposta_treino = classificador_knn.predict(X_treino)
-    y_resposta_teste = classificador_knn.predict(X_teste)
+    y_resposta_treino = classificador_knn.predict(X_treino_com_escala)
+    y_resposta_teste = classificador_knn.predict(X_teste_com_escala)
 
     acuracia_treino = accuracy_score(y_treino, y_resposta_treino)
     acuracia_teste  = accuracy_score(y_teste, y_resposta_teste)
@@ -470,5 +471,40 @@ for k in range(1, 31):
     # print(f'Taxa de Erro Médio: {((1-media_acuracias)*100):.4f}%')
     # #print(f'Matriz de Confusão: {matriz_confusao}')
 
+# -------------------------------------------------------------------------------
+# Treinando o modelo LogisticRegression, com penalidade L2
+# -------------------------------------------------------------------------------
 
+print("\n\n\t-----Classificador com Regressão Logística (Regularização L2)-----\n")
+print("\n             C TREINO  TESTE")
+print(" ------------- ------  -----")
+
+# Para este laço, o melhor resultado foi em C=0.001000 (59.7% de acurácia).
+# for c in [0.000001, 0.000010, 0.000100, 0.001, 0.010, 0.100,
+#           1, 10, 100, 1000, 10000, 100000, 1000000]:
+
+# Para este laço, o melhor resultado foi em C=0.002000 (59.8% de acurácia).
+#for c in [0.000100, 0.000200, 0.000500, 0.001000, 0.002000, 0.005000, 0.010000]:
+
+# Para este laço, os valores 0.001500, 0.002000 e 0.002200 possuem 59.8% de acurácia.
+#for c in [0.001, 0.0012, 0.0015, 0.002, 0.0022, 0.0025, 0.003, 0.0035, 0.004, 0.0045,0.005]:
+
+# Para este laço, como vários valores possuem 59.8% de acurácia, tomamos 0.002000 como C.
+#for c in [0.0015, 0.0016, 0.0017, 0.0018, 0.0019, 0.002, 0.00205, 0.0021, 0.00215, 0.0022]:
+
+c = 0.002000
+classificador = LogisticRegression(penalty='l2', C=c, max_iter=100000)
+classificador = classificador.fit(X_treino_com_escala, y_treino)
+
+y_resposta_treino = classificador.predict(X_treino_com_escala)
+y_resposta_teste = classificador.predict(X_teste_com_escala)
+
+acuracia_treino = accuracy_score(y_treino, y_resposta_treino)
+acuracia_teste = accuracy_score(y_teste, y_resposta_teste)
+
+print(
+    "%14.6f" % c,
+    "%6.1f" % (100 * acuracia_treino),
+    "%6.1f" % (100 * acuracia_teste)
+)
 
