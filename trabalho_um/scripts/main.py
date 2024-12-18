@@ -16,6 +16,7 @@ from sklearn.model_selection import train_test_split, cross_val_predict, cross_v
 from sklearn.metrics import confusion_matrix, accuracy_score
 from sklearn.preprocessing import OneHotEncoder, StandardScaler, MinMaxScaler
 from sklearn.linear_model import LogisticRegression, LogisticRegressionCV
+from sklearn.naive_bayes import MultinomialNB, GaussianNB, BernoulliNB
 
 #------------------------------------------------------------------------------
 # Importar os conjuntos de teste e treinamento (retirando as colunas dos id's)
@@ -493,11 +494,11 @@ print(" ------------- ------  -----")
 #for c in [0.0015, 0.0016, 0.0017, 0.0018, 0.0019, 0.002, 0.00205, 0.0021, 0.00215, 0.0022]:
 
 c = 0.002000
-classificador = LogisticRegression(penalty='l2', C=c, max_iter=100000)
-classificador = classificador.fit(X_treino_com_escala, y_treino)
+classificador_lr = LogisticRegression(penalty='l2', C=c, max_iter=100000)
+classificador_lr = classificador_lr.fit(X_treino_com_escala, y_treino)
 
-y_resposta_treino = classificador.predict(X_treino_com_escala)
-y_resposta_teste = classificador.predict(X_teste_com_escala)
+y_resposta_treino = classificador_lr.predict(X_treino_com_escala)
+y_resposta_teste = classificador_lr.predict(X_teste_com_escala)
 
 acuracia_treino = accuracy_score(y_treino, y_resposta_treino)
 acuracia_teste = accuracy_score(y_teste, y_resposta_teste)
@@ -516,14 +517,14 @@ print("\n\n\t-----Classificador com Regressão Logística (Regularização L2 e 
 print("\n             C TREINO  TESTE")
 print(" ------------- ------  -----")
 
-classificador = LogisticRegressionCV(cv=4, max_iter=100000, penalty='l2',
+classificador_lr_cv = LogisticRegressionCV(cv=4, max_iter=100000, penalty='l2',
                                      # Último laço da Regressão Logística sem validação cruzada.
                                      Cs=[0.0015, 0.0016, 0.0017, 0.0018, 0.0019, 0.002, 0.00205, 0.0021, 0.00215, 0.0022])
 
-classificador = classificador.fit(X_treino_com_escala, y_treino)
+classificador_lr_cv = classificador_lr_cv.fit(X_treino_com_escala, y_treino)
 
-y_resposta_treino = classificador.predict(X_treino_com_escala)
-y_resposta_teste = classificador.predict(X_teste_com_escala)
+y_resposta_treino = classificador_lr_cv.predict(X_treino_com_escala)
+y_resposta_teste = classificador_lr_cv.predict(X_teste_com_escala)
 
 acuracia_treino = accuracy_score(y_treino, y_resposta_treino)
 acuracia_teste = accuracy_score(y_teste, y_resposta_teste)
@@ -533,3 +534,55 @@ print(
     "%6.1f" % (100 * acuracia_treino),
     "%6.1f" % (100 * acuracia_teste)
 )
+
+# -------------------------------------------------------------------------------
+# Treinando o classificador Bayesiano Ingênuo
+# -------------------------------------------------------------------------------
+
+print("\n\n\t-----Classificador Bayesiano Ingênuo-----\n")
+
+print('\nBernoulliNB:\n')
+classificador_bernoullinb = BernoulliNB()
+classificador_bernoullinb = classificador_bernoullinb.fit(X_treino_com_escala, y_treino)
+
+y_resposta_treino = classificador_bernoullinb.predict(X_treino_com_escala)
+y_resposta_teste = classificador_bernoullinb.predict(X_teste_com_escala)
+
+acuracia_treino = accuracy_score(y_treino, y_resposta_treino)
+acuracia_teste = accuracy_score(y_teste, y_resposta_teste)
+
+print(f'Acurácia Treino: {(acuracia_treino*100):.4f}%')
+print(f'Taxa de Erro Treino: {((1-acuracia_treino)*100):.4f}%')
+print(f'Acurácia Teste: {(acuracia_teste*100):.4f}%')
+print(f'Taxa de Erro Teste: {((1-acuracia_teste)*100):.4f}%')
+
+
+print('\nMultinomial:\n')
+classificador_multinomial = MultinomialNB()
+classificador_multinomial = classificador_multinomial.fit(X_treino_com_escala, y_treino)
+
+y_resposta_treino = classificador_multinomial.predict(X_treino_com_escala)
+y_resposta_teste = classificador_multinomial.predict(X_teste_com_escala)
+
+acuracia_treino = accuracy_score(y_treino, y_resposta_treino)
+acuracia_teste = accuracy_score(y_teste, y_resposta_teste)
+
+print(f'Acurácia Treino: {(acuracia_treino*100):.4f}%')
+print(f'Taxa de Erro Treino: {((1-acuracia_treino)*100):.4f}%')
+print(f'Acurácia Teste: {(acuracia_teste*100):.4f}%')
+print(f'Taxa de Erro Teste: {((1-acuracia_teste)*100):.4f}%')
+
+print('\nGaussianNB:\n')
+classificador_gaussiannb = GaussianNB()
+classificador_gaussiannb = classificador_gaussiannb.fit(X_treino_com_escala, y_treino)
+
+y_resposta_treino = classificador_gaussiannb.predict(X_treino_com_escala)
+y_resposta_teste = classificador_gaussiannb.predict(X_teste_com_escala)
+
+acuracia_treino = accuracy_score(y_treino, y_resposta_treino)
+acuracia_teste = accuracy_score(y_teste, y_resposta_teste)
+
+print(f'Acurácia Treino: {(acuracia_treino*100):.4f}%')
+print(f'Taxa de Erro Treino: {((1-acuracia_treino)*100):.4f}%')
+print(f'Acurácia Teste: {(acuracia_teste*100):.4f}%')
+print(f'Taxa de Erro Teste: {((1-acuracia_teste)*100):.4f}%')
