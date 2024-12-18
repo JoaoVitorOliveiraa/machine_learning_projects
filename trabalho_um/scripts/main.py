@@ -365,48 +365,51 @@ dados_teste.drop('sexo_N', axis=1, inplace=True)
 # Exibindo os histogramas entre as quantidades e os valores de cada feature
 # ------------------------------------------------------------------------------
 
-# for feature in list(dados_treinamento.columns):
-#     print(f"\n\n\t-----Histograma da feature {feature}-----\n")
-#     grafico = dados_treinamento[feature].plot.hist(bins=100)
-#     grafico.set(title=feature, xlabel='Valores', ylabel='Quantidades')
-#     plt.show()
-
-
-
-#------------------------------------------------------------------------------
-# Separar o conjunto de treinamento em atributos e alvo, exibindo suas dimensões
-#------------------------------------------------------------------------------
-
-# atributos = dados_treinamento.iloc[:, :-1].to_numpy()   # ou :-1].values
-# rotulos = dados_treinamento.iloc[:, -1].to_numpy()      # ou :-1].values
-# print("\n\n\t-----Dimensões-----")
-# print(f"\nDimensão das features: {atributos.shape}")
-# print(f"Dimensão dos rótulos: {rotulos.shape}\n")
-
-#------------------------------------------------------------------------------
-# Exibir o coeficiente de Pearson de cada atributo (entre o mesmo e o alvo)
-#------------------------------------------------------------------------------
-
-# for coluna in colunas:
-#     print('%10s = %6.3f , p-value = %.9f' % (
-#         coluna,
-#         pearsonr(dados_treinamento[coluna], dados_treinamento['inadimplente'])[0],
-#         pearsonr(dados_treinamento[coluna], dados_treinamento['inadimplente'])[1]
-#         )
-#     )
-
-# ------------------------------------------------------------------------------
-#  Histograma dos dados
-#  Eixo vertical: Número de instâncias
-#  Eixo horizontal: Determinado intervalo valores
-# ------------------------------------------------------------------------------
-
-# dados_treinamento.hist(bins=50, figsize=(35, 35))
-# plt.show()
+for feature in list(dados_treinamento.columns):
+    print(f"\n\n\t-----Histograma da feature {feature}-----\n")
+    grafico = dados_treinamento[feature].plot.hist(bins=100)
+    grafico.set(title=feature, xlabel='Valores', ylabel='Quantidades')
+    plt.show()
 
 # ------------------------------------------------------------------------------
 # Embaralhar o conjunto de dados para garantir que a divisão entre os dados de
 # treino e os dados de teste esteja isenta de qualquer viés de seleção
 # ------------------------------------------------------------------------------
 
-dados_embaralhados = dados_treinamento.sample(frac=1, random_state=11012005)
+dados_treinamento_embaralhados = dados_treinamento.sample(frac=1, random_state=11012005)
+dados_teste_embaralhados = dados_teste.sample(frac=1, random_state=11012005)
+
+#------------------------------------------------------------------------------
+# Separar o conjunto de treinamento em arrays X e Y, exibindo suas dimensões
+#------------------------------------------------------------------------------
+
+# Separando as features do alvo.
+X = dados_treinamento_embaralhados.iloc[:, :-1].values
+y = dados_treinamento_embaralhados.iloc[:, -1].values
+
+# Conjunto de treino e teste
+X_treino, X_teste, y_treino, y_teste = train_test_split(X, y, test_size=0.25, random_state=11012005)
+
+# Conjunto de teste final
+X_teste_final = dados_teste_embaralhados.iloc[:, :].values
+
+print("\n\n\t-----Dimensões-----")
+print(f"\nDimensão X treino: {X_treino.shape}")
+print(f"Dimensão y treino: {y_treino.shape}")
+print(f"Dimensão X teste: {X_teste.shape}")
+print(f"Dimensão y teste: {y_teste.shape}\n")
+
+#------------------------------------------------------------------------------
+# Exibindo os coeficientes de Pearson de cada atributo (entre o mesmo e o alvo)
+#------------------------------------------------------------------------------
+
+print("\n\n\t-----Coeficiente de Pearson-----\n")
+for coluna in dados_treinamento.columns:
+    coef_pearsonr = pearsonr(dados_treinamento[coluna], dados_treinamento['inadimplente'])[0]
+    p_value = pearsonr(dados_treinamento[coluna], dados_treinamento['inadimplente'])[1]
+    print(f'{coluna}: {coef_pearsonr:.3f}, p-value: {p_value:.3f}\n')
+
+
+
+
+
