@@ -690,13 +690,20 @@ print(
 )
 
 # -------------------------------------------------------------------------------
-# Treinando o classificador Árvore de Decisão
+# Treinando o classificador Árvore de Decisão, variando a profundidade
 # -------------------------------------------------------------------------------
 
 print("\n\n\t-----Classificador Árvore de Decisão-----\n")
 
+print("\n  D TREINO  TESTE")
+print(" -- ------ ------")
+
+# Para este laço, o melhor resultado foi em d=6 e criterion='gini', com 58.18% de acurácia.
+#for d in range(2, 21):
+
+d = 6
 # criterion = 'gini', 'entropy' ou 'log_loss'
-classificador_arvore_decisao = DecisionTreeClassifier(criterion='entropy', max_depth=16, random_state=11012005)
+classificador_arvore_decisao = DecisionTreeClassifier(criterion='gini', max_depth=d, random_state=11012005)
 classificador_arvore_decisao = classificador_arvore_decisao.fit(X_treino_com_escala, y_treino)
 
 y_resposta_treino = classificador_arvore_decisao.predict(X_treino_com_escala)
@@ -705,7 +712,8 @@ y_resposta_teste = classificador_arvore_decisao.predict(X_teste_com_escala)
 acuracia_treino = accuracy_score(y_treino, y_resposta_treino)
 acuracia_teste = accuracy_score(y_teste, y_resposta_teste)
 
-print(f'Acurácia Treino: {(acuracia_treino*100):.4f}%')
-print(f'Taxa de Erro Treino: {((1-acuracia_treino)*100):.4f}%')
-print(f'Acurácia Teste: {(acuracia_teste*100):.4f}%')
-print(f'Taxa de Erro Teste: {((1-acuracia_teste)*100):.4f}%')
+print(
+    "%3d" % d,
+    "%6.2f" % (100*acuracia_treino),
+    "%6.2f" % (100*acuracia_teste)
+)
