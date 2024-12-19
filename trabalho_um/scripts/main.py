@@ -29,6 +29,7 @@ caminho_conjunto_de_teste = Path('../data') / 'conjunto_de_teste.csv'
 caminho_conjunto_de_treinamento = Path('../data') / 'conjunto_de_treinamento.csv'
 dados_teste = pd.read_csv(caminho_conjunto_de_teste)
 dados_treinamento = pd.read_csv(caminho_conjunto_de_treinamento)
+ids_solicitantes_dados_teste = dados_teste['id_solicitante']
 dados_teste = dados_teste.iloc[:, 1:]
 dados_treinamento = dados_treinamento.iloc[:, 1:]
 
@@ -765,3 +766,40 @@ print(
     "%6.2f" % (100*(1-acuracia_teste)),
     "%6.2f" % (100*classificador_floresta_aleatoria.oob_score_)
 )
+
+# -------------------------------------------------------------------------------
+# Treinando a primeira submissão para o kaggle (Floresta Aleatória com 60.48%)
+# -------------------------------------------------------------------------------
+
+# Utilizando todos os dados.
+X_treino_submissao = X
+X_teste_submissao = X_teste_final
+y_treino_submissao = y
+
+# Colocando em escala.
+escala.fit(X_treino_submissao)
+X_treino_submissao_com_escala = escala.fit_transform(X_treino_submissao)
+X_teste_submissao_com_escala = escala.transform(X_teste_submissao)
+
+# Aplicando o modelo
+k = 189
+d = 12
+classificador_floresta_aleatoria = RandomForestClassifier(
+    n_estimators=k,
+    max_features='sqrt',
+    oob_score=True,
+    max_depth=d,
+    random_state=11012005
+)
+classificador_floresta_aleatoria = classificador_floresta_aleatoria.fit(X_treino_submissao_com_escala, y_treino_submissao)
+y_resposta_teste_submissao = classificador_floresta_aleatoria.predict(X_teste_submissao_com_escala)
+
+# Criando o DataFrame de submissão.
+primeira_submissao_kaggle = pd.DataFrame({
+    'id_solicitante': ids_solicitantes_dados_teste,
+    'inadimplente': y_resposta_teste_submissao
+})
+
+# Salvando em CSV
+primeira_submissao_kaggle.to_csv('primeira_submissao_kaggle.csv', index=False)
+print("Arquivo salvo como 'primeira_submissao_kaggle.csv'")
