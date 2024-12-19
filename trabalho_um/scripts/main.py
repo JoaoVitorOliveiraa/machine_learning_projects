@@ -19,6 +19,7 @@ from sklearn.linear_model import LogisticRegression, LogisticRegressionCV
 from sklearn.naive_bayes import MultinomialNB, GaussianNB, BernoulliNB
 from sklearn.svm import LinearSVC, SVC
 from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import RandomForestClassifier
 
 #------------------------------------------------------------------------------
 # Importar os conjuntos de teste e treinamento (retirando as colunas dos id's)
@@ -716,4 +717,51 @@ print(
     "%3d" % d,
     "%6.2f" % (100*acuracia_treino),
     "%6.2f" % (100*acuracia_teste)
+)
+
+# -------------------------------------------------------------------------------
+# Treinando o classificador Floresta Aleatória
+# -------------------------------------------------------------------------------
+
+print("\n\n\t-----Classificador Floresta Aleatória-----\n")
+print("\n  K   D TREINO  TESTE   ERRO  oob_score")
+print("  -- -- ------ ------ ------ -----")
+
+#Para este laço, o melhor resultado foi em k=90 e d=10, com 59.76% de acurácia.
+# d = 10
+# for k in range(5, 201, 5):
+
+# Para este laço, o melhor resultado foi em k=189 e d=10, com 58.69% de acurácia.
+#for k in [185, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195, 196, 197, 198, 199, 200]:
+
+# Para este laço, o melhor resultado foi em k=189 e d=12, com 60.48% de acurácia.
+# k = 189
+# for d in range(2, 21):
+
+k = 189
+d = 12
+
+classificador_floresta_aleatoria = RandomForestClassifier(
+    n_estimators=k,
+    max_features='sqrt',
+    oob_score=True,
+    max_depth=d,
+    random_state=11012005
+)
+
+classificador_floresta_aleatoria = classificador_floresta_aleatoria.fit(X_treino_com_escala, y_treino)
+
+y_resposta_treino = classificador_floresta_aleatoria.predict(X_treino_com_escala)
+y_resposta_teste = classificador_floresta_aleatoria.predict(X_teste_com_escala)
+
+acuracia_treino = accuracy_score(y_treino, y_resposta_treino)
+acuracia_teste = accuracy_score(y_teste, y_resposta_teste)
+
+print(
+    "%3d" % k,
+    "%3d" % d,
+    "%6.2f" % (100*acuracia_treino),
+    "%6.2f" % (100*acuracia_teste),
+    "%6.2f" % (100*(1-acuracia_teste)),
+    "%6.2f" % (100*classificador_floresta_aleatoria.oob_score_)
 )
