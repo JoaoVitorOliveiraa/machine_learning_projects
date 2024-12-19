@@ -803,3 +803,24 @@ primeira_submissao_kaggle = pd.DataFrame({
 # Salvando em CSV
 primeira_submissao_kaggle.to_csv('primeira_submissao_kaggle.csv', index=False)
 print("Arquivo salvo como 'primeira_submissao_kaggle.csv'")
+
+# -------------------------------------------------------------------------------
+# Treinando a segunda submissão para o kaggle (Support Vector Machine com Kernel)
+# -------------------------------------------------------------------------------
+
+# Aplicando o modelo
+c = 100
+g = 0.0002
+classificador_svc = SVC(kernel='rbf', C=c, gamma=g, max_iter=100000000)
+classificador_svc = classificador_svc.fit(X_treino_submissao_com_escala, y_treino_submissao)
+y_resposta_teste_submissao = classificador_svc.predict(X_teste_submissao_com_escala)
+
+# Criando o DataFrame de submissão.
+segunda_submissao_kaggle = pd.DataFrame({
+    'id_solicitante': ids_solicitantes_dados_teste,
+    'inadimplente': y_resposta_teste_submissao
+})
+
+# Salvando em CSV
+segunda_submissao_kaggle.to_csv('segunda_submissao_kaggle.csv', index=False)
+print("Arquivo salvo como 'segunda_submissao_kaggle.csv'")
