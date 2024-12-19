@@ -17,7 +17,7 @@ from sklearn.metrics import confusion_matrix, accuracy_score
 from sklearn.preprocessing import OneHotEncoder, StandardScaler, MinMaxScaler
 from sklearn.linear_model import LogisticRegression, LogisticRegressionCV
 from sklearn.naive_bayes import MultinomialNB, GaussianNB, BernoulliNB
-from sklearn.svm import LinearSVC
+from sklearn.svm import LinearSVC, SVC
 
 #------------------------------------------------------------------------------
 # Importar os conjuntos de teste e treinamento (retirando as colunas dos id's)
@@ -642,4 +642,48 @@ print(
     "%7.2f" % (100*acuracia_teste),
     "%7.2f" % (100 - 100*acuracia_treino),
     "%7.2f" % (100 - 100*acuracia_teste)
+)
+
+# -------------------------------------------------------------------------------
+# Treinando o classificador Support Vector Machine com Kernel
+# -------------------------------------------------------------------------------
+
+print("\n\n\t-----Classificador Support Vector Machine com Kernel-----\n")
+print("\n       C    GAMMA  TREINO  TESTE")
+print(" -------  -------  ------  ------")
+
+# g = 1/64
+# for g in [0.0009, 0.0010, 0.0011, 0.0012, 0.0013, 0.0014]:
+#     for c in [0.5, 1, 2, 5, 10]:
+
+# Para este laço, o melhor resultado foi em c=100 e g=0.0001, com 60.24% de acurácia.
+# for g in [0.000100, 0.001, 0.010, 0.100, 1, 10, 100, 1000, 10000, 100000, 1000000]:
+#     for c in [0.010, 0.100, 1, 10, 100, 1000, 10000, 100000, 1000000]:
+
+# Para este laço, o melhor resultado foi em c=100 e g=0.0001, com 60.24% de acurácia.
+# for g in [0.000100, 0.001, 0.010, 0.100, 1, 10, 100, 1000, 10000, 100000, 1000000]:
+#     for c in [50, 100, 200]:
+
+# Para este laço, o melhor resultado foi em c=100 e g=0.0002, com 60.34% de acurácia.
+# c = 100
+# for g in [0.000020, 0.000050, 0.000100, 0.000200, 0.000500]:
+
+# Por fim, escolhemos c = 100 e g = 0.0002.
+c = 100
+g = 0.0002
+
+classificador_svc = SVC(kernel='rbf', C=c, gamma=g, max_iter=100000000)
+classificador_svc = classificador_svc.fit(X_treino_com_escala, y_treino)
+
+y_resposta_treino = classificador_svc.predict(X_treino_com_escala)
+y_resposta_teste = classificador_svc.predict(X_teste_com_escala)
+
+acuracia_treino = accuracy_score(y_treino, y_resposta_treino)
+acuracia_teste = accuracy_score(y_teste, y_resposta_teste)
+
+print(
+    "%9.4f" % c,
+    "%9.4f" % g,
+    "%6.2f" % (100*acuracia_treino),
+    "%6.2f" % (100*acuracia_teste)
 )
