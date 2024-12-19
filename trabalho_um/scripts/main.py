@@ -12,12 +12,13 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 from scipy.stats import pearsonr
 from sklearn.neighbors import KNeighborsClassifier
-from sklearn.model_selection import train_test_split, cross_val_predict, cross_val_score
-from sklearn.metrics import confusion_matrix, accuracy_score
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
 from sklearn.preprocessing import OneHotEncoder, StandardScaler, MinMaxScaler
 from sklearn.linear_model import LogisticRegression, LogisticRegressionCV
 from sklearn.naive_bayes import MultinomialNB, GaussianNB, BernoulliNB
 from sklearn.svm import LinearSVC, SVC
+from sklearn.tree import DecisionTreeClassifier
 
 #------------------------------------------------------------------------------
 # Importar os conjuntos de teste e treinamento (retirando as colunas dos id's)
@@ -687,3 +688,24 @@ print(
     "%6.2f" % (100*acuracia_treino),
     "%6.2f" % (100*acuracia_teste)
 )
+
+# -------------------------------------------------------------------------------
+# Treinando o classificador Árvore de Decisão
+# -------------------------------------------------------------------------------
+
+print("\n\n\t-----Classificador Árvore de Decisão-----\n")
+
+# criterion = 'gini', 'entropy' ou 'log_loss'
+classificador_arvore_decisao = DecisionTreeClassifier(criterion='entropy', max_depth=16, random_state=11012005)
+classificador_arvore_decisao = classificador_arvore_decisao.fit(X_treino_com_escala, y_treino)
+
+y_resposta_treino = classificador_arvore_decisao.predict(X_treino_com_escala)
+y_resposta_teste = classificador_arvore_decisao.predict(X_teste_com_escala)
+
+acuracia_treino = accuracy_score(y_treino, y_resposta_treino)
+acuracia_teste = accuracy_score(y_teste, y_resposta_teste)
+
+print(f'Acurácia Treino: {(acuracia_treino*100):.4f}%')
+print(f'Taxa de Erro Treino: {((1-acuracia_treino)*100):.4f}%')
+print(f'Acurácia Teste: {(acuracia_teste*100):.4f}%')
+print(f'Taxa de Erro Teste: {((1-acuracia_teste)*100):.4f}%')
