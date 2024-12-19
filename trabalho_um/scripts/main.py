@@ -17,6 +17,7 @@ from sklearn.metrics import confusion_matrix, accuracy_score
 from sklearn.preprocessing import OneHotEncoder, StandardScaler, MinMaxScaler
 from sklearn.linear_model import LogisticRegression, LogisticRegressionCV
 from sklearn.naive_bayes import MultinomialNB, GaussianNB, BernoulliNB
+from sklearn.svm import LinearSVC
 
 #------------------------------------------------------------------------------
 # Importar os conjuntos de teste e treinamento (retirando as colunas dos id's)
@@ -586,3 +587,59 @@ print(f'Acurácia Treino: {(acuracia_treino*100):.4f}%')
 print(f'Taxa de Erro Treino: {((1-acuracia_treino)*100):.4f}%')
 print(f'Acurácia Teste: {(acuracia_teste*100):.4f}%')
 print(f'Taxa de Erro Teste: {((1-acuracia_teste)*100):.4f}%')
+
+# -------------------------------------------------------------------------------
+# Treinando o classificador Support Vector Machine Linear
+# -------------------------------------------------------------------------------
+
+print("\n\n\t-----Classificador Support Vector Machine Linear-----\n")
+
+print("\n           C  ACCTRE  ACCTES  ERRTRE  ERRTES")
+print(" -----------  ------  ------  ------  ------")
+
+# Para este laço, os melhores resultados foram em C=0.000100 e C=0.001000, ambos com 59.5% de acurácia.
+# for C in [0.000001, 0.000010, 0.000100, 0.001000, 0.010000, 0.100000]:
+
+# Para este laço, os melhores resultados foram em C=0.000050 e C=0.000200, ambos com 59.7% de acurácia.
+#for C in [0.000010, 0.000020, 0.000050, 0.000100, 0.000200, 0.000500, 0.001000, 0.002000, 0.005000, 0.010000]:
+
+# Para este laço, o melhor resultado foi em C=0.000050 com 59.7% de acurácia.
+#for C in [0.000020, 0.000030, 0.000040, 0.000050, 0.000060, 0.000070, 0.000080, 0.000090, 0.000100]:
+
+# Para este laço, os melhores resultados foram em C=0.000150, C=0.000175, C=0.000250 e C=0.000300, todos com 59.8% de acurácia.
+#for C in [0.000100, 0.000150, 0.000175, 0.000200, 0.000225, 0.000250, 0.000300, 0.000350, 0.000400, 0.000450, 0.000500]:
+
+# Para este laço, o melhor resultado foi em C=0.000160, com 59.84% de acurácia.
+#for C in [0.000100, 0.000110, 0.000120, 0.000130, 0.000140, 0.000150, 0.000160, 0.000170, 0.000180, 0.000190, 0.000200]:
+
+# Para este laço, os melhores resultados foram em C=0.000235 e C=0.000260, ambos com 59.86% de acurácia.
+# for C in [0.000225, 0.000230, 0.000235, 0.000240, 0.000245, 0.000250, 0.000260, 0.000270, 0.000280, 0.000290, 0.000300,
+#           0.000310, 0.000320, 0.000330, 0.000340, 0.000350]:
+
+# Para este laço, podemos considerar que o melhor resultado foi em C=0.000235, com 59,86% de acurácia.
+#for C in [0.000230, 0.000231, 0.000232, 0.000233, 0.000234, 0.000235, 0.000236, 0.000237, 0.000238, 0.000239, 0.000240]:
+
+# Para este laço, podemos considerar que o melhor resultado foi em C=0.000260, com 59,86% de acurácia.
+# for C in [0.000251, 0.000252, 0.000253, 0.000254, 0.000255, 0.000256, 0.000257, 0.000258, 0.000259, 0.000260,
+#           0.000261, 0.000262, 0.000263, 0.000264, 0.000265, 0.000266, 0.000267, 0.000268, 0.000269, 0.000270]:
+
+# Por fim, escolhemos C=0.000260.
+C = 0.000260
+
+classificador_linear_svc = LinearSVC(penalty='l2', C=C, max_iter=10000000, dual=True, random_state=11012005)
+classificador_linear_svc = classificador_linear_svc.fit(X_treino_com_escala, y_treino)
+
+y_resposta_treino = classificador_linear_svc.predict(X_treino_com_escala)
+y_resposta_teste = classificador_linear_svc.predict(X_teste_com_escala)
+
+acuracia_treino = accuracy_score(y_treino, y_resposta_treino)
+acuracia_teste = accuracy_score(y_teste, y_resposta_teste)
+
+print(
+    # "%3d"%k,
+    "%11.6f" % C,
+    "%8.2f" % (100*acuracia_treino),
+    "%7.2f" % (100*acuracia_teste),
+    "%7.2f" % (100 - 100*acuracia_treino),
+    "%7.2f" % (100 - 100*acuracia_teste)
+)
