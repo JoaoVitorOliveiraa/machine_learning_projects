@@ -6,6 +6,7 @@
 # Importar bibliotecas
 #------------------------------------------------------------------------------
 
+import tensorflow as tf
 import numpy as np
 import pandas as pd
 from pathlib import Path
@@ -561,20 +562,20 @@ print(f'Acurácia Teste: {(acuracia_teste*100):.4f}%')
 print(f'Taxa de Erro Teste: {((1-acuracia_teste)*100):.4f}%')
 
 
-print('\nMultinomial:\n')
-classificador_multinomial = MultinomialNB()
-classificador_multinomial = classificador_multinomial.fit(X_treino_com_escala, y_treino)
-
-y_resposta_treino = classificador_multinomial.predict(X_treino_com_escala)
-y_resposta_teste = classificador_multinomial.predict(X_teste_com_escala)
-
-acuracia_treino = accuracy_score(y_treino, y_resposta_treino)
-acuracia_teste = accuracy_score(y_teste, y_resposta_teste)
-
-print(f'Acurácia Treino: {(acuracia_treino*100):.4f}%')
-print(f'Taxa de Erro Treino: {((1-acuracia_treino)*100):.4f}%')
-print(f'Acurácia Teste: {(acuracia_teste*100):.4f}%')
-print(f'Taxa de Erro Teste: {((1-acuracia_teste)*100):.4f}%')
+# print('\nMultinomial:\n')
+# classificador_multinomial = MultinomialNB()
+# classificador_multinomial = classificador_multinomial.fit(X_treino_com_escala, y_treino)
+#
+# y_resposta_treino = classificador_multinomial.predict(X_treino_com_escala)
+# y_resposta_teste = classificador_multinomial.predict(X_teste_com_escala)
+#
+# acuracia_treino = accuracy_score(y_treino, y_resposta_treino)
+# acuracia_teste = accuracy_score(y_teste, y_resposta_teste)
+#
+# print(f'Acurácia Treino: {(acuracia_treino*100):.4f}%')
+# print(f'Taxa de Erro Treino: {((1-acuracia_treino)*100):.4f}%')
+# print(f'Acurácia Teste: {(acuracia_teste*100):.4f}%')
+# print(f'Taxa de Erro Teste: {((1-acuracia_teste)*100):.4f}%')
 
 print('\nGaussianNB:\n')
 classificador_gaussiannb = GaussianNB()
@@ -768,59 +769,105 @@ print(
 )
 
 # -------------------------------------------------------------------------------
-# Treinando a primeira submissão para o kaggle (Floresta Aleatória com 60.48%)
+# Treinando o classificador Floresta Aleatória com filtro de feature importance
 # -------------------------------------------------------------------------------
 
-# Utilizando todos os dados.
-X_treino_submissao = X
-X_teste_submissao = X_teste_final
-y_treino_submissao = y
+print("\n\n\t-----Classificador Floresta Aleatória (Filtro de Feature Importance)-----\n")
+print("\n  K   D TREINO  TESTE   ERRO")
+print("  -- -- ------ ------ ------")
 
-# Colocando em escala.
-escala.fit(X_treino_submissao)
-X_treino_submissao_com_escala = escala.fit_transform(X_treino_submissao)
-X_teste_submissao_com_escala = escala.transform(X_teste_submissao)
+X_treino_reduzido = X_treino_com_escala[:, classificador_floresta_aleatoria.feature_importances_ > 0.01]
+X_teste_reduzido = X_teste_com_escala[:, classificador_floresta_aleatoria.feature_importances_ > 0.01]
 
-# Aplicando o modelo
-k = 189
-d = 12
+# Para este laço, o melhor resultado foi em k=160 e d=10, com 60.74% de acurácia.
+# d = 10
+# for k in range(5, 201, 5):
+
+# Para este laço, o melhor resultado ainda foi em k=160 e d=10, com 60.74% de acurácia.
+# k = 160
+# for d in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]:
+
+k = 160
+d = 10
+
 classificador_floresta_aleatoria = RandomForestClassifier(
     n_estimators=k,
-    max_features='sqrt',
-    oob_score=True,
+    max_features=8,
+    oob_score=False,
     max_depth=d,
     random_state=11012005
 )
-classificador_floresta_aleatoria = classificador_floresta_aleatoria.fit(X_treino_submissao_com_escala, y_treino_submissao)
-y_resposta_teste_submissao = classificador_floresta_aleatoria.predict(X_teste_submissao_com_escala)
 
-# Criando o DataFrame de submissão.
-primeira_submissao_kaggle = pd.DataFrame({
-    'id_solicitante': ids_solicitantes_dados_teste,
-    'inadimplente': y_resposta_teste_submissao
-})
+classificador_floresta_aleatoria = classificador_floresta_aleatoria.fit(X_treino_reduzido, y_treino)
 
-# Salvando em CSV
-primeira_submissao_kaggle.to_csv('primeira_submissao_kaggle.csv', index=False)
-print("Arquivo salvo como 'primeira_submissao_kaggle.csv'")
+y_resposta_treino = classificador_floresta_aleatoria.predict(X_treino_reduzido)
+y_resposta_teste = classificador_floresta_aleatoria.predict(X_teste_reduzido)
 
-# -------------------------------------------------------------------------------
-# Treinando a segunda submissão para o kaggle (Support Vector Machine com Kernel)
-# -------------------------------------------------------------------------------
+acuracia_treino = accuracy_score(y_treino, y_resposta_treino)
+acuracia_teste = accuracy_score(y_teste, y_resposta_teste)
 
-# Aplicando o modelo
-c = 100
-g = 0.0002
-classificador_svc = SVC(kernel='rbf', C=c, gamma=g, max_iter=100000000)
-classificador_svc = classificador_svc.fit(X_treino_submissao_com_escala, y_treino_submissao)
-y_resposta_teste_submissao = classificador_svc.predict(X_teste_submissao_com_escala)
+print(
+    "%3d" % k,
+    "%3d" % d,
+    "%6.2f" % (100*acuracia_treino),
+    "%6.2f" % (100*acuracia_teste),
+    "%6.2f" % (100*(1-acuracia_teste))
+)
 
-# Criando o DataFrame de submissão.
-segunda_submissao_kaggle = pd.DataFrame({
-    'id_solicitante': ids_solicitantes_dados_teste,
-    'inadimplente': y_resposta_teste_submissao
-})
-
-# Salvando em CSV
-segunda_submissao_kaggle.to_csv('segunda_submissao_kaggle.csv', index=False)
-print("Arquivo salvo como 'segunda_submissao_kaggle.csv'")
+# # -------------------------------------------------------------------------------
+# # Treinando a primeira submissão para o kaggle (Floresta Aleatória com 60.48%)
+# # -------------------------------------------------------------------------------
+#
+# # Utilizando todos os dados.
+# X_treino_submissao = X
+# X_teste_submissao = X_teste_final
+# y_treino_submissao = y
+#
+# # Colocando em escala.
+# escala.fit(X_treino_submissao)
+# X_treino_submissao_com_escala = escala.fit_transform(X_treino_submissao)
+# X_teste_submissao_com_escala = escala.transform(X_teste_submissao)
+#
+# # Aplicando o modelo
+# k = 189
+# d = 12
+# classificador_floresta_aleatoria = RandomForestClassifier(
+#     n_estimators=k,
+#     max_features='sqrt',
+#     oob_score=True,
+#     max_depth=d,
+#     random_state=11012005
+# )
+# classificador_floresta_aleatoria = classificador_floresta_aleatoria.fit(X_treino_submissao_com_escala, y_treino_submissao)
+# y_resposta_teste_submissao = classificador_floresta_aleatoria.predict(X_teste_submissao_com_escala)
+#
+# # Criando o DataFrame de submissão.
+# primeira_submissao_kaggle = pd.DataFrame({
+#     'id_solicitante': ids_solicitantes_dados_teste,
+#     'inadimplente': y_resposta_teste_submissao
+# })
+#
+# # Salvando em CSV
+# primeira_submissao_kaggle.to_csv('primeira_submissao_kaggle.csv', index=False)
+# print("Arquivo salvo como 'primeira_submissao_kaggle.csv'")
+#
+# # -------------------------------------------------------------------------------
+# # Treinando a segunda submissão para o kaggle (Support Vector Machine com Kernel)
+# # -------------------------------------------------------------------------------
+#
+# # Aplicando o modelo
+# c = 100
+# g = 0.0002
+# classificador_svc = SVC(kernel='rbf', C=c, gamma=g, max_iter=100000000)
+# classificador_svc = classificador_svc.fit(X_treino_submissao_com_escala, y_treino_submissao)
+# y_resposta_teste_submissao = classificador_svc.predict(X_teste_submissao_com_escala)
+#
+# # Criando o DataFrame de submissão.
+# segunda_submissao_kaggle = pd.DataFrame({
+#     'id_solicitante': ids_solicitantes_dados_teste,
+#     'inadimplente': y_resposta_teste_submissao
+# })
+#
+# # Salvando em CSV
+# segunda_submissao_kaggle.to_csv('segunda_submissao_kaggle.csv', index=False)
+# print("Arquivo salvo como 'segunda_submissao_kaggle.csv'")
