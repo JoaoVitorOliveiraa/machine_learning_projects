@@ -2,6 +2,16 @@
 # Arquivo que contém funções úteis para aplicações de Ciência de Dados
 #==============================================================================
 
+#------------------------------------------------------------------------------
+# Importações das bibliotecas
+#------------------------------------------------------------------------------
+
+import pandas as pd
+
+#------------------------------------------------------------------------------
+# Declarações das funções
+#------------------------------------------------------------------------------
+
 def show_data_head(lines_number, data, columns=False):
     "Função que exibe as primeiras 'lines_number' linhas do DataFrame 'data'."
 
@@ -114,3 +124,41 @@ def calculate_classes_target_rate(data, features, target='inadimplente'):
             print(f"Quantidade Total: {quantidade}")
             print(f"Quantidade Inadimplentes: {quantidade_inadimplentes}")
             print(f"Taxa de Inadimplência: {taxa_inadimplencia:.3f}%\n")
+
+
+def divide_classes_by_quartiles(data, features):
+    "Função que divide as classes numéricas de uma ou mais features em 4 partes, através dos quartis."
+
+    for feature in features:
+        # Garantir que a coluna seja numérica
+        data[feature] = pd.to_numeric(data[feature], errors='coerce')
+
+        # Obter os quartis e estatísticas descritivas
+        descricao_estatistica_feature = dict(data[feature].describe())
+        minimo = descricao_estatistica_feature['min']
+        primeiro_quartil = descricao_estatistica_feature['25%']
+        mediana = descricao_estatistica_feature['50%']
+        terceiro_quartil = descricao_estatistica_feature['75%']
+        maximo = descricao_estatistica_feature['max']
+
+        # Função interna para classificar os valores.
+        def classify_by_quartiles(classe):
+
+            # Ignorar valores NaN e ' '.
+            if pd.isna(classe) or (classe == ' '):
+                return classe
+
+            elif minimo <= classe <= primeiro_quartil:
+                return 'primeira_particao'
+
+            elif primeiro_quartil < classe <= mediana:
+                return 'segunda_particao'
+
+            elif mediana < classe <= terceiro_quartil:
+                return 'terceira_particao'
+
+            elif terceiro_quartil < classe <= maximo:
+                return 'quarta_particao'
+
+        # Aplicar a classificação à cada classe da coluna.
+        data[feature] = data[feature].apply(classify_by_quartiles)
