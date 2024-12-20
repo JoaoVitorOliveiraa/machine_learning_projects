@@ -86,3 +86,9 @@ def show_colums_classes(data, columns=False):
     else:
         for column in list(data.columns):
             print(f"\nColumn {column}: ", list(data[column].unique()))
+
+
+def drop_data_columns(data, columns):
+    "Função que exclui colunas do DataFrame 'data'."
+
+    data.drop(columns, axis=1, inplace=True)
