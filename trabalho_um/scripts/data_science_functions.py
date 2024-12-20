@@ -92,3 +92,10 @@ def drop_data_columns(data, columns):
     "Função que exclui colunas do DataFrame 'data'."
 
     data.drop(columns, axis=1, inplace=True)
+
+
+def replace_class_value(data, features, old_value, new_value):
+    "Função que substitui o valor de uma classe em uma feature."
+
+    for feature in features:
+        data[feature] = data[feature].replace({old_value: new_value})
