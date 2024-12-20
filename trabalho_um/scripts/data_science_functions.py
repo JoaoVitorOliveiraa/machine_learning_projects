@@ -3,7 +3,7 @@
 #==============================================================================
 
 def show_data_head(lines_number, data, features=False):
-    "Função que mostra as primeiras 'lines_number' linhas do DataFrame 'data'."
+    "Função que exibe as primeiras 'lines_number' linhas do DataFrame 'data'."
 
     if features:
         for feature in features:
@@ -14,7 +14,7 @@ def show_data_head(lines_number, data, features=False):
 
 
 def show_data_tail(lines_number, data, features=False):
-    "Função que mostra as últimas 'lines_number' linhas do DataFrame 'data'."
+    "Função que exibe as últimas 'lines_number' linhas do DataFrame 'data'."
 
     if features:
         for feature in features:
@@ -25,7 +25,7 @@ def show_data_tail(lines_number, data, features=False):
 
 
 def show_data_info(data, features=False):
-    "Função que mostra informações sobre o DataFrame 'data', incluindo o tipo de índice e colunas, valores não nulos e uso de memória."
+    "Função que exibe informações sobre o DataFrame 'data', incluindo o tipo de índice e colunas, valores não nulos e uso de memória."
 
     if features:
         for feature in features:
@@ -36,7 +36,7 @@ def show_data_info(data, features=False):
 
 
 def show_data_value_counts(data, features=False):
-    "Função que mostra a frequência das classes de cada feature no DataFrame 'data'."
+    "Função que exibe a frequência das classes de cada feature no DataFrame 'data'."
 
     if features:
         for feature in features:
@@ -48,7 +48,7 @@ def show_data_value_counts(data, features=False):
 
 
 def show_data_description(data, features=False):
-    "Função que mostra uma descrição estatística da DataFrame 'data', incluindo os três quartis, média e desvio padrão."
+    "Função que exibe uma descrição estatística do DataFrame 'data', incluindo os três quartis, média e desvio padrão."
 
     if features:
         for feature in features:
@@ -56,3 +56,10 @@ def show_data_description(data, features=False):
 
     else:
         print(f'\n{data.describe()}\n')
+
+
+def return_data_features(data):
+    "Função que retorna e exibe as features do DataFrame 'data'."
+
+    print(list(data.columns))
+    return list(data.columns)
