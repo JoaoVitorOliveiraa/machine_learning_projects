@@ -99,3 +99,18 @@ def replace_class_value(data, features, old_value, new_value):
 
     for feature in features:
         data[feature] = data[feature].replace({old_value: new_value})
+
+
+def calculate_classes_target_rate(data, features, target='inadimplente'):
+    "Função que calcula a taxa do alvo de cada classe das features categóricas."
+
+    for feature in features:
+        print(f"\n\n\t-----Taxa de inadimplência para as categorias da feature '{feature}'-----\n")
+        dicionario_feature = dict(data[feature].value_counts())
+        for categoria, quantidade in dicionario_feature.items():
+            quantidade_inadimplentes = data[data[feature] == categoria][target].sum()
+            taxa_inadimplencia = (quantidade_inadimplentes / quantidade) * 100
+            print(f"Categoria: {categoria}")
+            print(f"Quantidade Total: {quantidade}")
+            print(f"Quantidade Inadimplentes: {quantidade_inadimplentes}")
+            print(f"Taxa de Inadimplência: {taxa_inadimplencia:.3f}%\n")
