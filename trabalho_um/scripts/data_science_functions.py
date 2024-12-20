@@ -92,11 +92,11 @@ def show_colums_classes(data, columns=False):
 
     if columns:
         for column in columns:
-            print(f"\nColumn {column}: ", list(data[column].unique()))
+            print(f"\nColumn {column}: ", data[column].unique().tolist())
 
     else:
         for column in list(data.columns):
-            print(f"\nColumn {column}: ", list(data[column].unique()))
+            print(f"\nColumn {column}: ", data[column].unique().tolist())
 
 
 def drop_data_columns(data, columns):
