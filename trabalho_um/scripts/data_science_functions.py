@@ -63,3 +63,26 @@ def return_data_columns(data):
 
     print(list(data.columns))
     return list(data.columns)
+
+
+def show_data_columns_types(data, columns=False):
+    "Função que exibe os tipos de cada coluna do DataFrame 'data'."
+
+    if columns:
+        for column in columns:
+            print(f'\n{data[column].dtypes}\n')
+
+    else:
+        print(f'\n{data.dtypes}\n')
+
+
+def show_colums_classes(data, columns=False):
+    "Função que exibe as classes de cada coluna do DataFrame 'data'."
+
+    if columns:
+        for column in columns:
+            print(f"\nColumn {column}: ", list(data[column].unique()))
+
+    else:
+        for column in list(data.columns):
+            print(f"\nColumn {column}: ", list(data[column].unique()))
