@@ -67,7 +67,7 @@ print("\n\n\t-----Resumo dos atributos numéricos-----\n")
 print(dados_treinamento.describe())
 
 # ------------------------------------------------------------------------------
-# Exibindo as features do dataset e seus tipos uas comparações gráficas com o alvo
+# Exibindo as features do dataset e seus tipos
 # ------------------------------------------------------------------------------
 
 print("\n\n\t-----Features disponíveis-----\n")
