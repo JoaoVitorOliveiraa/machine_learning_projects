@@ -58,8 +58,8 @@ def show_data_description(data, features=False):
         print(f'\n{data.describe()}\n')
 
 
-def return_data_features(data):
-    "Função que retorna e exibe as features do DataFrame 'data'."
+def return_data_columns(data):
+    "Função que retorna e exibe as colunas do DataFrame 'data'."
 
     print(list(data.columns))
     return list(data.columns)
