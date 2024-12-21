@@ -175,8 +175,8 @@ for feature in features_incompletas:
 
     # Substituindo os espaços ' ' por "classe_invalida".
     elif feature in features_siglas_estados_brasileiros:
-        substituir_valores_da_classe(dados_treinamento, features_siglas_estados_brasileiros, ' ', 'classe_invalida')
-        substituir_valores_da_classe(dados_teste, features_siglas_estados_brasileiros, ' ', 'classe_invalida')
+        substituir_valores_da_classe(dados_treinamento, [feature], ' ', 'classe_invalida')
+        substituir_valores_da_classe(dados_teste, [feature], ' ', 'classe_invalida')
 
     # Substituindo os espaços ' ' pela média dos valores (após transformá-los em números).
     elif feature in ['codigo_area_telefone_residencial', 'codigo_area_telefone_trabalho']:
