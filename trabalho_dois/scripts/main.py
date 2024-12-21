@@ -16,7 +16,7 @@ from scipy.stats import pearsonr
 from sklearn.neighbors import KNeighborsRegressor
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import r2_score, mean_squared_error
-from sklearn.preprocessing import OneHotEncoder, StandardScaler, MinMaxScaler
+from sklearn.preprocessing import OneHotEncoder, StandardScaler, MinMaxScaler, PolynomialFeatures
 from sklearn.svm import LinearSVC, SVC
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier
@@ -247,3 +247,38 @@ print(f'RMSE Treino: {rmse_treino:.4f}')
 print(f'R2 Score Treino: {r2_score_treino:.4f}')
 print(f'RMSE Teste: {rmse_teste:.4f}')
 print(f'R2 Score Teste: {r2_score_teste:.4f}')
+
+# ------------------------------------------------------------------------------
+# Treinando o modelo Regressão Polinomial
+# ------------------------------------------------------------------------------
+# Primeiro teste: Erro de não possuir espaço suficiente para alocar memória.
+
+print("\n\n\t-----Regressor com Regressão Polinomial-----\n")
+
+for grau in range(1, 11):
+
+    # Instanciando o metodo PolynomialFeatures.
+    polynomial_features = PolynomialFeatures(degree=grau)
+    polynomial_features = polynomial_features.fit(X_treino)
+    X_treino_poly = polynomial_features.transform(X_treino_com_escala)
+    X_teste_poly = polynomial_features.transform(X_teste_com_escala)
+
+    # Instanciando o regressor Regressão Linear.
+    regressor_regressao_linear = LinearRegression()
+    regressor_regressao_linear = regressor_regressao_linear.fit(X_treino_poly, y_treino)
+
+    # Predições.
+    y_resposta_treino = regressor_regressao_linear.predict(X_treino_poly)
+    y_resposta_teste = regressor_regressao_linear.predict(X_teste_poly)
+
+    # Calculando RMSE e o R2 Score.
+    rmse_treino = math.sqrt(mean_squared_error(y_treino, y_resposta_treino))
+    rmse_teste = math.sqrt(mean_squared_error(y_teste, y_resposta_teste))
+    r2_score_treino = r2_score(y_treino, y_resposta_treino)
+    r2_score_teste = r2_score(y_teste, y_resposta_teste)
+
+    print(f'\nGrau = {grau}')
+    print(f'RMSE Treino: {rmse_treino:.4f}')
+    print(f'R2 Score Treino: {r2_score_treino:.4f}')
+    print(f'RMSE Teste: {rmse_teste:.4f}')
+    print(f'R2 Score Teste: {r2_score_teste:.4f}')
