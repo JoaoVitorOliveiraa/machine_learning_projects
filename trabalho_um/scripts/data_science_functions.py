@@ -131,7 +131,7 @@ def show_hist_columns(data, columns=False):
             plt.show()
 
 
-def calculate_classes_target_rate(data, features=False, target='inadimplente'):
+def calculate_classes_target_rate(data, target='inadimplente', features=False):
     "Função que calcula a taxa do alvo de cada classe das features categóricas."
 
     if features:
