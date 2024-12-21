@@ -6,15 +6,16 @@
 # Importar bibliotecas
 #------------------------------------------------------------------------------
 
+import math
 import tensorflow as tf
 import numpy as np
 import pandas as pd
 from pathlib import Path
 import matplotlib.pyplot as plt
 from scipy.stats import pearsonr
-from sklearn.neighbors import KNeighborsClassifier
+from sklearn.neighbors import KNeighborsRegressor
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import r2_score, mean_squared_error
 from sklearn.preprocessing import OneHotEncoder, StandardScaler, MinMaxScaler
 from sklearn.linear_model import LogisticRegression, LogisticRegressionCV
 from sklearn.naive_bayes import MultinomialNB, GaussianNB, BernoulliNB
@@ -156,3 +157,69 @@ def apply_one_hot_encoder(data, features, data_type='training', target='target')
 features_categoricas = ['tipo', 'bairro', 'tipo_vendedor', 'diferenciais']
 dados_treinamento = apply_one_hot_encoder(dados_treinamento, features_categoricas, 'training', 'preco')
 dados_teste = apply_one_hot_encoder(dados_teste, features_categoricas, 'test')
+
+# ------------------------------------------------------------------------------
+# Embaralhar o conjunto de dados para garantir que a divisão entre os dados de
+# treino e os dados de teste esteja isenta de qualquer viés de seleção
+# ------------------------------------------------------------------------------
+
+dados_treinamento_embaralhados = dados_treinamento.sample(frac=1, random_state=11012005)
+dados_teste_embaralhados = dados_teste.sample(frac=1, random_state=11012005)
+
+#------------------------------------------------------------------------------
+# Separar o conjunto de treinamento em arrays X e Y, exibindo suas dimensões
+#------------------------------------------------------------------------------
+
+# Separando as features do alvo.
+X = dados_treinamento_embaralhados.iloc[:, :-1].values
+y = dados_treinamento_embaralhados.iloc[:, -1].values
+
+# Conjunto de treino e teste
+X_treino, X_teste, y_treino, y_teste = train_test_split(X, y, test_size=0.25, random_state=11012005)
+
+# Conjunto de teste final
+X_teste_final = dados_teste_embaralhados.iloc[:, :].values
+
+# ------------------------------------------------------------------------------
+# Aplicação da escala no X de treino e de teste
+# ------------------------------------------------------------------------------
+
+# escala = MinMaxScaler()
+escala = StandardScaler()
+
+escala.fit(X_treino)
+X_treino_com_escala = escala.transform(X_treino)
+X_teste_com_escala = escala.transform(X_teste)
+
+# ------------------------------------------------------------------------------
+# Treinando o modelo KNeighborsClassifier, com k variando entre 1 e 30
+# ------------------------------------------------------------------------------
+
+print("\n\n\t-----Classificador com KNN-----\n")
+
+# Primeiro teste: k = 21 -- RMSE = 1478825.5182 -- R2 = -3.8099
+for k in range(1, 31):
+
+    # Instanciando o classificador KNN.
+    classificador_knn = KNeighborsRegressor(n_neighbors=k, weights="uniform")
+    classificador_knn = classificador_knn.fit(X_treino_com_escala, y_treino)
+
+    # Predições.
+    y_resposta_treino = classificador_knn.predict(X_treino_com_escala)
+    y_resposta_teste = classificador_knn.predict(X_teste_com_escala)
+
+    # Calculando RMSE e o R2 Score.
+    rmse_treino = math.sqrt(mean_squared_error(y_treino, y_resposta_treino))
+    rmse_teste = math.sqrt(mean_squared_error(y_teste, y_resposta_teste))
+    r2_score_treino = r2_score(y_treino, y_resposta_treino)
+    r2_score_teste = r2_score(y_teste, y_resposta_teste)
+
+    print(f'\nK = {k}')
+    print(f'RMSE Treino: {rmse_treino:.4f}')
+    print(f'R2 Score Treino: {r2_score_treino:.4f}')
+    print(f'RMSE Teste: {rmse_teste:.4f}')
+    print(f'R2 Score Teste: {r2_score_teste:.4f}')
+
+    # Obtendo a matriz de confusão.
+    # matriz_confusao = confusion_matrix(y_treino, y_resposta)
+
