@@ -17,11 +17,10 @@ from sklearn.neighbors import KNeighborsRegressor
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import r2_score, mean_squared_error
 from sklearn.preprocessing import OneHotEncoder, StandardScaler, MinMaxScaler
-from sklearn.linear_model import LogisticRegression, LogisticRegressionCV
-from sklearn.naive_bayes import MultinomialNB, GaussianNB, BernoulliNB
 from sklearn.svm import LinearSVC, SVC
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.linear_model import LinearRegression
 
 #------------------------------------------------------------------------------
 # Importar os conjuntos de teste e treinamento (retirando as colunas dos id's)
@@ -194,19 +193,19 @@ X_teste_com_escala = escala.transform(X_teste)
 # ------------------------------------------------------------------------------
 # Treinando o modelo KNeighborsClassifier, com k variando entre 1 e 30
 # ------------------------------------------------------------------------------
-
-print("\n\n\t-----Classificador com KNN-----\n")
-
 # Primeiro teste: k = 21 -- RMSE = 1478825.5182 -- R2 = -3.8099
+
+print("\n\n\t-----Regressor com KNN-----\n")
+
 for k in range(1, 31):
 
-    # Instanciando o classificador KNN.
-    classificador_knn = KNeighborsRegressor(n_neighbors=k, weights="uniform")
-    classificador_knn = classificador_knn.fit(X_treino_com_escala, y_treino)
+    # Instanciando o regressor KNN.
+    regressor_knn = KNeighborsRegressor(n_neighbors=k, weights="uniform")
+    regressor_knn = regressor_knn.fit(X_treino_com_escala, y_treino)
 
     # Predições.
-    y_resposta_treino = classificador_knn.predict(X_treino_com_escala)
-    y_resposta_teste = classificador_knn.predict(X_teste_com_escala)
+    y_resposta_treino = regressor_knn.predict(X_treino_com_escala)
+    y_resposta_teste = regressor_knn.predict(X_teste_com_escala)
 
     # Calculando RMSE e o R2 Score.
     rmse_treino = math.sqrt(mean_squared_error(y_treino, y_resposta_treino))
@@ -223,3 +222,28 @@ for k in range(1, 31):
     # Obtendo a matriz de confusão.
     # matriz_confusao = confusion_matrix(y_treino, y_resposta)
 
+# ------------------------------------------------------------------------------
+#  Treinando o modelo Regressão Linear
+# ------------------------------------------------------------------------------
+# Primeiro teste: RMSE = 27325327877087870976.0000 -- R2 = -1642234633302646893198704640.0000
+
+print("\n\n\t-----Regressor com Regressão Linear-----\n")
+
+# Instanciando o regressor Regressão Linear.
+regressor_regressao_linear = LinearRegression()
+regressor_regressao_linear = regressor_regressao_linear.fit(X_treino_com_escala, y_treino)
+
+# Predições.
+y_resposta_treino = regressor_regressao_linear.predict(X_treino_com_escala)
+y_resposta_teste = regressor_regressao_linear.predict(X_teste_com_escala)
+
+# Calculando RMSE e o R2 Score.
+rmse_treino = math.sqrt(mean_squared_error(y_treino, y_resposta_treino))
+rmse_teste = math.sqrt(mean_squared_error(y_teste, y_resposta_teste))
+r2_score_treino = r2_score(y_treino, y_resposta_treino)
+r2_score_teste = r2_score(y_teste, y_resposta_teste)
+
+print(f'RMSE Treino: {rmse_treino:.4f}')
+print(f'R2 Score Treino: {r2_score_treino:.4f}')
+print(f'RMSE Teste: {rmse_teste:.4f}')
+print(f'R2 Score Teste: {r2_score_teste:.4f}')
