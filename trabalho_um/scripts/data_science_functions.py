@@ -7,6 +7,7 @@
 #------------------------------------------------------------------------------
 
 import pandas as pd
+import matplotlib.pyplot as plt
 from sklearn.preprocessing import OneHotEncoder
 
 #------------------------------------------------------------------------------
@@ -110,6 +111,24 @@ def replace_class_value(data, features, old_value, new_value):
 
     for feature in features:
         data[feature] = data[feature].replace({old_value: new_value})
+
+
+def show_hist_columns(data, columns=False):
+    "Função que exibe os histogramas entre a quantidade e o valor de cada coluna do DataFrame 'data'."
+
+    if columns:
+        for column in columns:
+            print(f"\n\n\t-----Histograma da coluna {column}-----\n")
+            grafico = data[column].plot.hist(bins=100)
+            grafico.set(title=column, xlabel='Valor', ylabel='Quantidade')
+            plt.show()
+
+    else:
+        for column in list(data.columns):
+            print(f"\n\n\t-----Histograma da coluna {column}-----\n")
+            grafico = data[column].plot.hist(bins=100)
+            grafico.set(title=column, xlabel='Valor', ylabel='Quantidade')
+            plt.show()
 
 
 def calculate_classes_target_rate(data, features, target='inadimplente'):
