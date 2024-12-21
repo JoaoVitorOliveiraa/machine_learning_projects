@@ -30,7 +30,7 @@ caminho_conjunto_de_teste = Path('../data') / 'conjunto_de_teste.csv'
 caminho_conjunto_de_treinamento = Path('../data') / 'conjunto_de_treinamento.csv'
 dados_treinamento = pd.read_csv(caminho_conjunto_de_treinamento)
 dados_teste = pd.read_csv(caminho_conjunto_de_teste)
-ids_solicitantes_dados_teste = dados_teste['id_solicitante']
+ids_dados_teste = dados_teste['Id']
 dados_teste = dados_teste.iloc[:, 1:]
 dados_treinamento = dados_treinamento.iloc[:, 1:]
 
@@ -81,8 +81,8 @@ print(dados_treinamento.dtypes)
 # ------------------------------------------------------------------------------
 
 print(f"\n\n\t-----Histograma do alvo-----\n")
-grafico = dados_treinamento['inadimplente'].plot.hist(bins=30)
-grafico.set(title='inadimplente', xlabel='Quantidades', ylabel='Valores')
+grafico = dados_treinamento['preco'].plot.hist(bins=100)
+grafico.set(title='preco', xlabel='Quantidades', ylabel='Valores')
 plt.show()
 
 # ------------------------------------------------------------------------------
