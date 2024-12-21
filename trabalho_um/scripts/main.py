@@ -431,7 +431,7 @@ for coluna in dados_treinamento.columns:
 escala = StandardScaler()
 
 escala.fit(X_treino)
-X_treino_com_escala = escala.fit_transform(X_treino)
+X_treino_com_escala = escala.transform(X_treino)
 X_teste_com_escala = escala.transform(X_teste)
 
 # X_treino_com_escala = escala.fit_transform(X_treino.astype(np.float64))
