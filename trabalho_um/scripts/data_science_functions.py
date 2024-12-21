@@ -51,12 +51,13 @@ def show_data_value_counts(data, columns=False):
     "Função que exibe a frequência das classes de cada coluna no DataFrame 'data'."
 
     if columns:
-        for column in columns:
-            print(f'\n{data[column].value_counts()}\n')
+        colums_list = columns
 
     else:
-        for column in data.columns:
-            print(f'\n{data[column].value_counts()}\n')
+        colums_list = list(data.columns)
+
+    for column in colums_list:
+        print(f'\n{data[column].value_counts()}\n')
 
 
 def show_data_description(data, columns=False):
@@ -135,6 +136,7 @@ def calculate_classes_target_rate(data, target='inadimplente', features=False):
 
     if features:
         features_list = features
+
     else:
         features_list = list(data.columns)
 
