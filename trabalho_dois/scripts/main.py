@@ -156,6 +156,151 @@ dados_treinamento = apply_one_hot_encoder(dados_treinamento, features_categorica
 dados_teste = apply_one_hot_encoder(dados_teste, features_categoricas, 'test')
 
 # ------------------------------------------------------------------------------
+#  Remoção de features que possuíam uma classe extremamente dominante
+# ------------------------------------------------------------------------------
+
+features_classes_dominantes = [
+'s_jogos',
+'s_ginastica',
+'tipo_Loft',
+'tipo_Quitinete',
+'bairro_Aflitos',
+'bairro_Afogados',
+'bairro_Agua Fria',
+'bairro_Apipucos',
+'bairro_Areias',
+'bairro_Arruda',
+'bairro_Barro',
+'bairro_Beira Rio',
+'bairro_Benfica',
+'bairro_Boa Vista',
+'bairro_Bongi',
+'bairro_Cajueiro',
+'bairro_Campo Grande',
+'bairro_Caxanga',
+'bairro_Centro',
+'bairro_Cid Universitaria',
+'bairro_Coelhos',
+'bairro_Cohab',
+'bairro_Cordeiro',
+'bairro_Derby',
+'bairro_Dois Irmaos',
+'bairro_Engenho do Meio',
+'bairro_Estancia',
+'bairro_Guabiraba',
+'bairro_Hipodromo',
+'bairro_Ilha do Leite',
+'bairro_Ilha do Retiro',
+'bairro_Imbiribeira',
+'bairro_Ipsep',
+'bairro_Iputinga',
+'bairro_Jaqueira',
+'bairro_Jd S Paulo',
+'bairro_Lagoa do Araca',
+'bairro_Macaxeira',
+'bairro_Monteiro',
+'bairro_Paissandu',
+'bairro_Piedade',
+'bairro_Pina',
+'bairro_Poco',
+'bairro_Poco da Panela',
+'bairro_Ponto de Parada',
+'bairro_Prado',
+'bairro_Recife',
+'bairro_S Jose',
+'bairro_San Martin',
+'bairro_Sancho',
+'bairro_Santana',
+'bairro_Setubal',
+'bairro_Soledade',
+'bairro_Sto Amaro',
+'bairro_Sto Antonio',
+'bairro_Tamarineira',
+'bairro_Tejipio',
+'bairro_Torreao',
+'bairro_Varzea',
+'bairro_Zumbi',
+'diferenciais_campo de futebol e copa',
+'diferenciais_campo de futebol e esquina',
+'diferenciais_campo de futebol e estacionamento visitantes',
+'diferenciais_campo de futebol e playground',
+'diferenciais_campo de futebol e quadra poliesportiva',
+'diferenciais_campo de futebol e salao de festas',
+'diferenciais_children care',
+'diferenciais_children care e playground',
+'diferenciais_churrasqueira',
+'diferenciais_churrasqueira e campo de futebol',
+'diferenciais_churrasqueira e copa',
+'diferenciais_churrasqueira e esquina',
+'diferenciais_churrasqueira e estacionamento visitantes',
+'diferenciais_churrasqueira e frente para o mar',
+'diferenciais_churrasqueira e playground',
+'diferenciais_churrasqueira e sala de ginastica',
+'diferenciais_churrasqueira e salao de festas',
+'diferenciais_churrasqueira e sauna',
+'diferenciais_copa',
+'diferenciais_copa e esquina',
+'diferenciais_copa e estacionamento visitantes',
+'diferenciais_copa e playground',
+'diferenciais_copa e quadra poliesportiva',
+'diferenciais_copa e sala de ginastica',
+'diferenciais_copa e salao de festas',
+'diferenciais_esquina',
+'diferenciais_esquina e estacionamento visitantes',
+'diferenciais_esquina e playground',
+'diferenciais_esquina e quadra poliesportiva',
+'diferenciais_esquina e sala de ginastica',
+'diferenciais_esquina e salao de festas',
+'diferenciais_estacionamento visitantes',
+'diferenciais_estacionamento visitantes e playground',
+'diferenciais_estacionamento visitantes e sala de ginastica',
+'diferenciais_estacionamento visitantes e salao de festas',
+'diferenciais_frente para o mar',
+'diferenciais_frente para o mar e campo de futebol',
+'diferenciais_frente para o mar e copa',
+'diferenciais_frente para o mar e esquina',
+'diferenciais_frente para o mar e playground',
+'diferenciais_frente para o mar e quadra poliesportiva',
+'diferenciais_frente para o mar e salao de festas',
+'diferenciais_piscina e children care',
+'diferenciais_piscina e esquina',
+'diferenciais_piscina e estacionamento visitantes',
+'diferenciais_piscina e frente para o mar',
+'diferenciais_piscina e hidromassagem',
+'diferenciais_piscina e quadra de squash',
+'diferenciais_piscina e quadra poliesportiva',
+'diferenciais_piscina e sala de ginastica',
+'diferenciais_piscina e salao de jogos',
+'diferenciais_piscina e copa',
+'diferenciais_piscina e campo de futebol',
+'diferenciais_piscina',
+'diferenciais_playground',
+'diferenciais_playground e quadra poliesportiva',
+'diferenciais_playground e sala de ginastica',
+'diferenciais_playground e salao de jogos',
+'diferenciais_quadra poliesportiva',
+'diferenciais_quadra poliesportiva e salao de festas',
+'diferenciais_sala de ginastica',
+'diferenciais_sala de ginastica e salao de festas',
+'diferenciais_sala de ginastica e salao de jogos',
+'diferenciais_salao de festas e salao de jogos',
+'diferenciais_salao de festas e vestiario',
+'diferenciais_salao de jogos',
+'diferenciais_sauna',
+'diferenciais_sauna e campo de futebol',
+'diferenciais_sauna e copa',
+'diferenciais_sauna e esquina',
+'diferenciais_sauna e frente para o mar',
+'diferenciais_sauna e playground',
+'diferenciais_sauna e quadra poliesportiva',
+'diferenciais_sauna e sala de ginastica',
+'diferenciais_sauna e salao de festas',
+'diferenciais_vestiario']
+
+dados_treinamento.drop(features_classes_dominantes, axis=1, inplace=True)
+dados_teste.drop(features_classes_dominantes, axis=1, inplace=True)
+
+# ------------------------------------------------------------------------------
 # Embaralhar o conjunto de dados para garantir que a divisão entre os dados de
 # treino e os dados de teste esteja isenta de qualquer viés de seleção
 # ------------------------------------------------------------------------------
@@ -192,6 +337,7 @@ X_teste_com_escala = escala.transform(X_teste)
 # Treinando o modelo KNeighborsClassifier, com k variando entre 1 e 30
 # ------------------------------------------------------------------------------
 # Primeiro teste: k = 21 -- RMSE = 1478825.5182 -- R2 = -3.8099
+# Segundo teste: k = 31 -- RMSE = 791209.1434 -- R2 = -0.3769
 
 print("\n\n\t-----Regressor com KNN-----\n")
 
@@ -224,6 +370,7 @@ for k in range(1, 31):
 #  Treinando o modelo Regressão Linear
 # ------------------------------------------------------------------------------
 # Primeiro teste: RMSE = 27325327877087870976.0000 -- R2 = -1642234633302646893198704640.0000
+# Segundo teste: RMSE = 2547988.6239 -- R2 = -13.2791
 
 print("\n\n\t-----Regressor com Regressão Linear-----\n")
 
@@ -250,6 +397,7 @@ print(f'R2 Score Teste: {r2_score_teste:.4f}')
 # Treinando o modelo Regressão Polinomial
 # ------------------------------------------------------------------------------
 # Primeiro teste: Erro de não possuir espaço suficiente para alocar memória.
+# Segundo teste: Grau = 1 -- RMSE: 2151041.3687 -- R2: -9.1766
 
 print("\n\n\t-----Regressor com Regressão Polinomial-----\n")
 
@@ -284,15 +432,22 @@ for grau in range(1, 11):
 # ------------------------------------------------------------------------------
 # Treinando o modelo Regressão Polinomial com regularização Ridge (L2)
 # ------------------------------------------------------------------------------
+# Primeiro teste: Erro de não possuir espaço suficiente para alocar memória.
+# Segundo teste: a = 520 -- RMSE = 1723217.7234 -- R2 =- 5.5311
 
 print("\n\n\t-----Regressor com Regressão Polinomial com regularização Ridge (L2)-----\n")
 
-print('      ALPHA   NA  DENTRO da amostra  FORA da amostra')
-print(' ----------  ---  -----------------  ---------------')
+print('   ALPHA\t     RMSE Treino      R2 Score       RMSE Teste      R2 Score Teste')
+print(' ---------- \t -----------    ------------    -------------    ---------------')
 
-#for a in [0.001, 0.010, 0.100, 1.000, 10.00, 100.0, 1000, 10000, 100000]:
+# No teste 2, os melhores valores deste laço foram em a = 1000.
+# for a in [0.001, 0.010, 0.100, 1.000, 10.00, 100.0, 1000, 10000, 100000]:
 
-for a in [40, 42, 44, 46, 48, 50, 52, 54, 56, 58, 60]:
+# No teste 2, os melhores valores deste laço foram em a = 500.
+#for a in [100.0, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900, 2000, 5000, 8000, 10000]:
+
+# No teste 2, os melhores valores deste laço foram em a = 520.
+for a in [400, 420, 440, 460, 480, 500, 520, 540, 560, 580, 600]:
 
     # Instanciando o metodo PolynomialFeatures.
     polynomial_features = PolynomialFeatures(degree=3)
@@ -314,8 +469,10 @@ for a in [40, 42, 44, 46, 48, 50, 52, 54, 56, 58, 60]:
     r2_score_treino = r2_score(y_treino, y_resposta_treino)
     r2_score_teste = r2_score(y_teste, y_resposta_teste)
 
-    print(f'\nAlpha = {a}')
-    print(f'RMSE Treino: {rmse_treino:.4f}')
-    print(f'R2 Score Treino: {r2_score_treino:.4f}')
-    print(f'RMSE Teste: {rmse_teste:.4f}')
-    print(f'R2 Score Teste: {r2_score_teste:.4f}')
+    print(f'  {a} ', f'\t\t{rmse_treino:.4f} ', f'\t\t{r2_score_treino:.4f} ', f'\t\t{rmse_teste:.4f}', f'\t\t{r2_score_teste:.4f}')
+
+    # print(f'\nAlpha = {a}')
+    # print(f'RMSE Treino: {rmse_treino:.4f}')
+    # print(f'R2 Score Treino: {r2_score_treino:.4f}')
+    # print(f'RMSE Teste: {rmse_teste:.4f}')
+    # print(f'R2 Score Teste: {r2_score_teste:.4f}')
