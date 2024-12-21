@@ -117,18 +117,15 @@ def show_hist_columns(data, columns=False):
     "Função que exibe os histogramas entre a quantidade e o valor de cada coluna do DataFrame 'data'."
 
     if columns:
-        for column in columns:
-            print(f"\n\n\t-----Histograma da coluna {column}-----\n")
-            grafico = data[column].plot.hist(bins=100)
-            grafico.set(title=column, xlabel='Valor', ylabel='Quantidade')
-            plt.show()
-
+        colums_list = columns
     else:
-        for column in list(data.columns):
-            print(f"\n\n\t-----Histograma da coluna {column}-----\n")
-            grafico = data[column].plot.hist(bins=100)
-            grafico.set(title=column, xlabel='Valor', ylabel='Quantidade')
-            plt.show()
+        colums_list = list(data.columns)
+
+    for column in colums_list:
+        print(f"\n\n\t-----Histograma da coluna {column}-----\n")
+        grafico = data[column].plot.hist(bins=100)
+        grafico.set(title=column, xlabel='Valor', ylabel='Quantidade')
+        plt.show()
 
 
 def calculate_classes_target_rate(data, target='inadimplente', features=False):
