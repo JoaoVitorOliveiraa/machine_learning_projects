@@ -99,7 +99,7 @@ def show_colums_classes(data, columns=False):
         colums_list = list(data.columns)
 
     for column in colums_list:
-        print(f"\nColumn {column}: ", data[column].unique().tolist())
+        print(f"\nColumn {column}:\n", data[column].unique().tolist())
 
 
 def drop_data_columns(data, columns):
