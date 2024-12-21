@@ -326,8 +326,8 @@ X_teste_final = dados_teste_embaralhados.iloc[:, :].values
 # Aplicação da escala no X de treino e de teste
 # ------------------------------------------------------------------------------
 
-# escala = MinMaxScaler()
-escala = StandardScaler()
+escala = MinMaxScaler()
+# escala = StandardScaler()
 
 escala.fit(X_treino)
 X_treino_com_escala = escala.transform(X_treino)
@@ -337,7 +337,8 @@ X_teste_com_escala = escala.transform(X_teste)
 # Treinando o modelo KNeighborsClassifier, com k variando entre 1 e 30
 # ------------------------------------------------------------------------------
 # Primeiro teste: k = 21 -- RMSE = 1478825.5182 -- R2 = -3.8099
-# Segundo teste: k = 31 -- RMSE = 791209.1434 -- R2 = -0.3769
+# Segundo teste: k = 31 -- RMSE = 791209.1434 -- R2 = -0.3769 (StandardScaler)
+# Terceiro teste: k = 31 -- RMSE = 724420.5889 -- R2 = -0.1542 (MinMaxScaler)
 
 print("\n\n\t-----Regressor com KNN-----\n")
 
@@ -370,7 +371,8 @@ for k in range(1, 31):
 #  Treinando o modelo Regressão Linear
 # ------------------------------------------------------------------------------
 # Primeiro teste: RMSE = 27325327877087870976.0000 -- R2 = -1642234633302646893198704640.0000
-# Segundo teste: RMSE = 2547988.6239 -- R2 = -13.2791
+# Segundo teste: RMSE = 2547988.6239 -- R2 = -13.2791 (StandardScaler)
+# Terceiro teste: RMSE = 2151041.3687 -- R2 = -9.1766 (MinMaxScaler)
 
 print("\n\n\t-----Regressor com Regressão Linear-----\n")
 
@@ -397,7 +399,8 @@ print(f'R2 Score Teste: {r2_score_teste:.4f}')
 # Treinando o modelo Regressão Polinomial
 # ------------------------------------------------------------------------------
 # Primeiro teste: Erro de não possuir espaço suficiente para alocar memória.
-# Segundo teste: Grau = 1 -- RMSE: 2151041.3687 -- R2: -9.1766
+# Segundo teste: Grau = 1 -- RMSE: 2151041.3687 -- R2: -9.1766 (StandardScaler)
+# Terceiro teste: Erro de não possuir espaço suficiente para alocar memória. (MinMaxScaler)
 
 print("\n\n\t-----Regressor com Regressão Polinomial-----\n")
 
@@ -433,7 +436,8 @@ for grau in range(1, 11):
 # Treinando o modelo Regressão Polinomial com regularização Ridge (L2)
 # ------------------------------------------------------------------------------
 # Primeiro teste: Erro de não possuir espaço suficiente para alocar memória.
-# Segundo teste: a = 520 -- RMSE = 1723217.7234 -- R2 =- 5.5311
+# Segundo teste: a = 520 -- RMSE = 1723217.7234 -- R2 =- 5.5311 (StandardScaler)
+# Terceiro teste: a = 64000 -- RMSE = 722421.7111 -- R2 =- -0.1479 (MinMaxScaler)
 
 print("\n\n\t-----Regressor com Regressão Polinomial com regularização Ridge (L2)-----\n")
 
@@ -441,13 +445,20 @@ print('   ALPHA\t     RMSE Treino      R2 Score       RMSE Teste      R2 Score T
 print(' ---------- \t -----------    ------------    -------------    ---------------')
 
 # No teste 2, os melhores valores deste laço foram em a = 1000.
-# for a in [0.001, 0.010, 0.100, 1.000, 10.00, 100.0, 1000, 10000, 100000]:
+# No teste 3, os melhores valores deste laço foram em a = 100000.
+# for a in [0.001, 0.010, 0.100, 1.000, 10.00, 100.0, 1000, 10000, 100000, 1000000]:
 
 # No teste 2, os melhores valores deste laço foram em a = 500.
 #for a in [100.0, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900, 2000, 5000, 8000, 10000]:
-
 # No teste 2, os melhores valores deste laço foram em a = 520.
-for a in [400, 420, 440, 460, 480, 500, 520, 540, 560, 580, 600]:
+# for a in [400, 420, 440, 460, 480, 500, 520, 540, 560, 580, 600]:
+
+# No teste 3, os melhores valores deste laço foram em a = 80000.
+# for a in [10000, 20000, 50000, 80000, 100000, 200000, 500000, 800000, 1000000]:
+# No teste 3, os melhores valores deste laço foram em a = 65000.
+# for a in [50000, 55000, 60000, 65000, 70000, 75000, 80000, 85000, 90000, 95000, 100000]:
+# No teste 3, os melhores valores deste laço foram em a = 64000.
+for a in [60000, 61000, 62000, 63000, 63500, 64000, 64500,  65000, 65200, 65400, 65600, 65800, 66000, 67000, 68000, 69000, 70000]:
 
     # Instanciando o metodo PolynomialFeatures.
     polynomial_features = PolynomialFeatures(degree=3)
@@ -476,3 +487,43 @@ for a in [400, 420, 440, 460, 480, 500, 520, 540, 560, 580, 600]:
     # print(f'R2 Score Treino: {r2_score_treino:.4f}')
     # print(f'RMSE Teste: {rmse_teste:.4f}')
     # print(f'R2 Score Teste: {r2_score_teste:.4f}')
+
+# -------------------------------------------------------------------------------
+# Treinando a primeira submissão para o kaggle (Regressor com Regressão Polinomial com regularização Ridge (L2))
+# -------------------------------------------------------------------------------
+
+# Utilizando todos os dados.
+X_treino_submissao = X
+X_teste_submissao = X_teste_final
+y_treino_submissao = y
+
+# Colocando em escala.
+escala.fit(X_treino_submissao)
+X_treino_submissao_com_escala = escala.transform(X_treino_submissao)
+X_teste_submissao_com_escala = escala.transform(X_teste_submissao)
+
+# Aplicando o modelo
+a = 64000
+
+# Instanciando o metodo PolynomialFeatures.
+polynomial_features = PolynomialFeatures(degree=3)
+polynomial_features = polynomial_features.fit(X_treino_submissao)
+X_treino_poly = polynomial_features.transform(X_treino_submissao_com_escala)
+X_teste_poly = polynomial_features.transform(X_teste_submissao_com_escala)
+
+# Instanciando a regularização Ridge (L2).
+regularizacao_ridge = Ridge(alpha=a)
+regularizacao_ridge = regularizacao_ridge.fit(X_treino_poly, y_treino_submissao)
+
+# Predição.
+y_resposta_teste_submissao = regularizacao_ridge.predict(X_teste_poly)
+
+# Criando o DataFrame de submissão.
+primeira_submissao_kaggle = pd.DataFrame({
+    'Id': ids_dados_teste,
+    'preco': y_resposta_teste_submissao
+})
+
+# Salvando em CSV
+primeira_submissao_kaggle.to_csv('primeira_submissao_kaggle.csv', index=False)
+print("Arquivo salvo como 'primeira_submissao_kaggle.csv'")
