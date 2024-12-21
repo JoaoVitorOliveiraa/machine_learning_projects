@@ -92,12 +92,13 @@ def show_colums_classes(data, columns=False):
     "Função que exibe as classes de cada coluna do DataFrame 'data'."
 
     if columns:
-        for column in columns:
-            print(f"\nColumn {column}: ", data[column].unique().tolist())
+        colums_list = columns
 
     else:
-        for column in list(data.columns):
-            print(f"\nColumn {column}: ", data[column].unique().tolist())
+        colums_list = list(data.columns)
+
+    for column in colums_list:
+        print(f"\nColumn {column}: ", data[column].unique().tolist())
 
 
 def drop_data_columns(data, columns):
@@ -118,6 +119,7 @@ def show_hist_columns(data, columns=False):
 
     if columns:
         colums_list = columns
+
     else:
         colums_list = list(data.columns)
 
