@@ -7,20 +7,18 @@
 #------------------------------------------------------------------------------
 
 import math
-import tensorflow as tf
 import numpy as np
 import pandas as pd
 from pathlib import Path
 import matplotlib.pyplot as plt
 from scipy.stats import pearsonr
+from sklearn.linear_model import Ridge
+from sklearn.linear_model import Lasso
 from sklearn.neighbors import KNeighborsRegressor
+from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import r2_score, mean_squared_error
 from sklearn.preprocessing import OneHotEncoder, StandardScaler, MinMaxScaler, PolynomialFeatures
-from sklearn.svm import LinearSVC, SVC
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.linear_model import LinearRegression
 
 #------------------------------------------------------------------------------
 # Importar os conjuntos de teste e treinamento (retirando as colunas dos id's)
@@ -278,6 +276,45 @@ for grau in range(1, 11):
     r2_score_teste = r2_score(y_teste, y_resposta_teste)
 
     print(f'\nGrau = {grau}')
+    print(f'RMSE Treino: {rmse_treino:.4f}')
+    print(f'R2 Score Treino: {r2_score_treino:.4f}')
+    print(f'RMSE Teste: {rmse_teste:.4f}')
+    print(f'R2 Score Teste: {r2_score_teste:.4f}')
+
+# ------------------------------------------------------------------------------
+# Treinando o modelo Regressão Polinomial com regularização Ridge (L2)
+# ------------------------------------------------------------------------------
+
+print("\n\n\t-----Regressor com Regressão Polinomial com regularização Ridge (L2)-----\n")
+
+print('      ALPHA   NA  DENTRO da amostra  FORA da amostra')
+print(' ----------  ---  -----------------  ---------------')
+
+#for a in [0.001, 0.010, 0.100, 1.000, 10.00, 100.0, 1000, 10000, 100000]:
+
+for a in [40, 42, 44, 46, 48, 50, 52, 54, 56, 58, 60]:
+
+    # Instanciando o metodo PolynomialFeatures.
+    polynomial_features = PolynomialFeatures(degree=3)
+    polynomial_features = polynomial_features.fit(X_treino)
+    X_treino_poly = polynomial_features.transform(X_treino_com_escala)
+    X_teste_poly = polynomial_features.transform(X_teste_com_escala)
+
+    # Instanciando a regularização Ridge (L2).
+    regularizacao_ridge = Ridge(alpha=a)
+    regularizacao_ridge = regularizacao_ridge.fit(X_treino_poly, y_treino)
+
+    # Predições.
+    y_resposta_treino = regularizacao_ridge.predict(X_treino_poly)
+    y_resposta_teste = regularizacao_ridge.predict(X_teste_poly)
+
+    # Calculando RMSE e o R2 Score.
+    rmse_treino = math.sqrt(mean_squared_error(y_treino, y_resposta_treino))
+    rmse_teste = math.sqrt(mean_squared_error(y_teste, y_resposta_teste))
+    r2_score_treino = r2_score(y_treino, y_resposta_treino)
+    r2_score_teste = r2_score(y_teste, y_resposta_teste)
+
+    print(f'\nAlpha = {a}')
     print(f'RMSE Treino: {rmse_treino:.4f}')
     print(f'R2 Score Treino: {r2_score_treino:.4f}')
     print(f'RMSE Teste: {rmse_teste:.4f}')
