@@ -131,10 +131,15 @@ def show_hist_columns(data, columns=False):
             plt.show()
 
 
-def calculate_classes_target_rate(data, features, target='inadimplente'):
+def calculate_classes_target_rate(data, features=False, target='inadimplente'):
     "Função que calcula a taxa do alvo de cada classe das features categóricas."
 
-    for feature in features:
+    if features:
+        features_list = features
+    else:
+        features_list = list(data.columns)
+
+    for feature in features_list:
         print(f"\n\n\t-----Taxa de inadimplência para as categorias da feature '{feature}'-----\n")
         dicionario_feature = dict(data[feature].value_counts())
         for categoria, quantidade in dicionario_feature.items():
