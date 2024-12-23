@@ -8,6 +8,7 @@
 
 import pandas as pd
 import matplotlib.pyplot as plt
+from scipy.stats import pearsonr
 from sklearn.preprocessing import OneHotEncoder
 
 #------------------------------------------------------------------------------
@@ -51,12 +52,12 @@ def show_data_value_counts(data, columns=False):
     "Função que exibe a frequência das classes de cada coluna no DataFrame 'data'."
 
     if columns:
-        colums_list = columns
+        columns_list = columns
 
     else:
-        colums_list = list(data.columns)
+        columns_list = list(data.columns)
 
-    for column in colums_list:
+    for column in columns_list:
         print(f'\n{data[column].value_counts()}\n')
 
 
@@ -93,12 +94,12 @@ def show_colums_classes(data, columns=False):
     "Função que exibe as classes de cada coluna do DataFrame 'data'."
 
     if columns:
-        colums_list = columns
+        columns_list = columns
 
     else:
-        colums_list = list(data.columns)
+        columns_list = list(data.columns)
 
-    for column in colums_list:
+    for column in columns_list:
         print(f"\nColumn {column}:\n", data[column].unique().tolist())
 
 
@@ -119,12 +120,12 @@ def show_hist_columns(data, columns=False):
     "Função que exibe os histogramas entre a quantidade e o valor de cada coluna do DataFrame 'data'."
 
     if columns:
-        colums_list = columns
+        columns_list = columns
 
     else:
-        colums_list = list(data.columns)
+        columns_list = list(data.columns)
 
-    for column in colums_list:
+    for column in columns_list:
         print(f"\n\n\t-----Histograma da coluna {column}-----\n")
         grafico = data[column].plot.hist(bins=100)
         grafico.set(title=column, xlabel='Valor', ylabel='Quantidade')
@@ -223,3 +224,18 @@ def apply_one_hot_encoder(data, features, target=False):
 
     data_final = pd.concat([data_features, data_frame_codificado, data_target], axis=1)
     return data_final
+
+
+def show_coef_pearson(data, target, columns=False):
+    "Função que exibe os coeficientes de Pearson (com o p-value) entre colunas e o alvo 'target'."
+
+    if columns:
+        columns_list = columns
+
+    else:
+        columns_list = list(data.columns)
+
+    for column in columns_list:
+        coef_pearsonr = pearsonr(data[column], data[target])[0]
+        p_value = pearsonr(data[column], data[target])[1]
+        print(f'{column}: {coef_pearsonr:.3f}, p-value: {p_value:.3f}\n')
