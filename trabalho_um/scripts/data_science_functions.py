@@ -6,9 +6,11 @@
 # Importações das bibliotecas
 #------------------------------------------------------------------------------
 
+import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from scipy.stats import pearsonr
+from sklearn.metrics import mean_squared_error
 from sklearn.preprocessing import OneHotEncoder
 
 #------------------------------------------------------------------------------
@@ -116,6 +118,22 @@ def replace_class_value(data, features, old_value, new_value):
 
     for feature in features:
         data[feature] = data[feature].replace({old_value: new_value})
+
+
+def return_rmspe(y_true, y_pred):
+    "Função que retorna o valor do RMSPE entre os valores reais e previstos."
+
+    # Evitando divisões por zero adicionando um pequeno valor (epsilon).
+    epsilon = np.finfo(float).eps
+    percentage_errors = (y_true - y_pred) / (y_true + epsilon)
+
+    # Calculando o MSE dos erros percentuais.
+    mse_percentage = mean_squared_error(np.zeros_like(y_true), percentage_errors)
+
+    # Calculando o RMSPE.
+    rmspe = np.sqrt(mse_percentage)
+
+    return rmspe
 
 
 def show_hist_columns(data, columns=False):
