@@ -190,53 +190,36 @@ def divide_classes_by_quartiles(data, features):
         data[feature] = data[feature].apply(classify_by_quartiles)
 
 
-def apply_one_hot_encoder(data, features, data_type='training', target='target'):
+def apply_one_hot_encoder(data, features, target=False):
     "Função que aplica a classe OneHotEncoder em features categóricas, mantendo as demais inalteradas."
 
-    # Concatenar o DataFrame codificado com as demais features e o alvo.
-    if data_type == 'training':
-
-        # Separar a coluna do alvo das demais features.
+    # Separar a coluna do alvo das demais features.
+    if target:
         data_target = data[target]
         data_features = data.drop(target, axis=1)
 
-        # Instanciar o OneHotEncoder.
-        one_hot_encoder = OneHotEncoder(sparse_output=False)
-
-        # Aplicar o OneHotEncoder às colunas categóricas.
-        data_codificado = one_hot_encoder.fit_transform(data_features[features])
-
-        # Colhetando os nomes das features codificadas.
-        features_codificadas = one_hot_encoder.get_feature_names_out(features)
-
-        # Converter o resultado para DataFrame.
-        data_frame_codificado = pd.DataFrame(data_codificado, columns=features_codificadas, index=data.index)
-
-        # Remover as features categóricas originais.
-        data_features = data_features.drop(columns=features)
-
-        data_final = pd.concat([data_features, data_frame_codificado, data_target], axis=1)
-        return data_final
-
-    elif data_type == 'test':
-
-        # Instanciar o OneHotEncoder.
-        one_hot_encoder = OneHotEncoder(sparse_output=False)
-
-        # Aplicar o OneHotEncoder às colunas categóricas.
-        data_codificado = one_hot_encoder.fit_transform(data[features])
-
-        # Colhetando os nomes das features codificadas.
-        features_codificadas = one_hot_encoder.get_feature_names_out(features)
-
-        # Converter o resultado para DataFrame.
-        data_frame_codificado = pd.DataFrame(data_codificado, columns=features_codificadas, index=data.index)
-
-        # Remover as features categóricas originais.
-        data = data.drop(columns=features)
-
-        data_final = pd.concat([data, data_frame_codificado], axis=1)
-        return data_final
-
     else:
-        raise ValueError(f'\nData type "{data_type}" is not supported\n')
+        data_target = None
+        data_features = data
+
+    # Substituindo espaços (' ') por underlines ('_').
+    for feature in features:
+        data_features[feature] = data_features[feature].str.replace(' ', '_')
+
+    # Instanciar o OneHotEncoder.
+    one_hot_encoder = OneHotEncoder(sparse_output=False)
+
+    # Aplicar o OneHotEncoder às colunas categóricas.
+    data_codificado = one_hot_encoder.fit_transform(data_features[features])
+
+    # Colhetando os nomes das features codificadas.
+    features_codificadas = one_hot_encoder.get_feature_names_out(features)
+
+    # Converter o resultado para DataFrame.
+    data_frame_codificado = pd.DataFrame(data_codificado, columns=features_codificadas, index=data.index)
+
+    # Remover as features categóricas originais.
+    data_features = data_features.drop(columns=features)
+
+    data_final = pd.concat([data_features, data_frame_codificado, data_target], axis=1)
+    return data_final
