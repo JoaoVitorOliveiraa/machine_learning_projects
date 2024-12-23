@@ -106,7 +106,9 @@ def show_colums_classes(data, columns=False):
 def drop_data_columns(data, columns):
     "Função que exclui colunas do DataFrame 'data'."
 
-    data.drop(columns, axis=1, inplace=True)
+    for column in columns:
+        if column in data.columns:
+            data.drop(column, axis=1, inplace=True)
 
 
 def replace_class_value(data, features, old_value, new_value):
