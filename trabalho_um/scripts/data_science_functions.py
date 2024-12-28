@@ -152,7 +152,7 @@ def show_hist_columns(data, columns=False):
         plt.show()
 
 
-def calculate_classes_target_rate(data, target='inadimplente', features=False):
+def calculate_classes_target_rate(data, target, features=False):
     "Função que calcula a taxa do alvo de cada classe das features categóricas."
 
     if features:
@@ -162,15 +162,15 @@ def calculate_classes_target_rate(data, target='inadimplente', features=False):
         features_list = list(data.columns)
 
     for feature in features_list:
-        print(f"\n\n\t-----Taxa de inadimplência para as categorias da feature '{feature}'-----\n")
+        print(f"\n\n\t-----Taxa de '{target}' para as categorias da feature '{feature}'-----\n")
         dicionario_feature = dict(data[feature].value_counts())
         for categoria, quantidade in dicionario_feature.items():
-            quantidade_inadimplentes = data[data[feature] == categoria][target].sum()
-            taxa_inadimplencia = (quantidade_inadimplentes / quantidade) * 100
+            quantidade_target = data[data[feature] == categoria][target].sum()
+            taxa_target = (quantidade_target / quantidade) * 100
             print(f"Categoria: {categoria}")
             print(f"Quantidade Total: {quantidade}")
-            print(f"Quantidade Inadimplentes: {quantidade_inadimplentes}")
-            print(f"Taxa de Inadimplência: {taxa_inadimplencia:.3f}%\n")
+            print(f"Quantidade {target.title()}: {quantidade_target}")
+            print(f"Taxa de {target.title()}: {taxa_target:.3f}%\n")
 
 
 def divide_classes_by_quartiles(data, features):
