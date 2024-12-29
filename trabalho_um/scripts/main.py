@@ -6,8 +6,6 @@
 # Importar bibliotecas
 #------------------------------------------------------------------------------
 
-import tensorflow as tf
-import numpy as np
 import pandas as pd
 from pathlib import Path
 import matplotlib.pyplot as plt
@@ -22,9 +20,9 @@ from sklearn.svm import LinearSVC, SVC
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier
 
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # Importar os conjuntos de teste e treinamento (retirando as colunas dos id's)
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
 caminho_conjunto_de_teste = Path('../data') / 'conjunto_de_teste.csv'
 caminho_conjunto_de_treinamento = Path('../data') / 'conjunto_de_treinamento.csv'
@@ -80,7 +78,7 @@ print(dados_treinamento.dtypes)
 # Exibindo o histograma entre as quantidades e os valores do alvo
 # ------------------------------------------------------------------------------
 
-print(f"\n\n\t-----Histograma do alvo-----\n")
+print("\n\n\t-----Histograma do alvo-----\n")
 grafico = dados_treinamento['inadimplente'].plot.hist(bins=30)
 grafico.set(title='inadimplente', xlabel='Quantidades', ylabel='Valores')
 plt.show()
@@ -123,22 +121,25 @@ dados_treinamento.drop(features_classes_dominantes, axis=1, inplace=True)
 dados_teste.drop(features_classes_dominantes, axis=1, inplace=True)
 
 # ------------------------------------------------------------------------------
-#  Criação de uma função para substituir o valor de uma classe em uma feature, e
-#  sua aplicação nas features
+#  Criação de uma função para substituir o valor de uma classe em uma feature
 # ------------------------------------------------------------------------------
 
-def substituir_valores_da_classe(data, features_list, old_value, new_value):
+def replace_class_value(data, features, old_value, new_value):
     "Função que substitui o valor de uma classe em uma feature."
 
-    for feature in features_list:
+    for feature in features:
         data[feature] = data[feature].replace({old_value: new_value})
+
+# ------------------------------------------------------------------------------
+#  Aplicação da função de substituir valores de classes
+# ------------------------------------------------------------------------------
 
 # Substituindo as classes binárias 'N' e 'Y' em 0 e 1 de cada feature categórica que apresenta essas classes.
 features_com_classes_y_n = ['possui_telefone_residencial', 'vinculo_formal_com_empresa', 'possui_telefone_trabalho']
-substituir_valores_da_classe(dados_treinamento, features_com_classes_y_n, 'Y', 1)
-substituir_valores_da_classe(dados_treinamento, features_com_classes_y_n, 'N', 0)
-substituir_valores_da_classe(dados_teste, features_com_classes_y_n, 'Y', 1)
-substituir_valores_da_classe(dados_teste, features_com_classes_y_n, 'N', 0)
+replace_class_value(dados_treinamento, features_com_classes_y_n, 'Y', 1)
+replace_class_value(dados_treinamento, features_com_classes_y_n, 'N', 0)
+replace_class_value(dados_teste, features_com_classes_y_n, 'Y', 1)
+replace_class_value(dados_teste, features_com_classes_y_n, 'N', 0)
 
 # Dicionário onde as chaves e valores são as regiões do Brasil e listas com siglas de estados.
 dict_regioes_do_brasil = {'regiao_norte': ['AC', 'AP', 'AM', 'PA', 'RO', 'RR', 'TO'],
@@ -153,8 +154,8 @@ features_siglas_estados_brasileiros = ['estado_onde_trabalha', 'estado_onde_nasc
 # Substituindo cada estado por sua respectiva região, em cada feature listada.
 for regiao, classes in dict_regioes_do_brasil.items():
     for classe in classes:
-        substituir_valores_da_classe(dados_treinamento, features_siglas_estados_brasileiros, classe, regiao)
-        substituir_valores_da_classe(dados_teste, features_siglas_estados_brasileiros, classe, regiao)
+        replace_class_value(dados_treinamento, features_siglas_estados_brasileiros, classe, regiao)
+        replace_class_value(dados_teste, features_siglas_estados_brasileiros, classe, regiao)
 
 # ------------------------------------------------------------------------------
 #  Substituindo os espaços ausentes das features, que estavam incompletas e que o
@@ -162,7 +163,7 @@ for regiao, classes in dict_regioes_do_brasil.items():
 #  suas classes, pois os valores não estão uniformemente distribuídos.
 # ------------------------------------------------------------------------------
 
-features_incompletas = ['tipo_residencia', 'meses_na_residencia', 'profissao', 'ocupacao', 'profissao_companheiro', 'sexo',
+features_incompletas = ['tipo_residencia', 'meses_na_residencia', 'profissao', 'ocupacao', 'profissao_companheiro','sexo',
                         'codigo_area_telefone_residencial', 'codigo_area_telefone_trabalho',
                         'estado_onde_trabalha', 'estado_onde_nasceu', 'estado_onde_reside']
 
@@ -170,20 +171,20 @@ for feature in features_incompletas:
 
     # Substituindo espaços ' ' por 'N' (não informado).
     if feature == 'sexo':
-        substituir_valores_da_classe(dados_treinamento, [feature], ' ', 'N')
-        substituir_valores_da_classe(dados_teste, [feature], ' ', 'N')
+        replace_class_value(dados_treinamento, [feature], ' ', 'N')
+        replace_class_value(dados_teste, [feature], ' ', 'N')
 
     # Substituindo os espaços ' ' por "classe_invalida".
     elif feature in features_siglas_estados_brasileiros:
-        substituir_valores_da_classe(dados_treinamento, [feature], ' ', 'classe_invalida')
-        substituir_valores_da_classe(dados_teste, [feature], ' ', 'classe_invalida')
+        replace_class_value(dados_treinamento, [feature], ' ', 'classe_invalida')
+        replace_class_value(dados_teste, [feature], ' ', 'classe_invalida')
 
     # Substituindo os espaços ' ' pela média dos valores (após transformá-los em números).
     elif feature in ['codigo_area_telefone_residencial', 'codigo_area_telefone_trabalho']:
 
         # Primeiramente, substituímos os espaços vazios por None, a fim de realizar a conversão da coluna.
-        substituir_valores_da_classe(dados_treinamento, [feature], ' ', None)
-        substituir_valores_da_classe(dados_teste, [feature], ' ', None)
+        replace_class_value(dados_treinamento, [feature], ' ', None)
+        replace_class_value(dados_teste, [feature], ' ', None)
 
         # Converte os valores str da coluna em numéricos. Coerce substitui strings inválidas por NaN.
         dados_treinamento[feature] = pd.to_numeric(dados_treinamento[feature], errors='coerce')
@@ -201,29 +202,31 @@ for feature in features_incompletas:
         dados_treinamento[feature] = dados_treinamento[feature].fillna(mediana_feature_treinamento)
         dados_teste[feature] = dados_teste[feature].fillna(mediana_feature_teste)
 
+
 # ------------------------------------------------------------------------------
 #  Criação de uma função para calcular a taxa de inadimplência de cada classe
 #  das features categóricas.
 # ------------------------------------------------------------------------------
 
-def calcular_taxa_de_inadimplencia_das_classes(data, features_list, target='inadimplente'):
-    "Função que calcula a taxa de inadimplência de cada classe das features categóricas."
+def calculate_classes_target_rate(data, target, features=False):
+    "Função que calcula a taxa do alvo de cada classe das features categóricas."
+
+    if features:
+        features_list = features
+
+    else:
+        features_list = list(data.columns)
 
     for feature in features_list:
-        # Exibindo a quantidade de cada categoria na coluna.
-        print(f"\n\n\t-----Categorias da feature '{feature}'-----\n")
+        print(f"\n\n\t-----Taxa de '{target}' para as categorias da feature '{feature}'-----\n")
         dicionario_feature = dict(data[feature].value_counts())
-        print(data[feature].value_counts())
-
-        # Calculando e exibindo a taxa de inadimplência para cada categoria.
-        print(f"\n\n\t-----Taxa de inadimplência para as categorias da feature '{feature}'-----\n")
         for categoria, quantidade in dicionario_feature.items():
-            quantidade_inadimplentes = data[data[feature] == categoria][target].sum()
-            taxa_inadimplencia = (quantidade_inadimplentes / quantidade) * 100
+            quantidade_target = data[data[feature] == categoria][target].sum()
+            taxa_target = (quantidade_target / quantidade) * 100
             print(f"Categoria: {categoria}")
             print(f"Quantidade Total: {quantidade}")
-            print(f"Quantidade Inadimplentes: {quantidade_inadimplentes}")
-            print(f"Taxa de Inadimplência: {taxa_inadimplencia:.3f}%\n")
+            print(f"Quantidade {target.title()}: {quantidade_target}")
+            print(f"Taxa de {target.title()}: {taxa_target:.3f}%\n")
 
 # ------------------------------------------------------------------------------
 #  Calculando a taxa de inadimplência das classes de cada feature categórica
@@ -234,19 +237,20 @@ def calcular_taxa_de_inadimplencia_das_classes(data, features_list, target='inad
 
 features_categoricas = ['produto_solicitado', 'forma_envio_solicitacao', 'estado_civil', 'estado_onde_nasceu',
                         'estado_onde_reside', 'tipo_residencia', 'estado_onde_trabalha', 'profissao', 'ocupacao',
-                        'profissao_companheiro', 'sexo', 'codigo_area_telefone_residencial', 'codigo_area_telefone_trabalho']
+                        'profissao_companheiro', 'sexo', 'codigo_area_telefone_residencial',
+                        'codigo_area_telefone_trabalho']
 
-calcular_taxa_de_inadimplencia_das_classes(dados_treinamento, features_categoricas)
+calculate_classes_target_rate(dados_treinamento, "inadimplente", features_categoricas)
 
 # ------------------------------------------------------------------------------
 # Criação de uma função para dividir as classes numéricas de uma ou mais features
 # em 4 partes, através dos quartis.
 # ------------------------------------------------------------------------------
 
-def dividir_classes_por_quartis(data, features_list):
+def divide_classes_by_quartiles(data, features):
     "Função que divide as classes numéricas de uma ou mais features em 4 partes, através dos quartis."
 
-    for feature in features_list:
+    for feature in features:
         # Garantir que a coluna seja numérica
         data[feature] = pd.to_numeric(data[feature], errors='coerce')
 
@@ -259,7 +263,7 @@ def dividir_classes_por_quartis(data, features_list):
         maximo = descricao_estatistica_feature['max']
 
         # Função interna para classificar os valores.
-        def classificar_por_quartil(classe):
+        def classify_by_quartiles(classe):
 
             # Ignorar valores NaN e ' '.
             if pd.isna(classe) or (classe == ' '):
@@ -278,98 +282,96 @@ def dividir_classes_por_quartis(data, features_list):
                 return 'quarta_particao'
 
         # Aplicar a classificação à cada classe da coluna.
-        data[feature] = data[feature].apply(classificar_por_quartil)
+        data[feature] = data[feature].apply(classify_by_quartiles)
 
 # ------------------------------------------------------------------------------
-# Aplicação da função 'dividir_classes_por_quartis' em features que possuem
+# Aplicação da função 'divide_classes_by_quartiles' em features que possuem
 # números como classe, onde o significado desses números não foi informado
 # ------------------------------------------------------------------------------
 
 features_significado_nao_informado = ['codigo_area_telefone_residencial', 'codigo_area_telefone_trabalho', 'estado_civil',
                                       'tipo_residencia', 'profissao', 'ocupacao', 'profissao_companheiro']
 
-dividir_classes_por_quartis(dados_treinamento, features_significado_nao_informado)
-dividir_classes_por_quartis(dados_teste, features_significado_nao_informado)
+divide_classes_by_quartiles(dados_treinamento, features_significado_nao_informado)
+divide_classes_by_quartiles(dados_teste, features_significado_nao_informado)
 
 # ------------------------------------------------------------------------------
 # Criação e implementação de uma função para aplicar a classe OneHotEncoder em
 # colunas categóricas, mantendo as demais inalteradas.
 # ------------------------------------------------------------------------------
 
-def aplicar_one_hot_encoder(data, features, data_type='training', target='target'):
+def apply_one_hot_encoder(data, features, target=False):
     "Função que aplica a classe OneHotEncoder em features categóricas, mantendo as demais inalteradas."
 
-    # Concatenar o DataFrame codificado com as demais features e o alvo.
-    if data_type == 'training':
-
-        # Separar a coluna do alvo das demais features.
+    # Separar a coluna do alvo das demais features.
+    if target:
         data_target = data[target]
         data_features = data.drop(target, axis=1)
 
-        # Instanciar o OneHotEncoder.
-        one_hot_encoder = OneHotEncoder(sparse_output=False)
-
-        # Aplicar o OneHotEncoder às colunas categóricas.
-        data_codificado = one_hot_encoder.fit_transform(data_features[features])
-
-        # Colhetando os nomes das features codificadas.
-        features_codificadas = one_hot_encoder.get_feature_names_out(features)
-
-        # Converter o resultado para DataFrame.
-        data_frame_codificado = pd.DataFrame(data_codificado, columns=features_codificadas, index=data.index)
-
-        # Remover as features categóricas originais.
-        data_features = data_features.drop(columns=features)
-
-        data_final = pd.concat([data_features, data_frame_codificado, data_target], axis=1)
-        return data_final
-
-    elif data_type == 'test':
-
-        # Instanciar o OneHotEncoder.
-        one_hot_encoder = OneHotEncoder(sparse_output=False)
-
-        # Aplicar o OneHotEncoder às colunas categóricas.
-        data_codificado = one_hot_encoder.fit_transform(data[features])
-
-        # Colhetando os nomes das features codificadas.
-        features_codificadas = one_hot_encoder.get_feature_names_out(features)
-
-        # Converter o resultado para DataFrame.
-        data_frame_codificado = pd.DataFrame(data_codificado, columns=features_codificadas, index=data.index)
-
-        # Remover as features categóricas originais.
-        data = data.drop(columns=features)
-
-        data_final = pd.concat([data, data_frame_codificado], axis=1)
-        return data_final
-
     else:
-        raise ValueError(f'Data type "{data_type}" is not supported')
+        data_target = None
+        data_features = data
+
+    # Substituindo espaços (' ') por underlines ('_').
+    for feature in features:
+        data_features[feature] = data_features[feature].replace({' ': '_'})
+
+    # Instanciar o OneHotEncoder.
+    one_hot_encoder = OneHotEncoder(sparse_output=False)
+
+    # Aplicar o OneHotEncoder às colunas categóricas.
+    data_codificado = one_hot_encoder.fit_transform(data_features[features])
+
+    # Colhetando os nomes das features codificadas.
+    features_codificadas = one_hot_encoder.get_feature_names_out(features)
+
+    # Converter o resultado para DataFrame.
+    data_frame_codificado = pd.DataFrame(data_codificado, columns=features_codificadas, index=data.index)
+
+    # Remover as features categóricas originais.
+    data_features = data_features.drop(columns=features)
+
+    data_final = pd.concat([data_features, data_frame_codificado, data_target], axis=1)
+    return data_final
+
 
 # Implementação da função.
-dados_treinamento = aplicar_one_hot_encoder(dados_treinamento, features_categoricas, 'training', 'inadimplente')
-dados_teste = aplicar_one_hot_encoder(dados_teste, features_categoricas, 'test')
+dados_treinamento = apply_one_hot_encoder(dados_treinamento, features_categoricas, 'inadimplente')
+dados_teste = apply_one_hot_encoder(dados_teste, features_categoricas)
 
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # Removendo as features dos estados inválidos.
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
 estados_invalidos = ['estado_onde_nasceu_classe_invalida', 'estado_onde_trabalha_classe_invalida']
 dados_treinamento.drop(estados_invalidos, axis=1, inplace=True)
 dados_teste.drop(estados_invalidos, axis=1, inplace=True)
 
-#------------------------------------------------------------------------------
-# Remoção de features que possuíam uma classe extremamente dominante, após a
-# implementação da função 'aplicar_one_hot_encoder'.
-# sexo_N: Vasta maioria com valor zero (0: 19968)
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
+# Exibindo os coeficientes de Pearson de cada atributo (entre o mesmo e o alvo)
+# ------------------------------------------------------------------------------
 
-dados_treinamento.drop('sexo_N', axis=1, inplace=True)
-dados_teste.drop('sexo_N', axis=1, inplace=True)
+print("\n\n\t-----Coeficiente de Pearson-----\n")
+for coluna in dados_treinamento.columns:
+    coef_pearsonr = pearsonr(dados_treinamento[coluna], dados_treinamento['inadimplente'])[0]
+    p_value = pearsonr(dados_treinamento[coluna], dados_treinamento['inadimplente'])[1]
+    print(f'{coluna}: {coef_pearsonr:.3f}, p-value: {p_value:.3f}\n')
 
 # ------------------------------------------------------------------------------
-# Exibindo os histogramas entre as quantidades e os valores de cada feature
+# Remoção de features que possuíam um coeficiente de Pearson menor que 0.01
+# ------------------------------------------------------------------------------
+
+drop_list_pearson = ['codigo_area_telefone_residencial_terceira_particao', 'ocupacao_quarta_particao',
+              'estado_onde_trabalha_regiao_sul', 'estado_onde_trabalha_regiao_sudeste', 'estado_onde_trabalha_regiao_norte',
+              'estado_onde_reside_regiao_sudeste', 'estado_onde_nasceu_regiao_sudeste', 'estado_onde_nasceu_regiao_norte',
+              'forma_envio_solicitacao_internet', 'produto_solicitado_2', 'vinculo_formal_com_empresa', 'possui_cartao_visa',
+              'renda_extra', 'renda_mensal_regular', 'possui_email', 'sexo_N']
+
+dados_treinamento.drop(drop_list_pearson, axis=1, inplace=True)
+dados_teste.drop(drop_list_pearson, axis=1, inplace=True)
+
+# ------------------------------------------------------------------------------
+# Exibindo os histogramas entre as quantidades e valores de cada feature
 # ------------------------------------------------------------------------------
 
 for feature in list(dados_treinamento.columns):
@@ -379,16 +381,15 @@ for feature in list(dados_treinamento.columns):
     plt.show()
 
 # ------------------------------------------------------------------------------
-# Embaralhar o conjunto de dados para garantir que a divisão entre os dados de
-# treino e os dados de teste esteja isenta de qualquer viés de seleção
+# Embaralhar o conjunto de dados de treino para garantir que a divisão entre os
+# dados esteja isenta de qualquer viés de seleção
 # ------------------------------------------------------------------------------
 
 dados_treinamento_embaralhados = dados_treinamento.sample(frac=1, random_state=11012005)
-dados_teste_embaralhados = dados_teste.sample(frac=1, random_state=11012005)
 
-#------------------------------------------------------------------------------
-# Separar o conjunto de treinamento em arrays X e Y, exibindo suas dimensões
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
+# Separar o conjunto de treinamento em arrays X e Y
+# ------------------------------------------------------------------------------
 
 # Separando as features do alvo.
 X = dados_treinamento_embaralhados.iloc[:, :-1].values
@@ -398,35 +399,13 @@ y = dados_treinamento_embaralhados.iloc[:, -1].values
 X_treino, X_teste, y_treino, y_teste = train_test_split(X, y, test_size=0.25, random_state=11012005)
 
 # Conjunto de teste final
-X_teste_final = dados_teste_embaralhados.iloc[:, :].values
-
-# # Separando as features do alvo.
-# X_treino = dados_treinamento_embaralhados.iloc[:, :-1].values
-# y_treino = dados_treinamento_embaralhados.iloc[:, -1].values
-#
-# # Conjunto de teste
-# X_teste = dados_teste_embaralhados.iloc[:, :].values
-
-# print("\n\n\t-----Dimensões-----")
-# print(f"\nDimensão X treino: {X_treino.shape}")
-# print(f"Dimensão y treino: {y_treino.shape}")
-# print(f"Dimensão X teste: {X_teste.shape}")
-# print(f"Dimensão y teste: {y_teste.shape}\n")
-
-#------------------------------------------------------------------------------
-# Exibindo os coeficientes de Pearson de cada atributo (entre o mesmo e o alvo)
-#------------------------------------------------------------------------------
-
-print("\n\n\t-----Coeficiente de Pearson-----\n")
-for coluna in dados_treinamento.columns:
-    coef_pearsonr = pearsonr(dados_treinamento[coluna], dados_treinamento['inadimplente'])[0]
-    p_value = pearsonr(dados_treinamento[coluna], dados_treinamento['inadimplente'])[1]
-    print(f'{coluna}: {coef_pearsonr:.3f}, p-value: {p_value:.3f}\n')
+X_teste_final = dados_teste
 
 # ------------------------------------------------------------------------------
 # Aplicação da escala no X de treino e de teste
 # ------------------------------------------------------------------------------
 
+# Neste caso, os melhores resultados foram encontrados com o StandardScaler()
 # escala = MinMaxScaler()
 escala = StandardScaler()
 
@@ -434,15 +413,12 @@ escala.fit(X_treino)
 X_treino_com_escala = escala.transform(X_treino)
 X_teste_com_escala = escala.transform(X_teste)
 
-# X_treino_com_escala = escala.fit_transform(X_treino.astype(np.float64))
-
 # ------------------------------------------------------------------------------
 # Treinando o modelo KNeighborsClassifier, com k variando entre 1 e 30
 # ------------------------------------------------------------------------------
 
 print("\n\n\t-----Classificador com KNN-----\n")
 for k in range(1, 31):
-
     # Instanciando o classificador KNN.
     classificador_knn = KNeighborsClassifier(n_neighbors=k, weights="uniform")
     classificador_knn = classificador_knn.fit(X_treino_com_escala, y_treino)
@@ -451,31 +427,13 @@ for k in range(1, 31):
     y_resposta_teste = classificador_knn.predict(X_teste_com_escala)
 
     acuracia_treino = accuracy_score(y_treino, y_resposta_treino)
-    acuracia_teste  = accuracy_score(y_teste, y_resposta_teste)
+    acuracia_teste = accuracy_score(y_teste, y_resposta_teste)
 
     print(f'\nK = {k}')
-    print(f'Acurácia Treino: {(acuracia_treino*100):.4f}%')
-    print(f'Taxa de Erro Treino: {((1-acuracia_treino)*100):.4f}%')
-    print(f'Acurácia Teste: {(acuracia_teste*100):.4f}%')
-    print(f'Taxa de Erro Teste: {((1-acuracia_teste)*100):.4f}%')
-
-    # # Realizando predições a partir da validação cruzada (4 folds).
-    # y_resposta = cross_val_predict(classificador_knn, X_treino_com_escala, y_treino, cv=4)
-    #
-    # # Obtendo a acurácia de cada um dos 4 folds da validação cruzada.
-    # acuracia_4_folds = cross_val_score(classificador_knn, X_treino_com_escala, y_treino, cv=4, scoring='accuracy')
-    #
-    # # Obtendo a média das acurácias.
-    # media_acuracias = acuracia_4_folds.mean()
-    #
-    # # Obtendo a matriz de confusão.
-    # matriz_confusao = confusion_matrix(y_treino, y_resposta)
-
-    # #print(f'Predições: {y_resposta}')
-    # #print(f'Acurácias: {acuracia_4_folds}')
-    # print(f'Média das Acurácias: {(media_acuracias*100):.4f}%')
-    # print(f'Taxa de Erro Médio: {((1-media_acuracias)*100):.4f}%')
-    # #print(f'Matriz de Confusão: {matriz_confusao}')
+    print(f'Acurácia Treino: {(acuracia_treino * 100):.4f}%')
+    print(f'Taxa de Erro Treino: {((1 - acuracia_treino) * 100):.4f}%')
+    print(f'Acurácia Teste: {(acuracia_teste * 100):.4f}%')
+    print(f'Taxa de Erro Teste: {((1 - acuracia_teste) * 100):.4f}%')
 
 # -------------------------------------------------------------------------------
 # Treinando o modelo LogisticRegression, com penalidade L2
@@ -485,20 +443,19 @@ print("\n\n\t-----Classificador com Regressão Logística (Regularização L2)--
 print("\n             C TREINO  TESTE")
 print(" ------------- ------  -----")
 
-# Para este laço, o melhor resultado foi em C=0.001000 (59.7% de acurácia).
+# Para este laço, o melhor resultado foi em C=0.010000 (59.9% de acurácia).
 # for c in [0.000001, 0.000010, 0.000100, 0.001, 0.010, 0.100,
-#           1, 10, 100, 1000, 10000, 100000, 1000000]:
+          # 1, 10, 100, 1000, 10000, 100000, 1000000]:
 
-# Para este laço, o melhor resultado foi em C=0.002000 (59.8% de acurácia).
-#for c in [0.000100, 0.000200, 0.000500, 0.001000, 0.002000, 0.005000, 0.010000]:
+# Para este laço, os melhores resultados foram em C=0.002000/acurácia=60.0% e em C=0.005000/acurácia=60.0%.
+# for c in [0.00100, 0.00200, 0.00500, 0.01000, 0.02000, 0.05000, 0.10000]:
 
-# Para este laço, os valores 0.001500, 0.002000 e 0.002200 possuem 59.8% de acurácia.
-#for c in [0.001, 0.0012, 0.0015, 0.002, 0.0022, 0.0025, 0.003, 0.0035, 0.004, 0.0045,0.005]:
+# Para este laço, o melhor resultado foi em C=0.002500 (60.1% de acurácia)
+# for c in [0.00100, 0.00150, 0.00180, 0.00200, 0.00250, 0.00300, 0.00350, 0.00400, 0.00450, 0.00500, 0.00550, 0.00600, 0.00700, 0.00800, 0.010000]:
 
-# Para este laço, como vários valores possuem 59.8% de acurácia, tomamos 0.002000 como C.
-#for c in [0.0015, 0.0016, 0.0017, 0.0018, 0.0019, 0.002, 0.00205, 0.0021, 0.00215, 0.0022]:
+# Por fim, decidimos que o melhor valor de c é 0.002500.
+c = 0.002500
 
-c = 0.002000
 classificador_lr = LogisticRegression(penalty='l2', C=c, max_iter=100000)
 classificador_lr = classificador_lr.fit(X_treino_com_escala, y_treino)
 
@@ -523,8 +480,9 @@ print("\n             C TREINO  TESTE")
 print(" ------------- ------  -----")
 
 classificador_lr_cv = LogisticRegressionCV(cv=4, max_iter=100000, penalty='l2',
-                                     # Último laço da Regressão Logística sem validação cruzada.
-                                     Cs=[0.0015, 0.0016, 0.0017, 0.0018, 0.0019, 0.002, 0.00205, 0.0021, 0.00215, 0.0022])
+                                           # Último laço da Regressão Logística sem validação cruzada.
+                                           Cs=[0.0015, 0.0016, 0.0017, 0.0018, 0.0019, 0.002, 0.00205, 0.0021, 0.00215,
+                                               0.0022, 0.0025])
 
 classificador_lr_cv = classificador_lr_cv.fit(X_treino_com_escala, y_treino)
 
@@ -556,11 +514,10 @@ y_resposta_teste = classificador_bernoullinb.predict(X_teste_com_escala)
 acuracia_treino = accuracy_score(y_treino, y_resposta_treino)
 acuracia_teste = accuracy_score(y_teste, y_resposta_teste)
 
-print(f'Acurácia Treino: {(acuracia_treino*100):.4f}%')
-print(f'Taxa de Erro Treino: {((1-acuracia_treino)*100):.4f}%')
-print(f'Acurácia Teste: {(acuracia_teste*100):.4f}%')
-print(f'Taxa de Erro Teste: {((1-acuracia_teste)*100):.4f}%')
-
+print(f'Acurácia Treino: {(acuracia_treino * 100):.4f}%')
+print(f'Taxa de Erro Treino: {((1 - acuracia_treino) * 100):.4f}%')
+print(f'Acurácia Teste: {(acuracia_teste * 100):.4f}%')
+print(f'Taxa de Erro Teste: {((1 - acuracia_teste) * 100):.4f}%')
 
 # print('\nMultinomial:\n')
 # classificador_multinomial = MultinomialNB()
@@ -587,10 +544,10 @@ y_resposta_teste = classificador_gaussiannb.predict(X_teste_com_escala)
 acuracia_treino = accuracy_score(y_treino, y_resposta_treino)
 acuracia_teste = accuracy_score(y_teste, y_resposta_teste)
 
-print(f'Acurácia Treino: {(acuracia_treino*100):.4f}%')
-print(f'Taxa de Erro Treino: {((1-acuracia_treino)*100):.4f}%')
-print(f'Acurácia Teste: {(acuracia_teste*100):.4f}%')
-print(f'Taxa de Erro Teste: {((1-acuracia_teste)*100):.4f}%')
+print(f'Acurácia Treino: {(acuracia_treino * 100):.4f}%')
+print(f'Taxa de Erro Treino: {((1 - acuracia_treino) * 100):.4f}%')
+print(f'Acurácia Teste: {(acuracia_teste * 100):.4f}%')
+print(f'Taxa de Erro Teste: {((1 - acuracia_teste) * 100):.4f}%')
 
 # -------------------------------------------------------------------------------
 # Treinando o classificador Support Vector Machine Linear
@@ -601,34 +558,18 @@ print("\n\n\t-----Classificador Support Vector Machine Linear-----\n")
 print("\n           C  ACCTRE  ACCTES  ERRTRE  ERRTES")
 print(" -----------  ------  ------  ------  ------")
 
-# Para este laço, os melhores resultados foram em C=0.000100 e C=0.001000, ambos com 59.5% de acurácia.
+# Para este laço, os melhores resultados foram em C=0.001000 com 59.94% de acurácia.
 # for C in [0.000001, 0.000010, 0.000100, 0.001000, 0.010000, 0.100000]:
 
-# Para este laço, os melhores resultados foram em C=0.000050 e C=0.000200, ambos com 59.7% de acurácia.
-#for C in [0.000010, 0.000020, 0.000050, 0.000100, 0.000200, 0.000500, 0.001000, 0.002000, 0.005000, 0.010000]:
+# Para este laço, o melhor resultado foi em C=0.000900 com 60.04% de acurácia.
+# for C in [0.00010, 0.00020, 0.00050, 0.00080, 0.00090, 0.00100, 0.00200,  0.00300, 0.00500,  0.00800, 0.001000]:
 
-# Para este laço, o melhor resultado foi em C=0.000050 com 59.7% de acurácia.
-#for C in [0.000020, 0.000030, 0.000040, 0.000050, 0.000060, 0.000070, 0.000080, 0.000090, 0.000100]:
+# Para este laço, o melhor resultado ainda foi em C=0.000900 com 60.04% de acurácia.
+# for C in [0.00080, 0.00081, 0.00082, 0.00083, 0.00084, 0.00085, 0.00086, 0.00087, 0.00088, 0.00089, 0.00090,
+# 0.00091, 0.00092, 0.00093, 0.00094, 0.00095, 0.00096, 0.00097, 0.00098, 0.00099, 0.00100]:
 
-# Para este laço, os melhores resultados foram em C=0.000150, C=0.000175, C=0.000250 e C=0.000300, todos com 59.8% de acurácia.
-#for C in [0.000100, 0.000150, 0.000175, 0.000200, 0.000225, 0.000250, 0.000300, 0.000350, 0.000400, 0.000450, 0.000500]:
-
-# Para este laço, o melhor resultado foi em C=0.000160, com 59.84% de acurácia.
-#for C in [0.000100, 0.000110, 0.000120, 0.000130, 0.000140, 0.000150, 0.000160, 0.000170, 0.000180, 0.000190, 0.000200]:
-
-# Para este laço, os melhores resultados foram em C=0.000235 e C=0.000260, ambos com 59.86% de acurácia.
-# for C in [0.000225, 0.000230, 0.000235, 0.000240, 0.000245, 0.000250, 0.000260, 0.000270, 0.000280, 0.000290, 0.000300,
-#           0.000310, 0.000320, 0.000330, 0.000340, 0.000350]:
-
-# Para este laço, podemos considerar que o melhor resultado foi em C=0.000235, com 59,86% de acurácia.
-#for C in [0.000230, 0.000231, 0.000232, 0.000233, 0.000234, 0.000235, 0.000236, 0.000237, 0.000238, 0.000239, 0.000240]:
-
-# Para este laço, podemos considerar que o melhor resultado foi em C=0.000260, com 59,86% de acurácia.
-# for C in [0.000251, 0.000252, 0.000253, 0.000254, 0.000255, 0.000256, 0.000257, 0.000258, 0.000259, 0.000260,
-#           0.000261, 0.000262, 0.000263, 0.000264, 0.000265, 0.000266, 0.000267, 0.000268, 0.000269, 0.000270]:
-
-# Por fim, escolhemos C=0.000260.
-C = 0.000260
+# Por fim, escolhemos C=0.000900.
+C = 0.000900
 
 classificador_linear_svc = LinearSVC(penalty='l2', C=C, max_iter=10000000, dual=True, random_state=11012005)
 classificador_linear_svc = classificador_linear_svc.fit(X_treino_com_escala, y_treino)
@@ -642,10 +583,10 @@ acuracia_teste = accuracy_score(y_teste, y_resposta_teste)
 print(
     # "%3d"%k,
     "%11.6f" % C,
-    "%8.2f" % (100*acuracia_treino),
-    "%7.2f" % (100*acuracia_teste),
-    "%7.2f" % (100 - 100*acuracia_treino),
-    "%7.2f" % (100 - 100*acuracia_teste)
+    "%8.2f" % (100 * acuracia_treino),
+    "%7.2f" % (100 * acuracia_teste),
+    "%7.2f" % (100 - 100 * acuracia_treino),
+    "%7.2f" % (100 - 100 * acuracia_teste)
 )
 
 # -------------------------------------------------------------------------------
@@ -656,25 +597,17 @@ print("\n\n\t-----Classificador Support Vector Machine com Kernel-----\n")
 print("\n       C    GAMMA  TREINO  TESTE")
 print(" -------  -------  ------  ------")
 
-# g = 1/64
-# for g in [0.0009, 0.0010, 0.0011, 0.0012, 0.0013, 0.0014]:
-#     for c in [0.5, 1, 2, 5, 10]:
-
-# Para este laço, o melhor resultado foi em c=100 e g=0.0001, com 60.24% de acurácia.
+# Para este laço, o melhor resultado foi em c=10/g=0.0010/acurácia=60.32%.
 # for g in [0.000100, 0.001, 0.010, 0.100, 1, 10, 100, 1000, 10000, 100000, 1000000]:
-#     for c in [0.010, 0.100, 1, 10, 100, 1000, 10000, 100000, 1000000]:
+# for c in [0.010, 0.100, 1, 10, 100, 1000, 10000, 100000, 1000000]:
 
-# Para este laço, o melhor resultado foi em c=100 e g=0.0001, com 60.24% de acurácia.
-# for g in [0.000100, 0.001, 0.010, 0.100, 1, 10, 100, 1000, 10000, 100000, 1000000]:
-#     for c in [50, 100, 200]:
+# Para este laço, o melhor resultado foi em c=4/acurácia=60.50%.
+# g = 0.001
+# for c in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 30, 40, 50, 60, 70, 80, 90, 100]:
 
-# Para este laço, o melhor resultado foi em c=100 e g=0.0002, com 60.34% de acurácia.
-# c = 100
-# for g in [0.000020, 0.000050, 0.000100, 0.000200, 0.000500]:
-
-# Por fim, escolhemos c = 100 e g = 0.0002.
-c = 100
-g = 0.0002
+# Por fim, escolhemos c = 4 e g = 0.0010 --> acurácia = 60.50%
+c = 4
+g = 0.0010
 
 classificador_svc = SVC(kernel='rbf', C=c, gamma=g, max_iter=100000000)
 classificador_svc = classificador_svc.fit(X_treino_com_escala, y_treino)
@@ -688,8 +621,8 @@ acuracia_teste = accuracy_score(y_teste, y_resposta_teste)
 print(
     "%9.4f" % c,
     "%9.4f" % g,
-    "%6.2f" % (100*acuracia_treino),
-    "%6.2f" % (100*acuracia_teste)
+    "%6.2f" % (100 * acuracia_treino),
+    "%6.2f" % (100 * acuracia_teste)
 )
 
 # -------------------------------------------------------------------------------
@@ -697,14 +630,13 @@ print(
 # -------------------------------------------------------------------------------
 
 print("\n\n\t-----Classificador Árvore de Decisão-----\n")
-
 print("\n  D TREINO  TESTE")
 print(" -- ------ ------")
 
-# Para este laço, o melhor resultado foi em d=6 e criterion='gini', com 58.18% de acurácia.
-#for d in range(2, 21):
+# Para este laço, o melhor resultado foi em d=5 e criterion='gini', com 57.98% de acurácia.
+# for d in range(2, 21):
 
-d = 6
+d = 5
 # criterion = 'gini', 'entropy' ou 'log_loss'
 classificador_arvore_decisao = DecisionTreeClassifier(criterion='gini', max_depth=d, random_state=11012005)
 classificador_arvore_decisao = classificador_arvore_decisao.fit(X_treino_com_escala, y_treino)
@@ -717,8 +649,8 @@ acuracia_teste = accuracy_score(y_teste, y_resposta_teste)
 
 print(
     "%3d" % d,
-    "%6.2f" % (100*acuracia_treino),
-    "%6.2f" % (100*acuracia_teste)
+    "%6.2f" % (100 * acuracia_treino),
+    "%6.2f" % (100 * acuracia_teste)
 )
 
 # -------------------------------------------------------------------------------
@@ -729,23 +661,25 @@ print("\n\n\t-----Classificador Floresta Aleatória-----\n")
 print("\n  K   D TREINO  TESTE   ERRO  oob_score")
 print("  -- -- ------ ------ ------ -----")
 
-#Para este laço, o melhor resultado foi em k=90 e d=10, com 59.76% de acurácia.
+# Para este laço, o melhor resultado foi em k=65/acurácia=60.90%/max_features=9.
 # d = 10
-# for k in range(5, 201, 5):
+# for k in range(5, 501, 5):
 
-# Para este laço, o melhor resultado foi em k=189 e d=10, com 58.69% de acurácia.
-#for k in [185, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195, 196, 197, 198, 199, 200]:
+# Para este laço, o melhor resultado foi em k=65/d=10/acurácia=60.90%/max_features=9.
+# d = 10
+# for k in [60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70]:
 
-# Para este laço, o melhor resultado foi em k=189 e d=12, com 60.48% de acurácia.
-# k = 189
+# Para este laço, o melhor resultado ainda foi em k=65/d=10/acurácia=60.90%/max_features=9.
+# k = 65
 # for d in range(2, 21):
 
-k = 189
-d = 12
+# Por fim, escolhemos k = 65, d = 10, max_features = 9 --> acurácia = 60.90%.
+k = 65
+d = 10
 
 classificador_floresta_aleatoria = RandomForestClassifier(
     n_estimators=k,
-    max_features='sqrt',
+    max_features=9,
     oob_score=True,
     max_depth=d,
     random_state=11012005
@@ -762,34 +696,54 @@ acuracia_teste = accuracy_score(y_teste, y_resposta_teste)
 print(
     "%3d" % k,
     "%3d" % d,
-    "%6.2f" % (100*acuracia_treino),
-    "%6.2f" % (100*acuracia_teste),
-    "%6.2f" % (100*(1-acuracia_teste)),
-    "%6.2f" % (100*classificador_floresta_aleatoria.oob_score_)
+    "%6.2f" % (100 * acuracia_treino),
+    "%6.2f" % (100 * acuracia_teste),
+    "%6.2f" % (100 * (1 - acuracia_teste)),
+    "%6.2f" % (100 * classificador_floresta_aleatoria.oob_score_)
 )
 
 # -------------------------------------------------------------------------------
-# Treinando o classificador Floresta Aleatória com filtro de feature importance
+# Treinando o classificador Floresta Aleatória com Filtro de Feature Importance
 # -------------------------------------------------------------------------------
 
 print("\n\n\t-----Classificador Floresta Aleatória (Filtro de Feature Importance)-----\n")
 print("\n  K   D TREINO  TESTE   ERRO")
 print("  -- -- ------ ------ ------")
 
+# Treinamento de um modelo inicial (tendo como base os valores anteriores de 'k' e 'd')
+k = 65
+d = 10
+classificador_floresta_aleatoria = RandomForestClassifier(
+    n_estimators=k,
+    max_features=9,
+    oob_score=True,
+    max_depth=d,
+    random_state=11012005
+)
+classificador_floresta_aleatoria = classificador_floresta_aleatoria.fit(X_treino_com_escala, y_treino)
+
+# Filtrando as features, para que apenas as que possuem importância superior a 0.01 sejam mantidas.
 X_treino_reduzido = X_treino_com_escala[:, classificador_floresta_aleatoria.feature_importances_ > 0.01]
 X_teste_reduzido = X_teste_com_escala[:, classificador_floresta_aleatoria.feature_importances_ > 0.01]
 
-# Para este laço, o melhor resultado foi em k=160 e d=10, com 60.74% de acurácia.
+
+# Para este laço, o melhor resultado foi em k=205/d=10/acurácia=61.10%/max_features=8.
 # d = 10
-# for k in range(5, 201, 5):
+# for k in range(5, 251, 5):
 
-# Para este laço, o melhor resultado ainda foi em k=160 e d=10, com 60.74% de acurácia.
-# k = 160
-# for d in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]:
+# Para este laço, o melhor resultado ainda foi em k=205/d=10/acurácia=61.10%/max_features=8.
+# d = 10
+# for k in [200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210]:
 
-k = 160
+# Para este laço, o melhor resultado ainda foi em k=205/d=10/acurácia=61.10%/max_features=8.
+# k = 170
+# for d in range(2, 21):
+
+# Por fim, escolhemos k = 205, d = 10, max_features = 8 --> acurácia = 61.10%.
+k = 205
 d = 10
 
+# Treinamento final do modelo.
 classificador_floresta_aleatoria = RandomForestClassifier(
     n_estimators=k,
     max_features=8,
@@ -813,61 +767,3 @@ print(
     "%6.2f" % (100*acuracia_teste),
     "%6.2f" % (100*(1-acuracia_teste))
 )
-
-# # -------------------------------------------------------------------------------
-# # Treinando a primeira submissão para o kaggle (Floresta Aleatória com 60.48%)
-# # -------------------------------------------------------------------------------
-#
-# # Utilizando todos os dados.
-# X_treino_submissao = X
-# X_teste_submissao = X_teste_final
-# y_treino_submissao = y
-#
-# # Colocando em escala.
-# escala.fit(X_treino_submissao)
-# X_treino_submissao_com_escala = escala.fit_transform(X_treino_submissao)
-# X_teste_submissao_com_escala = escala.transform(X_teste_submissao)
-#
-# # Aplicando o modelo
-# k = 189
-# d = 12
-# classificador_floresta_aleatoria = RandomForestClassifier(
-#     n_estimators=k,
-#     max_features='sqrt',
-#     oob_score=True,
-#     max_depth=d,
-#     random_state=11012005
-# )
-# classificador_floresta_aleatoria = classificador_floresta_aleatoria.fit(X_treino_submissao_com_escala, y_treino_submissao)
-# y_resposta_teste_submissao = classificador_floresta_aleatoria.predict(X_teste_submissao_com_escala)
-#
-# # Criando o DataFrame de submissão.
-# primeira_submissao_kaggle = pd.DataFrame({
-#     'id_solicitante': ids_solicitantes_dados_teste,
-#     'inadimplente': y_resposta_teste_submissao
-# })
-#
-# # Salvando em CSV
-# primeira_submissao_kaggle.to_csv('primeira_submissao_kaggle.csv', index=False)
-# print("Arquivo salvo como 'primeira_submissao_kaggle.csv'")
-#
-# # -------------------------------------------------------------------------------
-# # Treinando a segunda submissão para o kaggle (Support Vector Machine com Kernel)
-# # -------------------------------------------------------------------------------
-#
-# # Aplicando o modelo
-# c = 100
-# g = 0.0002
-# classificador_svc = SVC(kernel='rbf', C=c, gamma=g, max_iter=100000000)
-# classificador_svc = classificador_svc.fit(X_treino_submissao_com_escala, y_treino_submissao)
-# y_resposta_teste_submissao = classificador_svc.predict(X_teste_submissao_com_escala)
-#
-# # Criando o DataFrame de submissão.
-# segunda_submissao_kaggle = pd.DataFrame({
-#     'id_solicitante': ids_solicitantes_dados_teste,
-#     'inadimplente': y_resposta_teste_submissao
-# })
-#
-# # Salvando em CSV
-# segunda_submissao_kaggle.to_csv('segunda_submissao_kaggle.csv', index=False)
-# print("Arquivo salvo como 'segunda_submissao_kaggle.csv'")
