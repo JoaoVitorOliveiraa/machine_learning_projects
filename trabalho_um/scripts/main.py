@@ -767,3 +767,56 @@ print(
     "%6.2f" % (100*acuracia_teste),
     "%6.2f" % (100*(1-acuracia_teste))
 )
+
+# -------------------------------------------------------------------------------
+# Treinando a submissão final para o Kaggle, com o modelo que obteve a maior
+# acurácia (Floresta Aleatória com Feature Importance).
+# -------------------------------------------------------------------------------
+
+# Utilizando todos os dados.
+X_treino_submissao = X
+X_teste_submissao = X_teste_final
+y_treino_submissao = y
+
+# Colocando em escala.
+escala = StandardScaler()
+escala.fit(X_treino_submissao)
+X_treino_submissao_com_escala = escala.transform(X_treino_submissao)
+X_teste_submissao_com_escala = escala.transform(X_teste_submissao)
+
+# Treinando um modelo inicial, a fim de realizar o filtro das importâncias das features.
+k = 65
+d = 10
+classificador_floresta_aleatoria = RandomForestClassifier(
+    n_estimators=k,
+    max_features=9,
+    oob_score=True,
+    max_depth=d,
+    random_state=11012005
+)
+classificador_floresta_aleatoria = classificador_floresta_aleatoria.fit(X_treino_submissao_com_escala, y_treino_submissao)
+X_treino_reduzido = X_treino_submissao_com_escala[:, classificador_floresta_aleatoria.feature_importances_ > 0.01]
+X_teste_reduzido = X_teste_submissao_com_escala[:, classificador_floresta_aleatoria.feature_importances_ > 0.01]
+
+# Treinando o modelo definitivo.
+k = 205
+d = 10
+classificador_floresta_aleatoria = RandomForestClassifier(
+    n_estimators=k,
+    max_features=8,
+    oob_score=False,
+    max_depth=d,
+    random_state=11012005
+)
+classificador_floresta_aleatoria = classificador_floresta_aleatoria.fit(X_treino_reduzido, y_treino_submissao)
+y_resposta_teste_submissao = classificador_floresta_aleatoria.predict(X_teste_reduzido)
+
+# Criando o DataFrame de submissão.
+submissao_final_kaggle = pd.DataFrame({
+    'id_solicitante': ids_solicitantes_dados_teste,
+    'inadimplente': y_resposta_teste_submissao
+})
+
+# Salvando em CSV
+submissao_final_kaggle.to_csv('submissao_final_kaggle.csv', index=False)
+print("Arquivo salvo como 'submissao_final_kaggle.csv'")
