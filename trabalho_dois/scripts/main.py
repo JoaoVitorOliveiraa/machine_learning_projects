@@ -6,7 +6,6 @@
 # Importar bibliotecas
 #------------------------------------------------------------------------------
 
-import math
 import numpy as np
 import pandas as pd
 from pathlib import Path
@@ -78,7 +77,7 @@ print(dados_treinamento.dtypes)
 # Exibindo o histograma entre as quantidades e os valores do alvo
 # ------------------------------------------------------------------------------
 
-print(f"\n\n\t-----Histograma do alvo-----\n")
+print("\n\n\t-----Histograma do alvo-----\n")
 grafico = dados_treinamento['preco'].plot.hist(bins=100)
 grafico.set(title='preco', xlabel='Quantidades', ylabel='Valores')
 plt.show()
