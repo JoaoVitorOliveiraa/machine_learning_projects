@@ -61,5 +61,11 @@ dados = pd.read_csv('https://raw.githubusercontent.com/laderast/cvdRiskData/mast
 # Verificando o número de linhas e colunas do conjunto de dados
 #------------------------------------------------------------------------------
 
-print(f"\n\nShape do dataset: {dados.shape}\n")
+print(f"\n\n\t\t-----Shape do dataset-----\n\n{dados.shape}\n")
 
+# ------------------------------------------------------------------------------
+#  Exibindo as primeiras 10 linhas do conjunto de dados 
+# ------------------------------------------------------------------------------
+
+print("\n\t\t-----Dez primeiras linhas do conjunto de dados-----\n")
+print(dados.head(n=10))
