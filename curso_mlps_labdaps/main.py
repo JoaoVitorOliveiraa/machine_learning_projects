@@ -3,7 +3,7 @@
 #==============================================================================
 
 #------------------------------------------------------------------------------
-# Importar bibliotecas
+# Importando bibliotecas
 #------------------------------------------------------------------------------
 
 import numpy as np
@@ -33,7 +33,7 @@ from dfply import *
 from dtreeviz.trees import *                # Visualização de árvores de decisão
 
 #------------------------------------------------------------------------------
-# Configurar a fonte utilizada em gráficos gerados pelo Matplotlib
+# Configurando a fonte utilizada em gráficos gerados pelo Matplotlib
 #------------------------------------------------------------------------------
 
 rc('font', **{'family': 'sans-serif', 'sans-serif': ['DejaVu Sans'], 'size': 10})
@@ -46,7 +46,16 @@ rc('mathtext', **{'default': 'regular'})
 # 'mathtext': {'default': 'regular'} -> Define que os textos matemáticos (escritos com LaTeX dentro do Matplotlib) serão renderizados com fonte regular, sem itálico por padrão.
 
 #------------------------------------------------------------------------------
-# Definir a semente de aleatoriedade
+# Definindo a semente de aleatoriedade
 #------------------------------------------------------------------------------
 
 np.random.seed(30)
+
+#------------------------------------------------------------------------------
+# Obtendo o conjunto de dados
+#------------------------------------------------------------------------------
+
+dados = pd.read_csv('https://raw.githubusercontent.com/laderast/cvdRiskData/master/data-raw/fullPatientData.csv')
+
+
+
