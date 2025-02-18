@@ -76,3 +76,12 @@ print(dados.head(n=10))
 
 print("\n\n\t-----Descrição do conjunto de dados-----\n")
 dados.info()
+
+# ------------------------------------------------------------------------------
+#  Descobrindo quais categorias existem nas features e no alvo, além de quantos
+#  dígitos pertencem a cada categoria, usando a função value_counts()
+# ------------------------------------------------------------------------------
+
+print("\n\n\t-----Categorias das features e do alvo, com suas respectivas quantidades-----\n")
+for coluna in list(dados.columns):
+    print("\n", dados[coluna].value_counts())
