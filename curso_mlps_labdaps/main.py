@@ -69,3 +69,10 @@ print(f"\n\n\t\t-----Shape do dataset-----\n\n{dados.shape}\n")
 
 print("\n\t\t-----Dez primeiras linhas do conjunto de dados-----\n")
 print(dados.head(n=10))
+
+# ------------------------------------------------------------------------------
+#  Obtendo uma descrição do conjunto de dados 
+# ------------------------------------------------------------------------------
+
+print("\n\n\t-----Descrição do conjunto de dados-----\n")
+dados.info()
