@@ -1,0 +1,52 @@
+#==============================================================================
+# Machine Learning para Predições em Saúde - Curso de Verão 2025 - FSP - LABDAPS
+#==============================================================================
+
+#------------------------------------------------------------------------------
+# Importar bibliotecas
+#------------------------------------------------------------------------------
+
+import numpy as np
+import pandas as pd
+from pathlib import Path
+from matplotlib import rc
+import matplotlib.pyplot as plt
+from scipy.stats import pearsonr
+from sklearn.linear_model import Ridge, Lasso
+from sklearn.neighbors import KNeighborsRegressor
+from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import r2_score, mean_squared_error
+from sklearn.preprocessing import LabelEncoder, OneHotEncoder, StandardScaler, MinMaxScaler, PolynomialFeatures
+from sklearn.metrics import (roc_curve, auc, confusion_matrix, classification_report,
+                             precision_score, recall_score, f1_score, roc_auc_score,
+                             accuracy_score, brier_score_loss)
+from sklearn.model_selection import (KFold, cross_val_score, train_test_split,
+                                     GridSearchCV, RandomizedSearchCV)
+from sklearn.calibration import CalibratedClassifierCV, calibration_curve
+from sklearn.pipeline import Pipeline
+from sklearn.ensemble import RandomForestClassifier
+from xgboost import XGBClassifier
+from lightgbm import LGBMClassifier
+from catboost import CatBoostClassifier
+from dfply import *
+from dtreeviz.trees import *                # Visualização de árvores de decisão
+
+#------------------------------------------------------------------------------
+# Configurar a fonte utilizada em gráficos gerados pelo Matplotlib
+#------------------------------------------------------------------------------
+
+rc('font', **{'family': 'sans-serif', 'sans-serif': ['DejaVu Sans'], 'size': 10})
+rc('mathtext', **{'default': 'regular'})
+
+# rc('font', {...}) -> Define as configurações gerais da fonte nos gráficos do Matplotlib.
+# 'family': 'sans-serif' -> Define a família de fontes como sans-serif (sem serifa).
+# 'sans-serif': ['DejaVu Sans'] -> Especifica que a fonte a ser usada dentro da família sans-serif será a DejaVu Sans (padrão do Matplotlib).
+# 'size': 10 -> Define o tamanho padrão do texto nos gráficos como 10 pontos.
+# 'mathtext': {'default': 'regular'} -> Define que os textos matemáticos (escritos com LaTeX dentro do Matplotlib) serão renderizados com fonte regular, sem itálico por padrão.
+
+#------------------------------------------------------------------------------
+# Definir a semente de aleatoriedade
+#------------------------------------------------------------------------------
+
+np.random.seed(30)
