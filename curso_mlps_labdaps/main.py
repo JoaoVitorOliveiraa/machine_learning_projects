@@ -57,5 +57,9 @@ np.random.seed(30)
 
 dados = pd.read_csv('https://raw.githubusercontent.com/laderast/cvdRiskData/master/data-raw/fullPatientData.csv')
 
+#------------------------------------------------------------------------------
+# Verificando o número de linhas e colunas do conjunto de dados
+#------------------------------------------------------------------------------
 
+print(f"\n\nShape do dataset: {dados.shape}\n")
 
