@@ -213,3 +213,13 @@ pd.set_option('display.float_format', lambda x: '%.3f' % x)
 # Precisamos transformá-los novamente para data.frame
 X_train_scaled = pd.DataFrame(X_train_scaled, columns=X_train_columns)
 X_test_scaled = pd.DataFrame(X_test_scaled, columns=X_test_columns)
+
+# ------------------------------------------------------------------------------
+#  Aplicando o LabelEncoder no target
+# ------------------------------------------------------------------------------
+
+# transformando a variável target: Y --> 1 e N --> 0.
+label_encoder = LabelEncoder()
+label_encoder.fit(y_train)
+y_train = label_encoder.transform(y_train)
+y_test = label_encoder.transform(y_test)
