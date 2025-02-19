@@ -153,3 +153,16 @@ X_train, X_test, y_train, y_test = train_test_split(features,
                                                     stratify = target,  # Estratificando com base no alvo.
                                                     train_size = 0.70,
                                                     random_state = 30)
+
+# ------------------------------------------------------------------------------
+#  Escalonando as features com valores contínuos 
+# ------------------------------------------------------------------------------
+
+continuous_features = ['numAge', 'bmi', 'tchol', 'sbp']
+
+# escala = MinMaxScaler()
+escala = StandardScaler()
+
+escala.fit(X_train)
+X_train[continuous_features] = escala.transform(X_train[continuous_features])
+X_test[continuous_features] = escala.transform(X_test[continuous_features])
