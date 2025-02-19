@@ -122,3 +122,14 @@ dados = dados.drop(["patientID", "age", "treat"], axis=1)
 # somente aplicar o label encoding, substintuindo os valores por 0 e 1.
 
 dados =  pd.get_dummies(dados, columns=['race'], dtype=int)
+
+# ------------------------------------------------------------------------------
+#  Aplicando o LabelEncoder nas variáveis dicotômicas
+# ------------------------------------------------------------------------------
+
+# O LabelEncoder utiliza por padrão a ordem alfabética. Dessa forma, como nossos
+# dados estavam com categorias "N" e "Y", "N" assume o valor 0 e "Y" o valor 1.
+# Para o sexo: F -> 0,  M -> 1
+# Caso este não seja o cenário desejado, é possível invertar a ordem pelo "inverse_transform".
+
+dados[['htn', 'smoking', 't2d', 'gender']] = dados[['htn', 'smoking', 't2d', 'gender']].apply(LabelEncoder().fit_transform)
