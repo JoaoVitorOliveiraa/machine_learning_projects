@@ -287,3 +287,12 @@ for name, model in models.items():
         
         # Armazena os dados de calibração.
         calibration_data[name] = (prob_true, prob_pred)
+
+# ------------------------------------------------------------------------------
+#  Exibindo a tabela de resultados
+# ------------------------------------------------------------------------------
+
+print("\n\n\t-----Exibindo a tabela de resultados-----\n")
+pd.set_option('display.float_format', lambda x: '%.3f' % x)     # Formata números float para exibição com 3 casas decimais.
+results_df = pd.DataFrame(results)                              # Converte a lista de dicionários em um DataFrame pandas.
+print(results_df.sort_values(by="F1 Score", ascending=False))   # Ordena os modelos pelo F1 Score (do maior para o menor) e exibe os resultados.
