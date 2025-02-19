@@ -140,3 +140,16 @@ dados =  pd.get_dummies(dados, columns=['race'], dtype=int)
 # Caso este não seja o cenário desejado, é possível invertar a ordem pelo "inverse_transform".
 
 dados[['htn', 'smoking', 't2d', 'gender']] = dados[['htn', 'smoking', 't2d', 'gender']].apply(LabelEncoder().fit_transform)
+
+# ------------------------------------------------------------------------------
+#  Obtendo os conjuntos de treino e teste
+# ------------------------------------------------------------------------------
+
+features = dados.iloc[:, dados.columns != 'cvd'] # Separamos as nossas variáveis preditoras do nosso desfecho/target ==> conjunto X.
+target = dados.iloc[:, dados.columns == 'cvd'] # Criamos um vetor (única coluna) selecionando somente a variável desfecho ==> conjunto y.
+
+X_train, X_test, y_train, y_test = train_test_split(features,
+                                                    target,
+                                                    stratify = target,  # Estratificando com base no alvo.
+                                                    train_size = 0.70,
+                                                    random_state = 30)
