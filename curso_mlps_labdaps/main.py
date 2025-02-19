@@ -174,3 +174,12 @@ X_test[continuous_features] = escala.transform(X_test[continuous_features])
 # Esse comando configura o pandas para exibir os números float com três casas
 # decimais ao imprimir DataFrames ou Séries.
 pd.set_option('display.float_format', lambda x: '%.3f' % x)
+
+# ------------------------------------------------------------------------------
+#  Transformando X_train_scaled e X_test_scaled em DataFrame.
+# ------------------------------------------------------------------------------
+
+# O escalonamento retorna os dados em formato array. 
+# Precisamos transformá-los novamente para data.frame
+X_train_scaled = pd.DataFrame(X_train_scaled, columns=X_train_scaled.columns)
+X_test_scaled = pd.DataFrame(X_test_scaled, columns=X_test_scaled.columns)
