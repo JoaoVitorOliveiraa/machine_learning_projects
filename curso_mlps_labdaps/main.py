@@ -92,3 +92,11 @@ for coluna in list(dados.columns):
 
 print("\n\n\t-----Resumo dos atributos numéricos-----\n")
 print(dados.describe())
+
+# ------------------------------------------------------------------------------
+#  Melhor exibição das classes das colunas, pois o describe() não exibiu todas
+# ------------------------------------------------------------------------------
+
+print("\n\n\t-----Melhor exibição das classes das colunas-----\n")
+for coluna in list(dados.columns):
+    print(f"\nClasses {coluna}: ", list(dados[coluna].unique()))
