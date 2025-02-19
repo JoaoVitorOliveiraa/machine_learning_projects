@@ -223,3 +223,67 @@ label_encoder = LabelEncoder()
 label_encoder.fit(y_train)
 y_train = label_encoder.transform(y_train)
 y_test = label_encoder.transform(y_test)
+
+# ------------------------------------------------------------------------------
+#  Execução dos algoritmos de machine learning
+# ------------------------------------------------------------------------------
+
+# Inicializando uma lista para armazenar resultados.
+results = []
+roc_data = {}
+calibration_data = {}
+
+# Definindo a lista de modelos.
+models = {
+    "Random Forest": RandomForestClassifier(random_state=30),
+    "XGBoost": XGBClassifier(use_label_encoder=False, eval_metric='logloss', random_state=30),
+    "LightGBM": LGBMClassifier(random_state=30),
+    "CatBoost": CatBoostClassifier(silent=True, random_state=30),
+}
+
+# Calculando métricas e armazenando os resultados para cada modelo.
+for name, model in models.items():
+    pipeline = Pipeline([
+        ("classifier", model)
+    ])
+
+    # Treinando o modelo.
+    pipeline.fit(X_train, y_train)
+
+    # Prevendo nos dados de teste.
+    y_pred = pipeline.predict(X_test)
+
+    # Obtém a probabilidade predita da classe positiva (1), caso o modelo suporte predict_proba(). 
+    # Isso é necessário para calcular a métrica AUC.
+    y_pred_proba = pipeline.predict_proba(X_test)[:, 1] if hasattr(model, "predict_proba") else None
+
+    # Calculando métricas.
+    accuracy = accuracy_score(y_test, y_pred)                                               # Mede a proporção de previsões corretas.
+    precision = precision_score(y_test, y_pred, average='weighted')                         # Mede a precisão das previsões positivas.
+    recall = recall_score(y_test, y_pred, average='weighted')                               # Mede a proporção de positivos corretamente identificados.
+    f1 = f1_score(y_test, y_pred, average='weighted')                                       # Média harmônica entre precisão e recall.
+    auc_score = roc_auc_score(y_test, y_pred_proba) if y_pred_proba is not None else None   # Mede a área sob a curva ROC (só é calculada se y_pred_proba existir).
+
+    # Armazenando os resultados.
+    results.append({
+        "Model": name,
+        "Accuracy": accuracy,
+        "Precision": precision,
+        "Recall": recall,
+        "F1 Score": f1,
+        "AUC": auc_score
+    })
+
+    # Salvando dados para gráficos de ROC e calibração.
+    if y_pred_proba is not None:
+        # Calcula taxa de falsos positivos (FPR) e taxa de verdadeiros positivos (TPR) para a curva ROC.
+        fpr, tpr, _ = roc_curve(y_test, y_pred_proba)   
+
+        # Calcula a calibração das probabilidades preditas.
+        prob_true, prob_pred = calibration_curve(y_test, y_pred_proba, n_bins=10)
+        
+        # Armazena os dados da curva ROC.
+        roc_data[name] = (fpr, tpr, auc(fpr, tpr))
+        
+        # Armazena os dados de calibração.
+        calibration_data[name] = (prob_true, prob_pred)
