@@ -166,3 +166,11 @@ escala = StandardScaler()
 escala.fit(X_train)
 X_train[continuous_features] = escala.transform(X_train[continuous_features])
 X_test[continuous_features] = escala.transform(X_test[continuous_features])
+
+# ------------------------------------------------------------------------------
+#  Evitando a exibição dos dados em notacao científica
+# ------------------------------------------------------------------------------
+
+# Esse comando configura o pandas para exibir os números float com três casas
+# decimais ao imprimir DataFrames ou Séries.
+pd.set_option('display.float_format', lambda x: '%.3f' % x)
