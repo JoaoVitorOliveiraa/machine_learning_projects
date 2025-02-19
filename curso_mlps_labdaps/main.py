@@ -302,7 +302,7 @@ print(results_df.sort_values(by="F1 Score", ascending=False))   # Ordena os mode
 # ------------------------------------------------------------------------------
 
 # Define o tamanho da figura (10x8 polegadas).
-plt.figure(figsize=(10, 8))  
+plt.figure(figsize=(6, 3))  
                                       
 # Percorre os dados da curva ROC de cada modelo.                                    
 for model, (fpr, tpr, auc_score) in roc_data.items():  
@@ -316,3 +316,18 @@ plt.ylabel('True Positive Rate')                        # Define o rótulo do ei
 plt.title('Curvas ROC')                                 # Define o título do gráfico.
 plt.legend()                                            # Exibe a legenda com os modelos e seus respectivos AUCs.
 plt.show()                                              # Exibe o gráfico na tela.
+
+# ------------------------------------------------------------------------------
+#  Plotando as curvas de calibração
+# ------------------------------------------------------------------------------
+
+plt.figure(figsize=(6, 3))
+for model, (prob_true, prob_pred) in calibration_data.items():
+    plt.plot(prob_pred, prob_true, marker='o', label=model)
+
+plt.plot([0, 1], [0, 1], linestyle='--', color='gray')
+plt.xlabel('Previsão Média')
+plt.ylabel('Frequência Verdadeira')
+plt.title('Gráficos de Calibração')
+plt.legend()
+plt.show()
