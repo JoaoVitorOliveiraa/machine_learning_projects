@@ -85,3 +85,10 @@ dados.info()
 print("\n\n\t-----Categorias das features e do alvo, com suas respectivas quantidades-----\n")
 for coluna in list(dados.columns):
     print("\n", dados[coluna].value_counts())
+
+# ------------------------------------------------------------------------------
+#  Resumo dos atributos numéricos do conjunto de dados 
+# ------------------------------------------------------------------------------
+
+print("\n\n\t-----Resumo dos atributos numéricos-----\n")
+print(dados.describe())
