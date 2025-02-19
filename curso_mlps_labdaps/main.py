@@ -155,6 +155,22 @@ X_train, X_test, y_train, y_test = train_test_split(features,
                                                     random_state = 30)
 
 # ------------------------------------------------------------------------------
+#  Ordenando as colunas, alocando as contínuas nas primeiras posições
+# ------------------------------------------------------------------------------
+
+# Standarscaler com passthrough tem um problema de ordenação das colunas para algumas versões do SKLearn.
+# Quando aplicado, o método fornece o resultado com as colunas padronizadas em primeiro, seguidas das demais colunas.
+# Para resolver este problema, iremos ordenar as nossas colunas alocando as contínuas nas primeiras posições
+
+X_train = X_train.loc[:,['numAge', 'bmi', 'tchol', 'sbp', # variaveis continuas
+                          'htn', 'smoking', 't2d', 'gender','race_AmInd', 'race_Asian/PI', 'race_Black/AfAm', 'race_White']]
+X_test = X_test.loc[:,['numAge', 'bmi', 'tchol', 'sbp', # variaveis continuas
+                          'htn', 'smoking', 't2d', 'gender','race_AmInd', 'race_Asian/PI', 'race_Black/AfAm', 'race_White']]
+
+X_train_columns = X_train.columns
+X_test_columns = X_test.columns
+
+# ------------------------------------------------------------------------------
 #  Escalonando as features com valores contínuos 
 # ------------------------------------------------------------------------------
 
@@ -181,5 +197,5 @@ pd.set_option('display.float_format', lambda x: '%.3f' % x)
 
 # O escalonamento retorna os dados em formato array. 
 # Precisamos transformá-los novamente para data.frame
-X_train_scaled = pd.DataFrame(X_train_scaled, columns=X_train_scaled.columns)
-X_test_scaled = pd.DataFrame(X_test_scaled, columns=X_test_scaled.columns)
+X_train_scaled = pd.DataFrame(X_train_scaled, columns=X_train_columns)
+X_test_scaled = pd.DataFrame(X_test_scaled, columns=X_test_columns)
