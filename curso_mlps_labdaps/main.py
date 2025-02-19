@@ -100,3 +100,14 @@ print(dados.describe())
 print("\n\n\t-----Melhor exibição das classes das colunas-----\n")
 for coluna in list(dados.columns):
     print(f"\nClasses {coluna}: ", list(dados[coluna].unique()))
+
+# ------------------------------------------------------------------------------
+#  Filtrando o conjunto de dados
+# ------------------------------------------------------------------------------
+
+# Iremos considerar individuos com idade superior a 55 anos.
+dados = dados[dados["numAge"] > 55]
+
+# Removendo colunas.
+dados = dados.drop(["patientID", "age", "treat"], axis=1)
+# dados.drop(["patientID", "age", "treat"], axis=1, inplace=True)
