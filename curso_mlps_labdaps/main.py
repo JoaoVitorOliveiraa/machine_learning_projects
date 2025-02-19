@@ -71,6 +71,13 @@ print("\n\t\t-----Dez primeiras linhas do conjunto de dados-----\n")
 print(dados.head(n=10))
 
 # ------------------------------------------------------------------------------
+#  Exibindo as primeiras 10 linhas do conjunto de dados (de maneira transposta)
+# ------------------------------------------------------------------------------
+
+print("\n\t\t-----Dez primeiras linhas do conjunto de dados (de maneira transposta)-----\n")
+print(dados.head(n=10).T)
+
+# ------------------------------------------------------------------------------
 #  Obtendo uma descrição do conjunto de dados 
 # ------------------------------------------------------------------------------
 
