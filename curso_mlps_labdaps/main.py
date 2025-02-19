@@ -26,6 +26,7 @@ from sklearn.model_selection import (KFold, cross_val_score, train_test_split,
 from sklearn.calibration import CalibratedClassifierCV, calibration_curve
 from sklearn.pipeline import Pipeline
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.compose import ColumnTransformer
 from xgboost import XGBClassifier
 from lightgbm import LGBMClassifier
 from catboost import CatBoostClassifier
@@ -174,14 +175,27 @@ X_test_columns = X_test.columns
 #  Escalonando as features com valores contínuos 
 # ------------------------------------------------------------------------------
 
+# Variáveis contínuas que serão padronizadas.
 continuous_features = ['numAge', 'bmi', 'tchol', 'sbp']
 
-# escala = MinMaxScaler()
-escala = StandardScaler()
+# Criando o ColumnTransformer.
+scaler = ColumnTransformer([
+    ('scaler', StandardScaler(), continuous_features)
+], remainder='passthrough')  # Mantém as outras colunas sem alterações.
 
-escala.fit(X_train)
-X_train[continuous_features] = escala.transform(X_train[continuous_features])
-X_test[continuous_features] = escala.transform(X_test[continuous_features])
+# Realizamos o fit no treino e aplicamos os valores obtidos (média e desvio padrão) para a padronização do treino e do teste.
+scaler.fit(X_train) 
+
+X_train_scaled = scaler.transform(X_train) # transformando (padronizando) os dados de treino.
+X_test_scaled = scaler.transform(X_test) # transformando (padronizando) os dados de teste, com as informações do treino.
+
+#               ---------- OPÇÃO 2 ----------
+# Criando e ajustando o scaler SOMENTE nas colunas contínuas
+# scaler = MinMaxScaler()
+# scaler = StandardScaler()
+# scaler.fit(X_train[continuous_features])  # Ajusta apenas nas colunas numéricas
+# X_train[continuous_features] = scaler.transform(X_train[continuous_features])
+# X_test[continuous_features] = scaler.transform(X_test[continuous_features])
 
 # ------------------------------------------------------------------------------
 #  Evitando a exibição dos dados em notacao científica
