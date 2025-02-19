@@ -296,3 +296,23 @@ print("\n\n\t-----Exibindo a tabela de resultados-----\n")
 pd.set_option('display.float_format', lambda x: '%.3f' % x)     # Formata números float para exibição com 3 casas decimais.
 results_df = pd.DataFrame(results)                              # Converte a lista de dicionários em um DataFrame pandas.
 print(results_df.sort_values(by="F1 Score", ascending=False))   # Ordena os modelos pelo F1 Score (do maior para o menor) e exibe os resultados.
+
+# ------------------------------------------------------------------------------
+#  Plotando as curvas ROC
+# ------------------------------------------------------------------------------
+
+# Define o tamanho da figura (10x8 polegadas).
+plt.figure(figsize=(10, 8))  
+                                      
+# Percorre os dados da curva ROC de cada modelo.                                    
+for model, (fpr, tpr, auc_score) in roc_data.items():  
+
+    # Plota a curva ROC do modelo com o valor de AUC na legenda.             
+    plt.plot(fpr, tpr, label=f'{model} (AUC = {auc_score:.3f})')    
+
+plt.plot([0, 1], [0, 1], linestyle='--', color='gray')  # Adiciona a linha diagonal de referência (classificação aleatória).              
+plt.xlabel('False Positive Rate')                       # Define o rótulo do eixo x.
+plt.ylabel('True Positive Rate')                        # Define o rótulo do eixo y.
+plt.title('Curvas ROC')                                 # Define o título do gráfico.
+plt.legend()                                            # Exibe a legenda com os modelos e seus respectivos AUCs.
+plt.show()                                              # Exibe o gráfico na tela.
