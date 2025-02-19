@@ -111,3 +111,14 @@ dados = dados[dados["numAge"] > 55]
 # Removendo colunas.
 dados = dados.drop(["patientID", "age", "treat"], axis=1)
 # dados.drop(["patientID", "age", "treat"], axis=1, inplace=True)
+
+# ------------------------------------------------------------------------------
+#  Aplicando o OneHotEncoding nas variáveis categóricas
+# ------------------------------------------------------------------------------
+
+# Inserimos o comando get_dummies para a realização do one hot encoding para as 
+# variáveis categórias que possuem mais de duas categorias.
+# As variáveis dicotômicas não precisam passar pelo one hot encoding. Podemos 
+# somente aplicar o label encoding, substintuindo os valores por 0 e 1.
+
+dados =  pd.get_dummies(dados, columns=['race'], dtype=int)
