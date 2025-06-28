@@ -3,7 +3,7 @@
 #==============================================================================
 
 #------------------------------------------------------------------------------
-# Importar bibliotecas
+# Importando bibliotecas
 #------------------------------------------------------------------------------
 
 import pandas as pd
@@ -17,4 +17,10 @@ from sklearn.preprocessing import OneHotEncoder, StandardScaler, MinMaxScaler
 from sklearn.svm import LinearSVC, SVC
 from sklearn.ensemble import RandomForestClassifier
 
+# ------------------------------------------------------------------------------
+# Importando os conjuntos de dados e retirando a colunas dos id's
+# ------------------------------------------------------------------------------
 
+caminho_conjunto_dados = Path('../data') / 'Letterbox-Movie-Classification-Dataset.csv'
+dados = pd.read_csv(caminho_conjunto_dados)
+dados = dados.iloc[:, 1:]
