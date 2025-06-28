@@ -24,3 +24,17 @@ from sklearn.ensemble import RandomForestClassifier
 caminho_conjunto_dados = Path('../data') / 'Letterbox-Movie-Classification-Dataset.csv'
 dados = pd.read_csv(caminho_conjunto_dados)
 dados = dados.iloc[:, 1:]
+
+# ------------------------------------------------------------------------------
+# Retirando as colunas dos títulos e descrições dos filmes
+# ------------------------------------------------------------------------------
+
+dados.drop(["Film_title", "Description"], axis=1, inplace=True)
+
+# ------------------------------------------------------------------------------
+# Reduzindo a coluna 'Original_language' para '5 línguas mais comuns' + 'outros'
+# ------------------------------------------------------------------------------
+
+linguas_comuns = dados['Original_language'].value_counts().nlargest(5).index.tolist()
+dados['Original_language'] = dados['Original_language'].apply(lambda x: x.lower() if x in linguas_comuns else 'others')
+
