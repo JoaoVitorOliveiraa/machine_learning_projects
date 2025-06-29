@@ -40,6 +40,12 @@ linguas_comuns = dados['Original_language'].value_counts().nlargest(5).index.tol
 dados['Original_language'] = dados['Original_language'].apply(lambda x: x.lower() if x in linguas_comuns else 'others')
 
 # ------------------------------------------------------------------------------
+# Aplicando o OneHotEncoding na coluna 'Original_language'
+# ------------------------------------------------------------------------------
+
+dados =  pd.get_dummies(dados, columns=['Original_language'], dtype=int)
+
+# ------------------------------------------------------------------------------
 # Substituindo as colunas 'Director', 'Genres' e 'Studios' por três novas colunas:
 # - A quantidade de filmes de cada classe da coluna;
 # - A média ponderada das avaliações recebidas pelos filmes das classes das colunas;
