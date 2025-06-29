@@ -12,6 +12,15 @@ from scipy.stats import pearsonr
 
 #------------------------------------------------------------------------------
 
+def media_ponderada(linha):
+    """
+    Calcula a média ponderada das avaliações de 1★, 3★ e 5★, com base no 
+    total de avaliações.
+    """
+    return (linha['Lowest★'] * 1 + linha['Medium★★★'] * 3 + linha['Highest★★★★★'] * 5) / max(linha['Total_ratings'], 1)
+
+#------------------------------------------------------------------------------
+
 def calcular_metricas_agrupadas(linha, coluna_alvo, status_df):
     """
     Transforma listas agrupadas (como 'Ação, Comédia' em gêneros) em contagens e médias úteis para análise.
