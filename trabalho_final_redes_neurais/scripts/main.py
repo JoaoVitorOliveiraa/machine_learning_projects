@@ -16,6 +16,7 @@ from sklearn.metrics import accuracy_score
 from sklearn.preprocessing import OneHotEncoder, StandardScaler, MinMaxScaler
 from sklearn.svm import LinearSVC, SVC
 from sklearn.ensemble import RandomForestClassifier
+from functions import media_ponderada_notas, calcular_metricas_agrupadas
 
 # ------------------------------------------------------------------------------
 # Importando os conjuntos de dados e retirando a colunas dos id's
@@ -39,7 +40,10 @@ linguas_comuns = dados['Original_language'].value_counts().nlargest(5).index.tol
 dados['Original_language'] = dados['Original_language'].apply(lambda x: x.lower() if x in linguas_comuns else 'others')
 
 # ------------------------------------------------------------------------------
-# Criando colunas: quantidade_filmes_diretor e media_notas_diretor/quatidade_filmes_diretor
+# Substituindo a coluna "Director" por três novas colunas:
+# - A quantidade de filmes de cada diretor;
+# - A média ponderada das avaliações recebidas pelos filmes dos diretores;
+# - A razão entre essa média ponderada e a quantidade de filmes (métrica ajustada por volume).
 # ------------------------------------------------------------------------------
 
 # Padronização das strings dos diretores, removendo espaços antes da vírgula e separando em listas.
@@ -48,54 +52,28 @@ dados['Director'] = dados['Director'].str.replace(r'\s*,\s*', ', ', regex=True).
 # Cria um DataFrame onde há uma linha para cada par de string de diretores, ou seja, um diretor por linha.
 dados_explodidos = dados.explode('Director')
 
+# Cria uma coluna com a média ponderada das avaliações das 3 eestrelas pelo total de avaliações.
+dados_explodidos['media_ponderada_notas'] = dados_explodidos.apply(media_ponderada_notas, axis=1)
+
 # Calcula as estatísticas por diretor.
-status_diretor = dados_explodidos.groupby('Director')['Average_rating'].agg(
-    qtd_filmes_diretor=('count'),
-    media_notas_diretor=('mean')
+status_diretor = dados_explodidos.groupby('Director')['media_ponderada_notas'].agg(
+    qtd_filmes_director=('count'),
+    media_ponderada_director=('mean')
 ).reset_index()
 
-
-def calcular_metricas(linha):
-    "Função que calcula as métricas de cada diretor."
-    
-    # Armazena os diretores daquela linha.
-    diretores_na_linha = linha['Director']
-    
-    # Caso haja apenas 1 diretor (usa os valores diretos de status_diretor).
-    if len(diretores_na_linha) == 1:
-        diretor = diretores_na_linha[0]
-        status = status_diretor[status_diretor['Director'] == diretor].iloc[0]
-        
-        return pd.Series({
-            'director_film_count': status['qtd_filmes_diretor'],
-            'director_mean_rating': status['qtd_filmes_diretor'] / status['media_notas_diretor']  
-        })
-    
-    # Caso haja uma dupla única (ambos com count == 1).
-    elif all(status_diretor[status_diretor['Director'] == diretor]['qtd_filmes_diretor'].iloc[0] == 1 for diretor in diretores_na_linha):
-        return pd.Series({
-            'director_film_count': 1.0,
-            'director_mean_rating': 1.0 / linha['Average_rating']
-        })
-    
-    # Caso haja pelo menos um diretor com histórico (calcula médias).
-    else:
-        status = status_diretor[status_diretor['Director'].isin(diretores_na_linha)]
-        media_qtd_filmes = status['qtd_filmes_diretor'].mean()
-        media_notas = status['media_notas_diretor'].mean()
-        
-        return pd.Series({
-            'director_film_count': media_qtd_filmes,
-            'director_mean_rating': media_qtd_filmes / media_notas
-        })
-
-
-# Aplicação da função
-dados[['director_film_count', 'director_mean_rating']] = dados.apply(calcular_metricas, axis=1)
-
+# Para diretores (usando o mesmo status_diretor original)
+dados[['director_count', 'director_mean_rating', 'director_mean_per_qtd']] = dados.apply(
+    lambda linha: calcular_metricas_agrupadas(linha, 'Director', status_diretor), 
+    axis=1
+)
 
 # Removendo a coluna com os nomes dos diretores.
 dados = dados.drop(columns=['Director'])
+
+
+
+
+
 
 
 
