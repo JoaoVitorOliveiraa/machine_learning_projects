@@ -44,9 +44,9 @@ def calcular_metricas_agrupadas(linha, coluna_alvo, status_df):
         # Verifica se não está vazio.
         if not status.empty:
             return pd.Series({
-                f'{coluna_alvo}_count': status[f'qtd_filmes_{coluna_alvo.lower()}'],
-                f'{coluna_alvo}_mean_rating': status[f'media_ponderada_{coluna_alvo.lower()}'],
-                f'{coluna_alvo}_mean_per_qtd': status[f'media_ponderada_{coluna_alvo.lower()}'] / status[f'qtd_filmes_{coluna_alvo.lower()}']
+                f'{coluna_alvo}_count': status['qtd_filmes'],
+                f'{coluna_alvo}_mean_rating': status['media_ponderada'],
+                f'{coluna_alvo}_mean_per_qtd': status['media_ponderada'] * status['qtd_filmes']
             })
         
         # Se estiver, retorna valores zerados.
@@ -54,7 +54,7 @@ def calcular_metricas_agrupadas(linha, coluna_alvo, status_df):
             return pd.Series({f'{coluna_alvo}_count': 0.0, f'{coluna_alvo}_mean_rating': 0.0, f'{coluna_alvo}_mean_per_qtd': 0.0})
 
     # Caso 2: Valores únicos (todos com count == 1).
-    elif all(status_df[status_df[coluna_alvo] == valor][f'qtd_filmes_{coluna_alvo.lower()}'].iloc[0] == 1
+    elif all(status_df[status_df[coluna_alvo] == valor]['qtd_filmes'].iloc[0] == 1
              for valor in valores_na_linha):
         
         # Neste caso, podemos tomar o primeiro valor. Pois as métricas de todos são iguais.
@@ -65,8 +65,8 @@ def calcular_metricas_agrupadas(linha, coluna_alvo, status_df):
         if not status.empty:
             return pd.Series({
                 f'{coluna_alvo}_count': 1.0,
-                f'{coluna_alvo}_mean_rating': status[f'media_ponderada_{coluna_alvo.lower()}'],
-                f'{coluna_alvo}_mean_per_qtd': status[f'media_ponderada_{coluna_alvo.lower()}'] / 1.0
+                f'{coluna_alvo}_mean_rating': status['media_ponderada'],
+                f'{coluna_alvo}_mean_per_qtd': status['media_ponderada'] * 1.0
             })
 
         # Se estiver, retorna valores zerados.
@@ -81,13 +81,13 @@ def calcular_metricas_agrupadas(linha, coluna_alvo, status_df):
     
         # Verifica se não está vazio.
         if not status.empty:
-            quantidade_media_filmes = status[f'qtd_filmes_{coluna_alvo.lower()}'].mean()
-            media_ponderada_media = status[f'media_ponderada_{coluna_alvo.lower()}'].mean()
+            quantidade_media_filmes = status['qtd_filmes'].mean()
+            media_ponderada_media = status['media_ponderada'].mean()
             
             return pd.Series({
                 f'{coluna_alvo}_count': quantidade_media_filmes,
                 f'{coluna_alvo}_mean_rating': media_ponderada_media,
-                f'{coluna_alvo}_mean_per_qtd': media_ponderada_media / quantidade_media_filmes
+                f'{coluna_alvo}_mean_per_qtd': media_ponderada_media * quantidade_media_filmes
             })
          
         # Se estiver, retorna valores zerados.
