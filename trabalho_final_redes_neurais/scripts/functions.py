@@ -12,7 +12,7 @@ from scipy.stats import pearsonr
 
 #------------------------------------------------------------------------------
 
-def media_ponderada(linha):
+def media_ponderada_notas(linha):
     """
     Calcula a média ponderada das avaliações de 1★, 3★ e 5★, com base no 
     total de avaliações.
