@@ -8,7 +8,7 @@
 
 import pandas as pd
 import matplotlib.pyplot as plt
-from scipy.stats import pearsonr
+from scipy.stats import pearsonr, kendalltau
 
 #------------------------------------------------------------------------------
 
@@ -95,3 +95,17 @@ def calcular_metricas_agrupadas(linha, coluna_alvo, status_df):
             return pd.Series({f'{coluna_alvo}_count': 0.0, f'{coluna_alvo}_mean_rating': 0.0, f'{coluna_alvo}_mean_per_qtd': 0.0})
  
 # ------------------------------------------------------------------------------
+
+def show_coef_pearson(data, target, columns=False):
+    "Função que exibe os coeficientes de Pearson (com o p-value) entre colunas e o alvo 'target'."
+
+    if columns:
+        columns_list = columns
+
+    else:
+        columns_list = list(data.columns)
+
+    for column in columns_list:
+        coef_pearsonr = pearsonr(data[column], data[target])[0]
+        p_value = pearsonr(data[column], data[target])[1]
+        print(f'{column}: {coef_pearsonr:.3f}, p-value: {p_value:.3f}\n')
