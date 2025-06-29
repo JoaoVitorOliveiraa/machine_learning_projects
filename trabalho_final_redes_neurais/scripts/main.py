@@ -40,36 +40,44 @@ linguas_comuns = dados['Original_language'].value_counts().nlargest(5).index.tol
 dados['Original_language'] = dados['Original_language'].apply(lambda x: x.lower() if x in linguas_comuns else 'others')
 
 # ------------------------------------------------------------------------------
-# Substituindo a coluna "Director" por três novas colunas:
-# - A quantidade de filmes de cada diretor;
-# - A média ponderada das avaliações recebidas pelos filmes dos diretores;
-# - A razão entre essa média ponderada e a quantidade de filmes (métrica ajustada por volume).
+# Substituindo as colunas 'Director', 'Genres' e 'Studios' por três novas colunas:
+# - A quantidade de filmes de cada classe da coluna;
+# - A média ponderada das avaliações recebidas pelos filmes das classes das colunas;
+# - A multiplicação entre essa média ponderada e a quantidade de filmes.
 # ------------------------------------------------------------------------------
 
-# Padronização das strings dos diretores, removendo espaços antes da vírgula e separando em listas.
-dados['Director'] = dados['Director'].str.replace(r'\s*,\s*', ', ', regex=True).str.split(', ')
+colunas = ['Director', 'Genres', 'Studios']
 
-# Cria um DataFrame onde há uma linha para cada par de string de diretores, ou seja, um diretor por linha.
-dados_explodidos = dados.explode('Director')
+for coluna in colunas:
+    
+    # Removendo possíveis espaços em branco das strings das listas das colunas 'Genres' e 'Studios'.
+    if coluna in ['Genres', 'Studios']:       
+        dados[coluna] = dados[coluna].apply(lambda lista: [item.strip() for item in lista])
+        
+    # Padronização das strings dos diretores, removendo espaços antes da vírgula e separando em listas.
+    else:
+        dados[coluna] = dados[coluna].str.replace(r'\s*,\s*', ', ', regex=True).str.split(', ')
+        
+    # Cria um DataFrame onde há uma linha para cada conjunto de strings de gêneros/estúdios.
+    dados_explodidos = dados.explode(coluna)
+    
+    # Cria uma coluna com a média ponderada das avaliações das 3 eestrelas pelo total de avaliações.
+    dados_explodidos['media_ponderada_notas'] = dados_explodidos.apply(media_ponderada_notas, axis=1)
 
-# Cria uma coluna com a média ponderada das avaliações das 3 eestrelas pelo total de avaliações.
-dados_explodidos['media_ponderada_notas'] = dados_explodidos.apply(media_ponderada_notas, axis=1)
+    # Calcula as estatísticas da coluna.
+    status_coluna = dados_explodidos.groupby(coluna)['media_ponderada_notas'].agg(
+        qtd_filmes=('count'),
+        media_ponderada=('mean')
+    ).reset_index()
 
-# Calcula as estatísticas por diretor.
-status_diretor = dados_explodidos.groupby('Director')['media_ponderada_notas'].agg(
-    qtd_filmes_director=('count'),
-    media_ponderada_director=('mean')
-).reset_index()
+    # Para diretores (usando o mesmo status_diretor original)
+    dados[[f'{coluna.lower()}_count', f'{coluna.lower()}_mean_rating', f'{coluna.lower()}_mean_per_qtd']] = dados.apply(
+        lambda linha: calcular_metricas_agrupadas(linha, coluna, status_coluna), 
+        axis=1
+    )
 
-# Para diretores (usando o mesmo status_diretor original)
-dados[['director_count', 'director_mean_rating', 'director_mean_per_qtd']] = dados.apply(
-    lambda linha: calcular_metricas_agrupadas(linha, 'Director', status_diretor), 
-    axis=1
-)
-
-# Removendo a coluna com os nomes dos diretores.
-dados = dados.drop(columns=['Director'])
-
+    # Removendo a coluna de referência.
+    dados = dados.drop(columns=[coluna])
 
 
 
