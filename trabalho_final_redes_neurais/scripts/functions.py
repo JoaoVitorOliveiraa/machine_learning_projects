@@ -95,17 +95,32 @@ def calcular_metricas_agrupadas(linha, coluna_alvo, status_df):
             return pd.Series({f'{coluna_alvo}_count': 0.0, f'{coluna_alvo}_mean_rating': 0.0, f'{coluna_alvo}_mean_per_qtd': 0.0})
  
 # ------------------------------------------------------------------------------
-
-def show_coef_pearson(data, target, columns=False):
-    "Função que exibe os coeficientes de Pearson (com o p-value) entre colunas e o alvo 'target'."
-
+        
+def show_correlations(data, target, columns=False):
+    """
+    Exibe coeficientes de Pearson e Kendall Tau com p-values
+    entre as colunas fornecidas e o alvo 'target'.
+    
+    Parâmetros:
+    - data: DataFrame com os dados.
+    - target: string com o nome da coluna alvo.
+    - columns: lista de colunas a analisar (opcional). Se False, usa todas.
+    """
+    
     if columns:
         columns_list = columns
 
     else:
         columns_list = list(data.columns)
 
+    print(" ")
+    print("COMPARAÇÃO DE CORRELAÇÃO COM O ALVO:", target)
+    print(" ")
+    print(f"{'Variável':<33} {'Pearson':<12} {'P-Value':<10} {'Kendall':<12} {'P-Value'}")
+    print("-" * 78)
+
     for column in columns_list:
-        coef_pearsonr = pearsonr(data[column], data[target])[0]
-        p_value = pearsonr(data[column], data[target])[1]
-        print(f'{column}: {coef_pearsonr:.3f}, p-value: {p_value:.3f}\n')
+        coef_pearsonr, p_value_pearsonr = pearsonr(data[column], data[target])
+        coef_kendalltau, p_value_kendalltau = kendalltau(data[column], data[target])
+        print(f"{column:<30} {coef_pearsonr:10.4f} {p_value_pearsonr:12.5f} {coef_kendalltau:10.4f} {p_value_kendalltau:12.5f}")
+        
