@@ -18,7 +18,7 @@ from sklearn.preprocessing import OneHotEncoder, StandardScaler, MinMaxScaler, P
 from sklearn.svm import LinearSVC, SVC
 from sklearn.ensemble import RandomForestClassifier
 from functions import (media_ponderada_notas, calcular_metricas_agrupadas, 
-                       show_correlations, exibir_histogramas)
+                       show_correlations, exibir_histogramas, show_correlation_matrix)
 
 # ------------------------------------------------------------------------------
 # Importando os conjuntos de dados e retirando a colunas dos id's
@@ -113,10 +113,12 @@ for coluna in colunas:
     dados = dados.drop(columns=[coluna])
 
 # ------------------------------------------------------------------------------
-# Exibindo os coeficientes de Pierson e Kendall Tau de cada coluna.
+# Exibindo a matriz de correlação do conjunto de dados e os coeficientes de 
+# Pierson, Kendall Tau e Spearman de cada coluna em relação ao alvo
 # ------------------------------------------------------------------------------
 
 show_correlations(dados, "Average_rating")
+show_correlation_matrix(dados)
 
 # ------------------------------------------------------------------------------
 # Removendo variáveis que possuiam coefs de Pearson e Kendall menores que 0,1
