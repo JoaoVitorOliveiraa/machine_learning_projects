@@ -113,12 +113,11 @@ for coluna in colunas:
     dados = dados.drop(columns=[coluna])
 
 # ------------------------------------------------------------------------------
-# Exibindo a matriz de correlação do conjunto de dados e os coeficientes de 
-# Pierson, Kendall Tau e Spearman de cada coluna em relação ao alvo
+# Exibindo os coeficientes de Pierson, Kendall Tau e Spearman de cada coluna 
+# em relação ao alvo.
 # ------------------------------------------------------------------------------
 
 show_correlations(dados, "Average_rating")
-show_correlation_matrix(dados)
 
 # ------------------------------------------------------------------------------
 # Removendo variáveis que possuiam coefs de Pearson e Kendall menores que 0,1
@@ -132,6 +131,12 @@ dados = dados.drop(columns=['genres_mean_rating', 'studios_count',
 # ------------------------------------------------------------------------------
 
 exibir_histogramas(dados, bins=15, n_colunas_grade=2)
+
+# ------------------------------------------------------------------------------
+# Exibindo a matriz de correlação do conjunto de dados 
+# ------------------------------------------------------------------------------
+
+show_correlation_matrix(dados)
 
 # ------------------------------------------------------------------------------
 # Embaralhando o conjunto de dados para garantir que a divisão entre os dados 
