@@ -18,7 +18,7 @@ def media_ponderada_notas(linha):
     Calcula a média ponderada das avaliações de 1★, 3★ e 5★, com base no 
     total de avaliações.
     """
-    return (linha['Lowest★'] * 1 + linha['Medium★★★'] * 3 + linha['Highest★★★★★'] * 5) / max(linha['Total_ratings'], 1)
+    return (linha['lowest'] * 1 + linha['medium'] * 3 + linha['highest'] * 5) / max(linha['Total_ratings'], 1)
 
 #------------------------------------------------------------------------------
 
