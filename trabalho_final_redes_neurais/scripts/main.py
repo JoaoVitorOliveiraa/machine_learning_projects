@@ -115,6 +115,13 @@ for coluna in colunas:
 show_correlations(dados, "Average_rating")
 
 # ------------------------------------------------------------------------------
+# Removendo variáveis que possuiam coefs de Pearson e Kendall menores que 0,1
+# ------------------------------------------------------------------------------
+
+dados = dados.drop(columns=['genres_mean_rating', 'studios_count', 
+                            'studios_mean_rating', 'studios_mean_per_qtd'])
+
+# ------------------------------------------------------------------------------
 # Exibindo um histograma para cada coluna numérica do Dataset.
 # ------------------------------------------------------------------------------
 
