@@ -6,6 +6,7 @@
 # Importando bibliotecas
 #------------------------------------------------------------------------------
 
+import numpy as np
 import pandas as pd
 from pathlib import Path
 import matplotlib.pyplot as plt
@@ -33,6 +34,18 @@ dados = dados.iloc[:, 1:]
 
 novas_colunas = {'Lowest★': 'lowest', 'Medium★★★': 'medium', 'Highest★★★★★': 'highest'}
 dados = dados.rename(columns=novas_colunas)
+
+# ------------------------------------------------------------------------------
+# Correções de distribuições assimétricas com transformação logarítmica
+# ------------------------------------------------------------------------------
+
+# Lista de colunas com assimetria/calda
+colunas_com_assimetria = ['Watches', 'Likes', 'Fans', 'Total_ratings', 
+                  'highest', 'medium', 'lowest', 'List_appearances']
+
+# Aplicar log1p em cada coluna
+for coluna in colunas_com_assimetria:
+    dados[coluna] = np.log1p(dados[coluna])  # log(1 + x)
 
 # ------------------------------------------------------------------------------
 # Retirando as colunas dos títulos e descrições dos filmes
