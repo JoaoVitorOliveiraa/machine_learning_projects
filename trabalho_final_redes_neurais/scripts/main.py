@@ -16,7 +16,7 @@ from sklearn.metrics import accuracy_score
 from sklearn.preprocessing import OneHotEncoder, StandardScaler, MinMaxScaler
 from sklearn.svm import LinearSVC, SVC
 from sklearn.ensemble import RandomForestClassifier
-from functions import media_ponderada_notas, calcular_metricas_agrupadas
+from functions import media_ponderada_notas, calcular_metricas_agrupadas, show_correlations
 
 # ------------------------------------------------------------------------------
 # Importando os conjuntos de dados e retirando a colunas dos id's
@@ -36,7 +36,7 @@ dados.drop(["Film_title", "Description"], axis=1, inplace=True)
 # Reduzindo a coluna 'Original_language' para '5 línguas mais comuns' + 'outros'
 # ------------------------------------------------------------------------------
 
-linguas_comuns = dados['Original_language'].value_counts().nlargest(5).index.tolist()
+linguas_comuns = dados['Original_language'].value_counts().nlargest(1).index.tolist()
 dados['Original_language'] = dados['Original_language'].apply(lambda x: x.lower() if x in linguas_comuns else 'others')
 
 # ------------------------------------------------------------------------------
@@ -85,10 +85,11 @@ for coluna in colunas:
     # Removendo a coluna de referência.
     dados = dados.drop(columns=[coluna])
 
+# ------------------------------------------------------------------------------
+# Exibindo os coeficientes de Pierson e Kendall Tau de cada coluna.
+# ------------------------------------------------------------------------------
 
-
-
-
+show_correlations(dados, "Average_rating")
 
 
 
