@@ -8,6 +8,7 @@
 
 import numpy as np
 import pandas as pd
+import seaborn as sns
 import matplotlib.pyplot as plt
 from scipy.stats import pearsonr, kendalltau, spearmanr
 
@@ -154,10 +155,41 @@ def exibir_histogramas(df, bins=30, n_colunas_grade=3, colunas=None):
     plt.tight_layout()
     plt.show()
 
+# ------------------------------------------------------------------------------
 
-
+def show_correlation_matrix(data, method='spearman'):
+    """
+    Exibe a matriz de correlação entre as variáveis do conjunto de dados.
+    """
     
-
+    # Calculando matriz de correlação (Spearman por padrão).
+    corr_matrix = data.corr(method=method)
+    
+    # Gerando o heatmap.
+    plt.figure(figsize=(12, 12))
+    heatmap = sns.heatmap(
+        corr_matrix,
+        annot=True,            # Mostra valores nas células
+        fmt=".2f",             # Formato com 2 casas decimais
+        cmap='coolwarm',       # Mapa de cores (azul-quente)
+        center=0,              # Centraliza o branco no 0
+        vmin=-1,               # Valor mínimo da escala
+        vmax=1,                # Valor máximo da escala
+        linewidths=.5,         # Largura das linhas entre células
+        square=True            # Mantém as células quadradas
+    )
+    
+    # Ajustando título e labels.
+    plt.title(f'Matriz de Correlação ({method.title()})', fontsize=14, pad=20)
+    heatmap.set_xticklabels(
+        heatmap.get_xticklabels(),
+        rotation=45,
+        horizontalalignment='right'
+    )
+    
+    # Mostrando o gráfico.
+    plt.tight_layout()
+    plt.show()
 
 
 
