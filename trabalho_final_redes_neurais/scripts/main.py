@@ -16,7 +16,8 @@ from sklearn.metrics import accuracy_score
 from sklearn.preprocessing import OneHotEncoder, StandardScaler, MinMaxScaler
 from sklearn.svm import LinearSVC, SVC
 from sklearn.ensemble import RandomForestClassifier
-from functions import media_ponderada_notas, calcular_metricas_agrupadas, show_correlations
+from functions import (media_ponderada_notas, calcular_metricas_agrupadas, 
+                       show_correlations, exibir_histogramas)
 
 # ------------------------------------------------------------------------------
 # Importando os conjuntos de dados e retirando a colunas dos id's
@@ -91,5 +92,10 @@ for coluna in colunas:
 
 show_correlations(dados, "Average_rating")
 
+# ------------------------------------------------------------------------------
+# Exibindo um histograma para cada coluna numérica do Dataset.
+# ------------------------------------------------------------------------------
+
+exibir_histogramas(dados, bins=15, n_colunas_grade=2)
 
 
