@@ -9,7 +9,7 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from scipy.stats import pearsonr, kendalltau
+from scipy.stats import pearsonr, kendalltau, spearmanr
 
 #------------------------------------------------------------------------------
 
@@ -117,13 +117,14 @@ def show_correlations(data, target, columns=False):
     print(" ")
     print("COMPARAÇÃO DE CORRELAÇÃO COM O ALVO:", target)
     print(" ")
-    print(f"{'Variável':<33} {'Pearson':<12} {'P-Value':<10} {'Kendall':<12} {'P-Value'}")
-    print("-" * 78)
+    print(f"{'Variável':<33} {'Pearson':<12} {'P-Value':<10} {'Kendall':<12} {'P-Value':<10} {'Spearman':<12} {'P-Value'}")
+    print("-" * 102)
 
     for column in columns_list:
         coef_pearsonr, p_value_pearsonr = pearsonr(data[column], data[target])
         coef_kendalltau, p_value_kendalltau = kendalltau(data[column], data[target])
-        print(f"{column:<30} {coef_pearsonr:10.4f} {p_value_pearsonr:12.5f} {coef_kendalltau:10.4f} {p_value_kendalltau:12.5f}")
+        coef_spearmanr, p_value_spearmanr = spearmanr(data[column], data[target])
+        print(f"{column:<30} {coef_pearsonr:10.4f} {p_value_pearsonr:12.5f} {coef_kendalltau:10.4f} {p_value_kendalltau:12.5f} {coef_spearmanr:10.4f} {p_value_spearmanr:12.5f} ")
         
 # ------------------------------------------------------------------------------
  
