@@ -28,30 +28,25 @@ dados = pd.read_csv(caminho_conjunto_dados)
 dados = dados.iloc[:, 1:]
 
 # ------------------------------------------------------------------------------
-# Renomeação de colunas.
-# ------------------------------------------------------------------------------
-
-novas_colunas = {'Lowest★': 'lowest', 'Medium★★★': 'medium', 'Highest★★★★★': 'highest'}
-dados = dados.rename(columns=novas_colunas)
-
-# ------------------------------------------------------------------------------
 # Retirando as colunas dos títulos e descrições dos filmes
 # ------------------------------------------------------------------------------
 
 dados.drop(["Film_title", "Description"], axis=1, inplace=True)
 
 # ------------------------------------------------------------------------------
-# Reduzindo a coluna 'Original_language' para '5 línguas mais comuns' + 'outros'
+# Reduzindo a coluna 'Original_language' para 'english' e 'outros'
 # ------------------------------------------------------------------------------
 
 linguas_comuns = dados['Original_language'].value_counts().nlargest(1).index.tolist()
 dados['Original_language'] = dados['Original_language'].apply(lambda x: x.lower() if x in linguas_comuns else 'others')
 
 # ------------------------------------------------------------------------------
-# Aplicando o OneHotEncoding na coluna 'Original_language'
+# Aplicando o OneHotEncoding na coluna 'Original_language' e deixando somente
+# a coluna da língua inglesa.
 # ------------------------------------------------------------------------------
 
 dados =  pd.get_dummies(dados, columns=['Original_language'], dtype=int)
+dados = dados.drop(columns=['Original_language_others'])  
 
 # ------------------------------------------------------------------------------
 # Substituindo as colunas 'Director', 'Genres' e 'Studios' por três novas colunas:
