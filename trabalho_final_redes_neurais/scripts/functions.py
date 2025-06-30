@@ -47,7 +47,7 @@ def calcular_metricas_agrupadas(linha, coluna_alvo, status_df):
             return pd.Series({
                 f'{coluna_alvo}_count': status['qtd_filmes'],
                 f'{coluna_alvo}_mean_rating': status['media_ponderada'],
-                f'{coluna_alvo}_mean_per_qtd': status['media_ponderada'] * status['qtd_filmes']
+                f'{coluna_alvo}_mean_per_qtd': status['media_ponderada'] * np.log1p(status['qtd_filmes'])
             })
         
         # Se estiver, retorna valores zerados.
@@ -67,7 +67,7 @@ def calcular_metricas_agrupadas(linha, coluna_alvo, status_df):
             return pd.Series({
                 f'{coluna_alvo}_count': 1.0,
                 f'{coluna_alvo}_mean_rating': status['media_ponderada'],
-                f'{coluna_alvo}_mean_per_qtd': status['media_ponderada'] * 1.0
+                f'{coluna_alvo}_mean_per_qtd': status['media_ponderada'] * np.log1p(1.0)
             })
 
         # Se estiver, retorna valores zerados.
@@ -88,7 +88,7 @@ def calcular_metricas_agrupadas(linha, coluna_alvo, status_df):
             return pd.Series({
                 f'{coluna_alvo}_count': quantidade_media_filmes,
                 f'{coluna_alvo}_mean_rating': media_ponderada_media,
-                f'{coluna_alvo}_mean_per_qtd': media_ponderada_media * quantidade_media_filmes
+                f'{coluna_alvo}_mean_per_qtd': media_ponderada_media * np.log1p(quantidade_media_filmes)
             })
          
         # Se estiver, retorna valores zerados.
