@@ -6,6 +6,7 @@
 # Importar bibliotecas
 #------------------------------------------------------------------------------
 
+import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from scipy.stats import pearsonr, kendalltau
@@ -124,3 +125,43 @@ def show_correlations(data, target, columns=False):
         coef_kendalltau, p_value_kendalltau = kendalltau(data[column], data[target])
         print(f"{column:<30} {coef_pearsonr:10.4f} {p_value_pearsonr:12.5f} {coef_kendalltau:10.4f} {p_value_kendalltau:12.5f}")
         
+# ------------------------------------------------------------------------------
+ 
+def exibir_histogramas(df, bins=30, n_colunas_grade=3, colunas=None):
+    """
+    Função que:
+        -Exibe um histograma para cada coluna numérica de um DataFrame
+        -Organiza todos os histogramas em uma única figura
+        -Ajusta dinamicamente o layout com base no número de colunas
+    """
+    
+    # Se o usuário não fornecer colunas, seleciona todas as colunas numéricas automaticamente.
+    if colunas is None:
+        colunas = df.select_dtypes(include=np.number).columns.tolist()
+
+    n_colunas_plotadas = len(colunas)
+    n_linhas_grade = int(np.ceil(n_colunas_plotadas / n_colunas_grade))
+    plt.figure(figsize=(6 * n_colunas_grade, 4 * n_linhas_grade))
+
+    for i, coluna in enumerate(colunas):
+        ax = plt.subplot(n_linhas_grade, n_colunas_grade, i + 1)
+        ax.hist(df[coluna].dropna(), bins=bins, color='skyblue', edgecolor='black')
+        ax.set_title(coluna)
+        ax.set_xlabel("Valor")
+        ax.set_ylabel("Frequência")
+
+    plt.tight_layout()
+    plt.show()
+
+
+
+    
+
+
+
+
+
+
+
+
+
