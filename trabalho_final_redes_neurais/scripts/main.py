@@ -28,6 +28,13 @@ dados = pd.read_csv(caminho_conjunto_dados)
 dados = dados.iloc[:, 1:]
 
 # ------------------------------------------------------------------------------
+# Renomeação de colunas.
+# ------------------------------------------------------------------------------
+
+novas_colunas = {'Lowest★': 'lowest', 'Medium★★★': 'medium', 'Highest★★★★★': 'highest'}
+dados = dados.rename(columns=novas_colunas)
+
+# ------------------------------------------------------------------------------
 # Retirando as colunas dos títulos e descrições dos filmes
 # ------------------------------------------------------------------------------
 
