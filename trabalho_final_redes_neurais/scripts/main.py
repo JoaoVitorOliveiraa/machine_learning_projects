@@ -14,7 +14,7 @@ from scipy.stats import pearsonr
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
-from sklearn.preprocessing import OneHotEncoder, StandardScaler, MinMaxScaler
+from sklearn.preprocessing import OneHotEncoder, StandardScaler, MinMaxScaler, PowerTransformer
 from sklearn.svm import LinearSVC, SVC
 from sklearn.ensemble import RandomForestClassifier
 from functions import (media_ponderada_notas, calcular_metricas_agrupadas, 
@@ -126,5 +126,12 @@ dados = dados.drop(columns=['genres_mean_rating', 'studios_count',
 # ------------------------------------------------------------------------------
 
 exibir_histogramas(dados, bins=15, n_colunas_grade=2)
+
+# ------------------------------------------------------------------------------
+# Embaralhando o conjunto de dados para garantir que a divisão entre os dados 
+# esteja isenta de qualquer viés de seleção
+# ------------------------------------------------------------------------------
+
+dados = dados.sample(frac=1, random_state=30)
 
 
