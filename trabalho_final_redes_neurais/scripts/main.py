@@ -44,8 +44,12 @@ colunas_com_assimetria = ['Watches', 'Likes', 'Fans', 'Total_ratings',
                   'highest', 'medium', 'lowest', 'List_appearances']
 
 # Aplicar log1p em cada coluna
-for coluna in colunas_com_assimetria:
-    dados[coluna] = np.log1p(dados[coluna])  # log(1 + x)
+#for coluna in colunas_com_assimetria:
+#    dados[coluna] = np.log1p(dados[coluna])  # log(1 + x)
+
+# Aplicando a Transformação de Yeo-Johnson.
+power_transformer = PowerTransformer(method='yeo-johnson')
+dados[colunas_com_assimetria] = power_transformer.fit_transform(dados[colunas_com_assimetria])
 
 # ------------------------------------------------------------------------------
 # Retirando as colunas dos títulos e descrições dos filmes
