@@ -139,6 +139,12 @@ exibir_histogramas(dados, bins=15, n_colunas_grade=2)
 show_correlation_matrix(dados)
 
 # ------------------------------------------------------------------------------
+# Removendo variáveis altamente correlacionadas com a variável "Fans"
+# ------------------------------------------------------------------------------
+
+dados = dados.drop(columns=['Watches', 'Likes', 'Total_ratings'])
+
+# ------------------------------------------------------------------------------
 # Embaralhando o conjunto de dados para garantir que a divisão entre os dados 
 # esteja isenta de qualquer viés de seleção
 # ------------------------------------------------------------------------------
