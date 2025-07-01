@@ -172,8 +172,17 @@ X_validacao, X_teste, y_validacao, y_teste = train_test_split(
     random_state=30
 )
 
+# ------------------------------------------------------------------------------
+# Aplicando escala no X de treino e de teste
+# ------------------------------------------------------------------------------
 
+# escala = MinMaxScaler()
+escala = StandardScaler()
+escala.fit(X_treino)
+X_treino_com_escala = escala.transform(X_treino)
+X_teste_com_escala = escala.transform(X_teste)
 
-
-
+# Como a padronização retorna os dados em formato array, os transformamos novamente em DataFrame.
+X_treino_com_escala = pd.DataFrame(X_treino_com_escala, columns=X_treino.columns)
+X_teste_com_escala = pd.DataFrame(X_teste_com_escala, columns=X_treino.columns)
 
