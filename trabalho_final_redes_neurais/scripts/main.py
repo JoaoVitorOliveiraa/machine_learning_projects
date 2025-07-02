@@ -138,7 +138,9 @@ show_correlation_matrix(dados)
 # Removendo variáveis altamente correlacionadas com a variável "Fans"
 # ------------------------------------------------------------------------------
 
-dados = dados.drop(columns=['Watches', 'Likes', 'Total_ratings'])
+dados = dados.drop(columns=['Watches', 'Likes', 'Total_ratings',
+                            'List_appearances', 'highest', 
+                            'director_mean_per_qtd'])
 
 # ------------------------------------------------------------------------------
 # Embaralhando o conjunto de dados para garantir que a divisão entre os dados 
