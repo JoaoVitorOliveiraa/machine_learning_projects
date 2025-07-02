@@ -6,15 +6,11 @@
 # Importando bibliotecas
 #------------------------------------------------------------------------------
 
-import numpy as np
 import pandas as pd
 from pathlib import Path
-import matplotlib.pyplot as plt
-from scipy.stats import pearsonr
-from sklearn.neighbors import KNeighborsClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
-from sklearn.preprocessing import OneHotEncoder, StandardScaler, MinMaxScaler, PowerTransformer
+from sklearn.preprocessing import StandardScaler, MinMaxScaler, PowerTransformer
 from sklearn.svm import LinearSVC, SVC
 from sklearn.ensemble import RandomForestClassifier
 from functions import (media_ponderada_notas, calcular_metricas_agrupadas, 
@@ -150,27 +146,6 @@ dados = dados.drop(columns=['Watches', 'Likes', 'Total_ratings'])
 # ------------------------------------------------------------------------------
 
 dados = dados.sample(frac=1, random_state=30)
-
-# ------------------------------------------------------------------------------
-# Dividindo o conjunto de dados em conjuntos de treino, teste e validação
-# ------------------------------------------------------------------------------
-
-X = dados.drop('Average_rating', axis=1)  
-y = dados['Average_rating']               
-
-# Primeira divisão: 70% treino + 30% temporário (validação + teste).
-X_treino, X_temporario, y_treino, y_temporario = train_test_split(
-    X, y, 
-    test_size=0.30,       
-    random_state=30       
-)
-
-# Segunda divisão: Divide os 30% em 15% validação e 15% teste.
-X_validacao, X_teste, y_validacao, y_teste = train_test_split(
-    X_temporario, y_temporario, 
-    test_size=0.50,       
-    random_state=30
-)
 
 # ------------------------------------------------------------------------------
 # Aplicando escala no X de treino e de teste
