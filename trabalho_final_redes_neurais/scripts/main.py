@@ -32,20 +32,20 @@ novas_colunas = {'Lowest★': 'lowest', 'Medium★★★': 'medium', 'Highest★
 dados = dados.rename(columns=novas_colunas)
 
 # ------------------------------------------------------------------------------
-# Correções de distribuições assimétricas com transformação logarítmica
+# Correções de distribuições assimétricas com a Transformação de Yeo-Johnson
 # ------------------------------------------------------------------------------
 
 # Lista de colunas com assimetria/calda
 colunas_com_assimetria = ['Watches', 'Likes', 'Fans', 'Total_ratings', 
                   'highest', 'medium', 'lowest', 'List_appearances']
 
-# Aplicar log1p em cada coluna
-#for coluna in colunas_com_assimetria:
-#    dados[coluna] = np.log1p(dados[coluna])  # log(1 + x)
-
 # Aplicando a Transformação de Yeo-Johnson.
 power_transformer = PowerTransformer(method='yeo-johnson')
 dados[colunas_com_assimetria] = power_transformer.fit_transform(dados[colunas_com_assimetria])
+
+# Alternativa: Aplicar log1p em cada coluna
+#for coluna in colunas_com_assimetria:
+#    dados[coluna] = np.log1p(dados[coluna])  # log(1 + x)
 
 # ------------------------------------------------------------------------------
 # Retirando as colunas dos títulos e descrições dos filmes
