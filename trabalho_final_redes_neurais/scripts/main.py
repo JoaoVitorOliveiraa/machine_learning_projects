@@ -155,11 +155,3 @@ dados = dados.sample(frac=1, random_state=30)
 
 # escala = MinMaxScaler()
 escala = StandardScaler()
-escala.fit(X_treino)
-X_treino_com_escala = escala.transform(X_treino)
-X_teste_com_escala = escala.transform(X_teste)
-
-# Como a padronização retorna os dados em formato array, os transformamos novamente em DataFrame.
-X_treino_com_escala = pd.DataFrame(X_treino_com_escala, columns=X_treino.columns)
-X_teste_com_escala = pd.DataFrame(X_teste_com_escala, columns=X_treino.columns)
-
