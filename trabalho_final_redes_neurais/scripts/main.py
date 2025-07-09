@@ -148,10 +148,3 @@ dados = dados.drop(columns=['Watches', 'Likes', 'Total_ratings',
 # ------------------------------------------------------------------------------
 
 dados = dados.sample(frac=1, random_state=30)
-
-# ------------------------------------------------------------------------------
-# Aplicando escala no X de treino e de teste
-# ------------------------------------------------------------------------------
-
-# escala = MinMaxScaler()
-escala = StandardScaler()
