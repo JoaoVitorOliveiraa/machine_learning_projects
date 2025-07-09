@@ -140,7 +140,8 @@ show_correlation_matrix(dados)
 
 dados = dados.drop(columns=['Watches', 'Likes', 'Total_ratings',
                             'List_appearances', 'highest', 
-                            'director_mean_per_qtd'])
+                            'director_mean_per_qtd', 'medium',
+                            'director_mean_rating'])
 
 # ------------------------------------------------------------------------------
 # Embaralhando o conjunto de dados para garantir que a divisão entre os dados 
