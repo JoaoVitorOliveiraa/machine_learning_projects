@@ -193,15 +193,15 @@ def show_correlation_matrix(data, method='spearman'):
     plt.show()
 
 
-def apply_pca(dados, nome_alvo='Average_rating', n_components=None, retornar_transformado=False):
+def aplicar_pca(dados, alvo, n_componentes=None, retornar_transformado=False):
     """
     Aplica PCA ao conjunto de dados (excluindo a variável alvo), plota a variância explicada
     e retorna (opcionalmente) os dados transformados com o alvo concatenado.
 
     Parâmetros:
     - dados: DataFrame completo (incluindo a variável alvo)
-    - nome_alvo: nome da coluna alvo
-    - n_components: número de componentes principais (opcional)
+    - alvo: nome da coluna alvo
+    - n_componentes: número de componentes principais (opcional)
     - retornar_transformado: se True, retorna o DataFrame com PCA + y
 
     Retorna:
@@ -209,12 +209,12 @@ def apply_pca(dados, nome_alvo='Average_rating', n_components=None, retornar_tra
     - modelo_pca: o objeto PCA ajustado
     """
 
-    # Separa X e y
-    X = dados.drop(columns=nome_alvo)
-    y = dados[nome_alvo].reset_index(drop=True)
+    # Separa X e yASA
+    X = dados.drop(columns=alvo)
+    y = dados[alvo].reset_index(drop=True)
 
     # Aplica PCA
-    pca = PCA(n_components=n_components)
+    pca = PCA(n_components=n_componentes)
     pca.fit(X)
     var_explicada = pca.explained_variance_ratio_
 
@@ -240,7 +240,7 @@ def apply_pca(dados, nome_alvo='Average_rating', n_components=None, retornar_tra
     # Retorna dados transformados se solicitado
     if retornar_transformado:
         X_pca = pca.transform(X)
-        X_pca_df = pd.DataFrame(X_pca, columns=[f'PC{i+1}' for i in range(X_pca.shape[1])])
+        X_pca_df = pd.DataFrame(X_pca, columns=[f'PC{i + 1}' for i in range(X_pca.shape[1])])
         dados_pca = pd.concat([X_pca_df, y], axis=1)
         return dados_pca, pca
 
