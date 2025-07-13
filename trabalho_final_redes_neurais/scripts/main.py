@@ -8,6 +8,7 @@
 
 import numpy as np
 import pandas as pd
+import tensorflow as tf
 from pathlib import Path
 from sklearn.model_selection import KFold
 from sklearn.metrics import mean_squared_error, r2_score
@@ -200,6 +201,48 @@ dados_pca = aplicar_pca(dados_padronizados, "Average_rating", 7, True)[0]
 #     mse = mean_squared_error(y_test, y_pred_comite)
 #     r2 = r2_score(y_test, y_pred_comite)
 #     mse_scores.append(mse)
+#     r2_scores.append(r2)
+
+# ------------------------------------------------------------
+# Modelo Sequential
+# ------------------------------------------------------------
+
+# def create_model():
+#     model = tf.keras.Sequential([
+#         tf.keras.layers.Input(shape=(X_scaled.shape[1],)),
+#         tf.keras.layers.Dense(50, activation='relu'),
+#         tf.keras.layers.Dense(30, activation='relu'),
+#         tf.keras.layers.Dense(1)  # Saída contínua
+#     ])
+
+#     optimizer = tf.keras.optimizers.SGD(
+#         learning_rate=0.01,
+#         momentum=0.9
+#     )
+
+#     model.compile(optimizer=optimizer, loss='mse', metrics=[tf.keras.metrics.RootMeanSquaredError(), 'r2_score'])
+#     return model
+
+# kf = KFold(n_splits=5, shuffle=True, random_state=42)
+
+# rmse_scores = []
+# mse_scores = []
+# r2_scores = []
+
+# for train_idx, test_idx in kf.split(X_scaled):
+#     X_train, X_test = X_scaled[train_idx], X_scaled[test_idx]
+#     y_train, y_test = y[train_idx], y[test_idx]
+
+#     model = create_model()
+#     model.fit(X_train, y_train, epochs=100, batch_size=16, verbose=0)
+
+#     y_pred = model.predict(X_test).flatten()
+#     mse = mean_squared_error(y_test, y_pred)
+#     rmse = np.sqrt(mse)
+#     r2 = r2_score(y_test, y_pred)
+
+#     mse_scores.append(mse)
+#     rmse_scores.append(rmse)
 #     r2_scores.append(r2)
 
 # ---------------------------------------------------------
