@@ -10,7 +10,7 @@ import numpy as np
 import pandas as pd
 from pathlib import Path
 from sklearn.model_selection import KFold
-from sklearn.metrics import mean_squared_error
+from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.preprocessing import StandardScaler, MinMaxScaler, PowerTransformer
 from sklearn.neural_network import MLPRegressor
 from functions import (media_ponderada_notas, calcular_metricas_agrupadas, 
@@ -184,6 +184,7 @@ kfold = KFold(n_splits=5, shuffle=True, random_state=42)
 
 mse_scores = []
 rmse_scores = []
+r2_scores = []
 
 for train_index, test_index in kfold.split(dados_padronizados):
     # Separando X e y
@@ -199,6 +200,8 @@ for train_index, test_index in kfold.split(dados_padronizados):
     mse_scores.append(mse)
     rmse = np.sqrt(mse)
     rmse_scores.append(rmse)
+    r2 = r2_score(y_test, y_pred)
+    r2_scores.append(r2)
 
 # ---------------------------------------------------------
 # Resultado da Validação Cruzada
@@ -209,3 +212,4 @@ print(f"RMSE médio: {np.mean(rmse_scores):.5f}")
 print(f"Desvio padrão do RMSE: {np.std(rmse_scores):.5f}")
 print(f"MSE médio: {np.mean(mse_scores):.5f}")
 print(f"Desvio padrão do MSE: {np.std(mse_scores):.5f}")
+print(f"R² médio: {np.mean(r2_scores):.5f}")
