@@ -15,7 +15,7 @@ from sklearn.preprocessing import StandardScaler, MinMaxScaler, PowerTransformer
 from sklearn.neural_network import MLPRegressor
 from functions import (media_ponderada_notas, calcular_metricas_agrupadas, 
                        show_correlations, exibir_histogramas, show_correlation_matrix,
-                       apply_pca)
+                       aplicar_pca)
 
 # ------------------------------------------------------------------------------
 # Importando os conjuntos de dados e retirando a colunas dos id's
@@ -165,7 +165,7 @@ dados_padronizados = pd.DataFrame(dados_padronizados, columns=dados.columns)
 # Aplicando PCA
 # ------------------------------------------------------------------------------
 
-dados_pca = apply_pca(dados_padronizados, "Average_rating", n_components=7, retornar_transformado=True)[0]
+dados_pca = aplicar_pca(dados_padronizados, "Average_rating", 7, True)[0]
 
 # ---------------------------------------------------------
 # Criando o modelo MLP 
@@ -187,7 +187,7 @@ modelo_mlp = MLPRegressor(
 # Aplicando Validação Cruzada
 # ---------------------------------------------------------
 
-kfold = KFold(n_splits=5, shuffle=True, random_state=42)
+kfold = KFold(n_splits=5, shuffle=True, random_state=30)
 
 mse_scores = []
 rmse_scores = []
