@@ -173,7 +173,7 @@ modelo_mlp = MLPRegressor(
     momentum=0.9,
     alpha=0.0001,
     max_iter=1000,
-    random_state=42
+    random_state=30
 )
 
 # ---------------------------------------------------------
@@ -182,6 +182,7 @@ modelo_mlp = MLPRegressor(
 
 kfold = KFold(n_splits=5, shuffle=True, random_state=42)
 
+mse_scores = []
 rmse_scores = []
 
 for train_index, test_index in kfold.split(dados_padronizados):
@@ -195,6 +196,7 @@ for train_index, test_index in kfold.split(dados_padronizados):
     modelo_mlp.fit(X_train, y_train)
     y_pred = modelo_mlp.predict(X_test)
     mse = mean_squared_error(y_test, y_pred)
+    mse_scores.append(mse)
     rmse = np.sqrt(mse)
     rmse_scores.append(rmse)
 
@@ -202,5 +204,8 @@ for train_index, test_index in kfold.split(dados_padronizados):
 # Resultado da Validação Cruzada
 # ---------------------------------------------------------
 
+print("\n\n")
 print(f"RMSE médio: {np.mean(rmse_scores):.5f}")
 print(f"Desvio padrão do RMSE: {np.std(rmse_scores):.5f}")
+print(f"MSE médio: {np.mean(mse_scores):.5f}")
+print(f"Desvio padrão do MSE: {np.std(mse_scores):.5f}")
