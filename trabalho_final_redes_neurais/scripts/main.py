@@ -149,3 +149,12 @@ dados = dados.drop(columns=['Watches', 'Likes', 'Total_ratings',
 # ------------------------------------------------------------------------------
 
 dados = dados.sample(frac=1, random_state=30)
+
+# ------------------------------------------------------------------------------
+# Padronizando o conjunto de dados (média zero e desvio padrão 1)
+# ------------------------------------------------------------------------------
+
+scaler = StandardScaler()
+dados = scaler.fit_transform(dados)
+
+
