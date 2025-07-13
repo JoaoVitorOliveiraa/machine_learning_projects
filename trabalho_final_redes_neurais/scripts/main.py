@@ -6,10 +6,12 @@
 # Importando bibliotecas
 #------------------------------------------------------------------------------
 
+import numpy as np
 import pandas as pd
 from pathlib import Path
+from sklearn.model_selection import KFold
+from sklearn.metrics import mean_squared_error
 from sklearn.preprocessing import StandardScaler, MinMaxScaler, PowerTransformer
-from sklearn.svm import LinearSVC, SVC
 from sklearn.neural_network import MLPRegressor
 from functions import (media_ponderada_notas, calcular_metricas_agrupadas, 
                        show_correlations, exibir_histogramas, show_correlation_matrix)
@@ -171,3 +173,31 @@ modelo_mlp = MLPRegressor(
     random_state=42
 )
 
+# ---------------------------------------------------------
+# Aplicando Validação Cruzada
+# ---------------------------------------------------------
+
+kfold = KFold(n_splits=5, shuffle=True, random_state=42)
+
+rmse_scores = []
+
+for train_index, test_index in kfold.split(dados_padronizados):
+    # Separando X e y
+    X_train = dados_padronizados.iloc[train_index].drop(columns='Average_rating')
+    X_test = dados_padronizados.iloc[test_index].drop(columns='Average_rating')
+    y_train = dados_padronizados.iloc[train_index]['Average_rating']
+    y_test = dados_padronizados.iloc[test_index]['Average_rating']
+
+    # Treinando e avaliando
+    modelo_mlp.fit(X_train, y_train)
+    y_pred = modelo_mlp.predict(X_test)
+    mse = mean_squared_error(y_test, y_pred)
+    rmse = np.sqrt(mse)
+    rmse_scores.append(rmse)
+
+# ---------------------------------------------------------
+# Resultado da Validação Cruzada
+# ---------------------------------------------------------
+
+print(f"RMSE médio: {np.mean(rmse_scores):.5f}")
+print(f"Desvio padrão do RMSE: {np.std(rmse_scores):.5f}")
