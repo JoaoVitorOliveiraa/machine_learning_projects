@@ -14,7 +14,8 @@ from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.preprocessing import StandardScaler, MinMaxScaler, PowerTransformer
 from sklearn.neural_network import MLPRegressor
 from functions import (media_ponderada_notas, calcular_metricas_agrupadas, 
-                       show_correlations, exibir_histogramas, show_correlation_matrix)
+                       show_correlations, exibir_histogramas, show_correlation_matrix,
+                       apply_pca)
 
 # ------------------------------------------------------------------------------
 # Importando os conjuntos de dados e retirando a colunas dos id's
@@ -160,6 +161,12 @@ dados_padronizados = scaler.fit_transform(dados)
 # Transformando em DataFrame novamente.
 dados_padronizados = pd.DataFrame(dados_padronizados, columns=dados.columns)
 
+# ------------------------------------------------------------------------------
+# Aplicando PCA
+# ------------------------------------------------------------------------------
+
+dados_pca = apply_pca(dados_padronizados, "Average_rating", n_components=7, retornar_transformado=True)[0]
+
 # ---------------------------------------------------------
 # Criando o modelo MLP 
 # ---------------------------------------------------------
@@ -186,12 +193,12 @@ mse_scores = []
 rmse_scores = []
 r2_scores = []
 
-for train_index, test_index in kfold.split(dados_padronizados):
+for train_index, test_index in kfold.split(dados_pca):
     # Separando X e y
-    X_train = dados_padronizados.iloc[train_index].drop(columns='Average_rating')
-    X_test = dados_padronizados.iloc[test_index].drop(columns='Average_rating')
-    y_train = dados_padronizados.iloc[train_index]['Average_rating']
-    y_test = dados_padronizados.iloc[test_index]['Average_rating']
+    X_train = dados_pca.iloc[train_index].drop(columns='Average_rating')
+    X_test = dados_pca.iloc[test_index].drop(columns='Average_rating')
+    y_train = dados_pca.iloc[train_index]['Average_rating']
+    y_test = dados_pca.iloc[test_index]['Average_rating']
 
     # Treinando e avaliando
     modelo_mlp.fit(X_train, y_train)
