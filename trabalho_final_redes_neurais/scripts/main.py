@@ -167,6 +167,41 @@ dados_padronizados = pd.DataFrame(dados_padronizados, columns=dados.columns)
 
 dados_pca = aplicar_pca(dados_padronizados, "Average_rating", 7, True)[0]
 
+# ------------------------------------------------------------------------------
+# Rascunho de implementação de Comitês
+# ------------------------------------------------------------------------------
+
+# # Validação cruzada
+# kf = KFold(n_splits=5, shuffle=True, random_state=42)
+
+# # Comitê: lista de modelos com inicializações distintas
+# modelos = [
+#     MLPRegressor(hidden_layer_sizes=(50, 30), random_state=1, max_iter=1000),
+#     MLPRegressor(hidden_layer_sizes=(50, 30), random_state=42, max_iter=1000),
+#     MLPRegressor(hidden_layer_sizes=(50, 30), random_state=99, max_iter=1000)
+# ]
+
+# mse_scores = []
+# r2_scores = []
+
+# for train_idx, test_idx in kf.split(X_scaled):
+#     X_train, X_test = X_scaled[train_idx], X_scaled[test_idx]
+#     y_train, y_test = y[train_idx], y[test_idx]
+
+#     preds = []
+#     for modelo in modelos:
+#         modelo.fit(X_train, y_train)
+#         preds.append(modelo.predict(X_test))
+
+#     # Média das predições (comitê estático)
+#     y_pred_comite = np.mean(preds, axis=0)
+
+#     # Avaliação
+#     mse = mean_squared_error(y_test, y_pred_comite)
+#     r2 = r2_score(y_test, y_pred_comite)
+#     mse_scores.append(mse)
+#     r2_scores.append(r2)
+
 # ---------------------------------------------------------
 # Criando o modelo MLP 
 # ---------------------------------------------------------
