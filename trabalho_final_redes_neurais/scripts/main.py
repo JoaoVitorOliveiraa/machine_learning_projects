@@ -157,6 +157,9 @@ dados = dados.sample(frac=1, random_state=30)
 scaler = StandardScaler()
 dados_padronizados = scaler.fit_transform(dados)
 
+# Transformando em DataFrame novamente.
+dados_padronizados = pd.DataFrame(dados_padronizados, columns=dados.columns)
+
 # ---------------------------------------------------------
 # Criando o modelo MLP 
 # ---------------------------------------------------------
