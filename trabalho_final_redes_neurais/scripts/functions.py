@@ -10,6 +10,7 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
+from sklearn.decomposition import PCA
 from scipy.stats import pearsonr, kendalltau, spearmanr
 
 #------------------------------------------------------------------------------
@@ -192,9 +193,58 @@ def show_correlation_matrix(data, method='spearman'):
     plt.show()
 
 
+def pca_result(dados, nome_alvo='Average_rating', n_components=None, retornar_transformado=False):
+    """
+    Aplica PCA ao conjunto de dados (excluindo a variável alvo), plota a variância explicada
+    e retorna (opcionalmente) os dados transformados com o alvo concatenado.
 
+    Parâmetros:
+    - dados: DataFrame completo (incluindo a variável alvo)
+    - nome_alvo: nome da coluna alvo
+    - n_components: número de componentes principais (opcional)
+    - retornar_transformado: se True, retorna o DataFrame com PCA + y
 
+    Retorna:
+    - (opcional) dados_pca: DataFrame com componentes principais e coluna alvo
+    - modelo_pca: o objeto PCA ajustado
+    """
 
+    # Separa X e y
+    X = dados.drop(columns=nome_alvo)
+    y = dados[nome_alvo].reset_index(drop=True)
+
+    # Aplica PCA
+    pca = PCA(n_components=n_components)
+    pca.fit(X)
+    var_explicada = pca.explained_variance_ratio_
+
+    # Gráfico da variância explicada por componente
+    plt.figure(figsize=(10, 5))
+    plt.bar(range(len(var_explicada)), var_explicada, alpha=0.7)
+    plt.ylabel('Variância explicada %')
+    plt.xlabel('Componentes do PCA')
+    plt.title('Variância explicada por componente')
+    plt.grid(True)
+    plt.show()
+
+    # Gráfico da variância acumulada
+    plt.figure(figsize=(10, 5))
+    plt.plot(range(1, len(var_explicada) + 1), np.cumsum(var_explicada),
+             marker='o', color='brown')
+    plt.ylabel('Variância explicada acumulada %')
+    plt.xlabel('Número de componentes do PCA')
+    plt.title('Soma acumulada da variância explicada')
+    plt.grid(True)
+    plt.show()
+
+    # Retorna dados transformados se solicitado
+    if retornar_transformado:
+        X_pca = pca.transform(X)
+        X_pca_df = pd.DataFrame(X_pca, columns=[f'PC{i+1}' for i in range(X_pca.shape[1])])
+        dados_pca = pd.concat([X_pca_df, y], axis=1)
+        return dados_pca, pca
+
+    return pca
 
 
 
