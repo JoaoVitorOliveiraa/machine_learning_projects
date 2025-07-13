@@ -8,11 +8,9 @@
 
 import pandas as pd
 from pathlib import Path
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score
 from sklearn.preprocessing import StandardScaler, MinMaxScaler, PowerTransformer
 from sklearn.svm import LinearSVC, SVC
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.neural_network import MLPRegressor
 from functions import (media_ponderada_notas, calcular_metricas_agrupadas, 
                        show_correlations, exibir_histogramas, show_correlation_matrix)
 
@@ -155,6 +153,21 @@ dados = dados.sample(frac=1, random_state=30)
 # ------------------------------------------------------------------------------
 
 scaler = StandardScaler()
-dados = scaler.fit_transform(dados)
+dados_padronizados = scaler.fit_transform(dados)
 
+# ---------------------------------------------------------
+# Criando o modelo MLP 
+# ---------------------------------------------------------
+
+modelo_mlp = MLPRegressor(
+    hidden_layer_sizes=(50, 30),
+    activation='relu',
+    solver='sgd',
+    learning_rate='adaptive',
+    learning_rate_init=0.01,
+    momentum=0.9,
+    alpha=0.0001,
+    max_iter=1000,
+    random_state=42
+)
 
