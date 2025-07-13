@@ -193,7 +193,7 @@ def show_correlation_matrix(data, method='spearman'):
     plt.show()
 
 
-def pca_result(dados, nome_alvo='Average_rating', n_components=None, retornar_transformado=False):
+def apply_pca(dados, nome_alvo='Average_rating', n_components=None, retornar_transformado=False):
     """
     Aplica PCA ao conjunto de dados (excluindo a variável alvo), plota a variância explicada
     e retorna (opcionalmente) os dados transformados com o alvo concatenado.
