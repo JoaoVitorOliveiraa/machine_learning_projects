@@ -372,7 +372,7 @@ plt.figure(figsize=(8, 8))
 plt.scatter(y, ensemble_prediction, alpha=0.5, edgecolors='k', color='green')
 perfect_line = [min(y), max(y)]
 plt.plot(perfect_line, perfect_line, 'r--', lw=2, label='Previsão Perfeita (y=x)')
-plt.title('Valores Previstos vs. Reai', fontsize=16)
+plt.title('Valores Previstos vs. Reais', fontsize=16)
 plt.xlabel('Valores Reais', fontsize=12)
 plt.ylabel('Valores Previstos', fontsize=12)
 plt.grid(True, linestyle='--', alpha=0.6)
