@@ -6,15 +6,19 @@
 # Importando bibliotecas
 #------------------------------------------------------------------------------
 
-import numpy as np
 import pandas as pd
-import tensorflow as tf
 from pathlib import Path
-from sklearn.model_selection import KFold
-from sklearn.metrics import mean_squared_error, r2_score
-from sklearn.preprocessing import StandardScaler, MinMaxScaler, PowerTransformer
+import numpy as np
+from sklearn.model_selection import KFold, RandomizedSearchCV
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
 from sklearn.neural_network import MLPRegressor
-from functions import (media_ponderada_notas, calcular_metricas_agrupadas, 
+from sklearn.metrics import mean_squared_error, r2_score, make_scorer
+from sklearn.model_selection import cross_val_score, cross_val_predict
+from sklearn.preprocessing import PowerTransformer
+import matplotlib.pyplot as plt
+import seaborn as sns
+from functions import (media_ponderada_notas, calcular_metricas_agrupadas,
                        show_correlations, exibir_histogramas, show_correlation_matrix,
                        aplicar_pca)
 
@@ -153,148 +157,228 @@ dados = dados.drop(columns=['Watches', 'Likes', 'Total_ratings',
 dados = dados.sample(frac=1, random_state=30)
 
 # ------------------------------------------------------------------------------
-# Padronizando o conjunto de dados (média zero e desvio padrão 1)
+# Separação do DataFrame em Features (X) e Alvo (y)
+# X conterá todas as colunas de entrada (features)
+# y conterá a coluna que queremos prever (o alvo 'Average_rating')
 # ------------------------------------------------------------------------------
 
-scaler = StandardScaler()
-dados_padronizados = scaler.fit_transform(dados)
+X = dados.drop(columns=['Average_rating'])
+y = dados['Average_rating']
 
-# Transformando em DataFrame novamente.
-dados_padronizados = pd.DataFrame(dados_padronizados, columns=dados.columns)
+print("Dimensões de X (features):", X.shape)
+print("Dimensões de y (alvo):", y.shape)
+print("-" * 50)
+
+model_pipeline = Pipeline([
+    ('scaler', StandardScaler()),
+    ('mlp', MLPRegressor(hidden_layer_sizes=(100,), max_iter=500, activation='relu', solver='adam', random_state=42))
+])
+
+kfold = KFold(n_splits=10, shuffle=True, random_state=42)
+
+scores = cross_val_score(model_pipeline, X, y, cv=kfold, scoring='neg_mean_squared_error')
+
+y_pred_aggregated = cross_val_predict(model_pipeline, X, y, cv=kfold)
+final_rmse = np.sqrt(mean_squared_error(y, y_pred_aggregated))
+final_r2 = r2_score(y, y_pred_aggregated)
+print(f"RMSE geral (agregado) do melhor modelo: {final_rmse:.4f}")
+print(f"R² geral (agregado) do melhor modelo: {final_r2:.4f}")
+
+plt.figure(figsize=(8, 8))
+plt.scatter(y, y_pred_aggregated, alpha=0.5, edgecolors='k')
+perfect_line = [min(y), max(y)]
+plt.plot(perfect_line, perfect_line, 'r--', lw=2, label='Previsão Perfeita (y=x)')
+plt.title('Valores Previstos vs. Reais (MELHOR Modelo)', fontsize=16)
+plt.xlabel('Valores Reais', fontsize=12)
+plt.ylabel('Valores Previstos', fontsize=12)
+plt.grid(True, linestyle='--', alpha=0.6)
+plt.legend()
+plt.axis('equal')
+plt.savefig('previsto_vs_real_melhor_modelo.png')
+plt.show()
+print("Gráfico 'previsto_vs_real_melhor_modelo.png' foi salvo.")
 
 # ------------------------------------------------------------------------------
-# Aplicando PCA
+# 2. DEFINIÇÃO DO ESPAÇO DE BUSCA DE HIPERPARÂMETROS
+# Aqui definimos um dicionário com os hiperparâmetros que queremos testar.
+# RandomizedSearchCV irá sortear combinações a partir daqui.
 # ------------------------------------------------------------------------------
-
-dados_pca = aplicar_pca(dados_padronizados, "Average_rating", 7, True)[0]
+print("2. Definindo o espaço de busca de hiperparâmetros...")
+param_distributions = {
+    'mlp__hidden_layer_sizes': [(32, 16), (64, 32), (64, 32, 16), (100, 50)],
+    'mlp__activation': ['relu', 'tanh'],
+    'mlp__solver': ['adam', 'sgd'],
+    'mlp__alpha': [0.001, 0.01, 0.1, 1],
+    'mlp__learning_rate_init': [0.001, 0.005, 0.01]
+}
 
 # ------------------------------------------------------------------------------
-# Rascunho de implementação de Comitês
+# 3. CONFIGURAÇÃO E EXECUÇÃO DO RANDOMIZEDSEARCHCV
+# O Pipeline garante que o scaler seja aplicado corretamente em cada fold.
+# Usamos 'neg_root_mean_squared_error' como métrica, pois o Scikit-learn
+# tenta maximizar a pontuação (erro menor = pontuação maior/mais próxima de zero).
 # ------------------------------------------------------------------------------
+model_pipeline = Pipeline([
+    ('scaler', StandardScaler()),
+    ('mlp', MLPRegressor(max_iter=500, random_state=42))  # Parâmetros fixos
+])
 
-# # Validação cruzada
-# kf = KFold(n_splits=5, shuffle=True, random_state=42)
+kfold = KFold(n_splits=10, shuffle=True, random_state=42)
 
-# # Comitê: lista de modelos com inicializações distintas
-# modelos = [
-#     MLPRegressor(hidden_layer_sizes=(50, 30), random_state=1, max_iter=1000),
-#     MLPRegressor(hidden_layer_sizes=(50, 30), random_state=42, max_iter=1000),
-#     MLPRegressor(hidden_layer_sizes=(50, 30), random_state=99, max_iter=1000)
-# ]
-
-# mse_scores = []
-# r2_scores = []
-
-# for train_idx, test_idx in kf.split(X_scaled):
-#     X_train, X_test = X_scaled[train_idx], X_scaled[test_idx]
-#     y_train, y_test = y[train_idx], y[test_idx]
-
-#     preds = []
-#     for modelo in modelos:
-#         modelo.fit(X_train, y_train)
-#         preds.append(modelo.predict(X_test))
-
-#     # Média das predições (comitê estático)
-#     y_pred_comite = np.mean(preds, axis=0)
-
-#     # Avaliação
-#     mse = mean_squared_error(y_test, y_pred_comite)
-#     r2 = r2_score(y_test, y_pred_comite)
-#     mse_scores.append(mse)
-#     r2_scores.append(r2)
-
-# ------------------------------------------------------------
-# Modelo Sequential
-# ------------------------------------------------------------
-
-# def create_model():
-#     model = tf.keras.Sequential([
-#         tf.keras.layers.Input(shape=(X_scaled.shape[1],)),
-#         tf.keras.layers.Dense(50, activation='relu'),
-#         tf.keras.layers.Dense(30, activation='relu'),
-#         tf.keras.layers.Dense(1)  # Saída contínua
-#     ])
-
-#     optimizer = tf.keras.optimizers.SGD(
-#         learning_rate=0.01,
-#         momentum=0.9
-#     )
-
-#     model.compile(optimizer=optimizer, loss='mse', metrics=[tf.keras.metrics.RootMeanSquaredError(), 'r2_score'])
-#     return model
-
-# kf = KFold(n_splits=5, shuffle=True, random_state=42)
-
-# rmse_scores = []
-# mse_scores = []
-# r2_scores = []
-
-# for train_idx, test_idx in kf.split(X_scaled):
-#     X_train, X_test = X_scaled[train_idx], X_scaled[test_idx]
-#     y_train, y_test = y[train_idx], y[test_idx]
-
-#     model = create_model()
-#     model.fit(X_train, y_train, epochs=100, batch_size=16, verbose=0)
-
-#     y_pred = model.predict(X_test).flatten()
-#     mse = mean_squared_error(y_test, y_pred)
-#     rmse = np.sqrt(mse)
-#     r2 = r2_score(y_test, y_pred)
-
-#     mse_scores.append(mse)
-#     rmse_scores.append(rmse)
-#     r2_scores.append(r2)
-
-# ---------------------------------------------------------
-# Criando o modelo MLP 
-# ---------------------------------------------------------
-
-modelo_mlp = MLPRegressor(
-    hidden_layer_sizes=(50, 30),
-    activation='relu',
-    solver='sgd',
-    learning_rate='adaptive',
-    learning_rate_init=0.01,
-    momentum=0.9,
-    alpha=0.0001,
-    max_iter=1000,
-    random_state=30
+# n_iter: Número de combinações a serem testadas. Aumente para uma busca mais completa.
+random_search = RandomizedSearchCV(
+    estimator=model_pipeline,
+    param_distributions=param_distributions,
+    n_iter=30,  # Testará 30 combinações diferentes
+    cv=kfold,
+    scoring='neg_root_mean_squared_error',
+    n_jobs=-1,  # Usa todos os cores da CPU
+    random_state=42,
+    verbose=1  # Mostra o progresso
 )
 
-# ---------------------------------------------------------
-# Aplicando Validação Cruzada
-# ---------------------------------------------------------
+print("3. Iniciando a busca de hiperparâmetros...")
+random_search.fit(X, y)
+print("Busca finalizada!")
+print("-" * 60)
 
-kfold = KFold(n_splits=5, shuffle=True, random_state=30)
+# ------------------------------------------------------------------------------
+# 4. ANÁLISE E VISUALIZAÇÃO DOS RESULTADOS DA BUSCA
+# Vamos analisar os resultados para entender o que funcionou melhor.
+# ------------------------------------------------------------------------------
+print("4. Analisando os resultados da busca...")
+print(f"Melhor pontuação (RMSE): {-random_search.best_score_:.4f}")
+print("Melhor combinação de hiperparâmetros encontrada:")
+print(random_search.best_params_)
+print("-" * 60)
 
-mse_scores = []
-rmse_scores = []
-r2_scores = []
+# Criar um DataFrame com os resultados da busca para facilitar a visualização
+results_df = pd.DataFrame(random_search.cv_results_)
+results_df['mean_test_score'] = -results_df['mean_test_score']  # Converte para RMSE positivo
 
-for train_index, test_index in kfold.split(dados_pca):
-    # Separando X e y
-    X_train = dados_pca.iloc[train_index].drop(columns='Average_rating')
-    X_test = dados_pca.iloc[test_index].drop(columns='Average_rating')
-    y_train = dados_pca.iloc[train_index]['Average_rating']
-    y_test = dados_pca.iloc[test_index]['Average_rating']
 
-    # Treinando e avaliando
-    modelo_mlp.fit(X_train, y_train)
-    y_pred = modelo_mlp.predict(X_test)
-    mse = mean_squared_error(y_test, y_pred)
-    mse_scores.append(mse)
-    rmse = np.sqrt(mse)
-    rmse_scores.append(rmse)
-    r2 = r2_score(y_test, y_pred)
-    r2_scores.append(r2)
+# Função para plotar os resultados
+def plot_search_results(df):
+    params_to_plot = ['param_mlp__solver', 'param_mlp__activation', 'param_mlp__hidden_layer_sizes']
 
-# ---------------------------------------------------------
-# Resultado da Validação Cruzada
-# ---------------------------------------------------------
+    fig, axes = plt.subplots(1, len(params_to_plot), figsize=(20, 6), sharey=True)
+    fig.suptitle('Desempenho (RMSE) por Hiperparâmetro', fontsize=16)
 
-print("\n\n")
-print(f"RMSE médio: {np.mean(rmse_scores):.5f}")
-print(f"Desvio padrão do RMSE: {np.std(rmse_scores):.5f}")
-print(f"MSE médio: {np.mean(mse_scores):.5f}")
-print(f"Desvio padrão do MSE: {np.std(mse_scores):.5f}")
-print(f"R² médio: {np.mean(r2_scores):.5f}")
+    for i, param in enumerate(params_to_plot):
+        # Converte tuplas para strings para plotagem
+        if param == 'param_mlp__hidden_layer_sizes':
+            df[param] = df[param].astype(str)
+
+        sns.boxplot(x=param, y='mean_test_score', data=df, ax=axes[i], palette='viridis')
+        axes[i].set_title(f'RMSE por {param.replace("param_mlp__", "")}')
+        axes[i].set_xlabel('')
+        axes[i].set_ylabel('RMSE' if i == 0 else '')
+        axes[i].tick_params(axis='x', rotation=30)
+
+    plt.tight_layout(rect=[0, 0.03, 1, 0.95])
+    plt.savefig('comparacao_hiperparametros.png')
+    plt.show()
+
+
+plot_search_results(results_df)
+print("Gráfico 'comparacao_hiperparametros.png' foi salvo.")
+print("-" * 60)
+
+# ------------------------------------------------------------------------------
+# 5. AVALIAÇÃO DETALHADA DO MELHOR MODELO ENCONTRADO
+# Agora usamos o melhor pipeline encontrado para gerar os gráficos de diagnóstico.
+# ------------------------------------------------------------------------------
+print("5. Avaliando o melhor modelo encontrado em detalhe...")
+best_model_pipeline = random_search.best_estimator_
+
+# Gerando o Box Plot de RMSE para o MELHOR modelo
+scores_best_model = cross_val_score(best_model_pipeline, X, y, cv=kfold, scoring='neg_root_mean_squared_error')
+rmse_scores_best_model = -scores_best_model
+
+plt.figure(figsize=(10, 6))
+sns.boxplot(x=rmse_scores_best_model, palette='plasma', width=0.4)
+sns.stripplot(x=rmse_scores_best_model, color='black', size=5, jitter=0.1, label='RMSE por Fold')
+plt.title('Box Plot do RMSE do MELHOR Modelo nos 10 Folds', fontsize=16)
+plt.xlabel('Raiz do Erro Quadrático Médio (RMSE) - Menor é Melhor', fontsize=12)
+plt.grid(True, linestyle='--', alpha=0.6)
+plt.legend()
+plt.savefig('boxplot_rmse_melhor_modelo.png')
+plt.show()
+print("Gráfico 'boxplot_rmse_melhor_modelo.png' foi salvo.\n")
+
+# Gerando o Gráfico Previsto vs. Real para o MELHOR modelo
+y_pred_aggregated = cross_val_predict(best_model_pipeline, X, y, cv=kfold)
+final_rmse = np.sqrt(mean_squared_error(y, y_pred_aggregated))
+final_r2 = r2_score(y, y_pred_aggregated)
+print(f"RMSE geral (agregado) do melhor modelo: {final_rmse:.4f}")
+print(f"R² geral (agregado) do melhor modelo: {final_r2:.4f}")
+
+plt.figure(figsize=(8, 8))
+plt.scatter(y, y_pred_aggregated, alpha=0.5, edgecolors='k')
+perfect_line = [min(y), max(y)]
+plt.plot(perfect_line, perfect_line, 'r--', lw=2, label='Previsão Perfeita (y=x)')
+plt.title('Valores Previstos vs. Reais (MELHOR Modelo)', fontsize=16)
+plt.xlabel('Valores Reais', fontsize=12)
+plt.ylabel('Valores Previstos', fontsize=12)
+plt.grid(True, linestyle='--', alpha=0.6)
+plt.legend()
+plt.axis('equal')
+plt.savefig('previsto_vs_real_melhor_modelo.png')
+plt.show()
+print("Gráfico 'previsto_vs_real_melhor_modelo.png' foi salvo.")
+
+# ==============================================================================
+# 6. (NOVO) IDEIA FÁCIL: ENSEMBLE DOS MELHORES MODELOS
+# ==============================================================================
+print("6. Testando uma melhoria fácil: Ensemble dos Top 3 Modelos...")
+
+# Pega o DataFrame de resultados e ordena pelos melhores scores
+results_df_sorted = results_df.sort_values(by='rank_test_score')
+
+# Seleciona os 3 melhores conjuntos de parâmetros
+top_n = 3
+best_n_params = results_df_sorted.head(top_n)['params'].tolist()
+
+all_predictions = []
+
+print(f"Gerando previsões para os {top_n} melhores modelos...")
+for i, params in enumerate(best_n_params):
+    print(f"  - Modelo {i + 1}/{top_n}...")
+
+    # Cria um novo pipeline com os parâmetros do ranking
+    current_pipeline = Pipeline([
+        ('scaler', StandardScaler()),
+        ('mlp', MLPRegressor(max_iter=500, random_state=42))
+    ])
+    current_pipeline.set_params(**params)
+
+    # Gera as previsões para este modelo
+    y_pred = cross_val_predict(current_pipeline, X, y, cv=kfold)
+    all_predictions.append(y_pred)
+
+# Calcula a média das previsões dos 3 modelos
+ensemble_prediction = np.mean(all_predictions, axis=0)
+
+# Avalia o resultado do Ensemble
+print("\n--- Resultados do Modelo Ensemble ---")
+final_rmse_ensemble = np.sqrt(mean_squared_error(y, ensemble_prediction))
+final_r2_ensemble = r2_score(y, ensemble_prediction)
+
+print(f"RMSE geral (agregado) do ENSEMBLE: {final_rmse_ensemble:.4f}")
+print(f"R² geral (agregado) do ENSEMBLE: {final_r2_ensemble:.4f}")
+
+# Gerando o gráfico de dispersão para o ENSEMBLE
+print("\nGerando o Gráfico Previsto vs. Real para o Modelo Ensemble...")
+plt.figure(figsize=(8, 8))
+plt.scatter(y, ensemble_prediction, alpha=0.5, edgecolors='k', color='green')
+perfect_line = [min(y), max(y)]
+plt.plot(perfect_line, perfect_line, 'r--', lw=2, label='Previsão Perfeita (y=x)')
+plt.title('Valores Previstos vs. Reai', fontsize=16)
+plt.xlabel('Valores Reais', fontsize=12)
+plt.ylabel('Valores Previstos', fontsize=12)
+plt.grid(True, linestyle='--', alpha=0.6)
+plt.legend()
+plt.axis('equal')
+plt.savefig('previsto_vs_real_ensemble.png')
+plt.show()
+print("Gráfico 'previsto_vs_real_ensemble.png' foi salvo.")
