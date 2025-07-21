@@ -13,7 +13,7 @@ from sklearn.model_selection import KFold, RandomizedSearchCV
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.neural_network import MLPRegressor
-from sklearn.metrics import mean_squared_error, r2_score, make_scorer
+from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.model_selection import cross_val_score, cross_val_predict
 from sklearn.preprocessing import PowerTransformer
 import matplotlib.pyplot as plt
