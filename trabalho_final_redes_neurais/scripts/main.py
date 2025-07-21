@@ -19,8 +19,7 @@ from sklearn.preprocessing import PowerTransformer
 import matplotlib.pyplot as plt
 import seaborn as sns
 from functions import (media_ponderada_notas, calcular_metricas_agrupadas,
-                       show_correlations, exibir_histogramas, show_correlation_matrix,
-                       aplicar_pca)
+                       show_correlations, exibir_histogramas, show_correlation_matrix)
 
 # ------------------------------------------------------------------------------
 # Importando os conjuntos de dados e retirando a colunas dos id's
